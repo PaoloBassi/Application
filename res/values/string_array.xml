@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="menu_list">
+        <item>First Main Page</item>
+        <item>Second Main Page</item>
+        <item>Third Main Page</item>
+    </string-array>
+</resources>

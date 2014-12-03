@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="paoledo.app.theunknownepisode" >
 
-    <uses-sdk android:minSdkVersion="14"
+    <uses-sdk android:minSdkVersion="13"
         android:maxSdkVersion="20"
         android:targetSdkVersion="19">
 
