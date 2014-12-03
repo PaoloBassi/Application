@@ -14,12 +14,11 @@ import paoledo.app.theunknownepisode.R;
 public class ScreenSlidePageFragmentOne extends Fragment{
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.fragment_screen_page_layout_one, container, false);
-
+        
         return rootView;
     }
 }
