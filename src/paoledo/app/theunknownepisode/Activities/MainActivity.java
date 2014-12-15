@@ -9,6 +9,8 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -20,7 +22,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-//Version on branch edodevelop
+import paoledo.app.theunknownepisode.Fragments.DrawerListFragment;
+import paoledo.app.theunknownepisode.R;
 public class MainActivity extends Activity {
 
     // titles in the drawer
@@ -39,7 +42,12 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // load the main content
         setContentView(R.layout.main_drawer);
+
+        // set the default values of the settings as Shared Preferences
+        // the last argument is for overriding values with the one written in preferences.xml
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // acquire the current title of the activity
         title = drawerTitle = getTitle();
@@ -169,7 +177,7 @@ public class MainActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
 
@@ -186,15 +194,26 @@ public class MainActivity extends Activity {
         switch (item.getItemId()){
             case R.id.action_websearch:
                 // create the intent to handle this option
-                Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+                Intent websearch = new Intent(Intent.ACTION_WEB_SEARCH);
                 // save the title of the action bar
-                intent.putExtra(SearchManager.QUERY, getActionBar().getTitle());
+                websearch.putExtra(SearchManager.QUERY, getActionBar().getTitle());
                 // check if the action could be handled, otherwise show an error message
-                if (intent.resolveActivity(getPackageManager()) != null){
-                    startActivity(intent);
+                if (websearch.resolveActivity(getPackageManager()) != null){
+                    startActivity(websearch);
                 } else {
                     Toast.makeText(this, R.string.app_not_available, Toast.LENGTH_LONG).show();
                 }
+                return true;
+            case R.id.addEvent:
+                // Create the intent to handle this option
+                Intent addEvent = new Intent(this, AddNewEventActivity.class);
+                startActivity(addEvent); // maybe with result?
+                return true;
+            case R.id.action_settings:
+                // create the intent
+                Intent settings = new Intent(this, SettingsActivity.class);
+                // launch it
+                startActivity(settings);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
