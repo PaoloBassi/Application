@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="first category"
+        android:key="first_category">
+        <CheckBoxPreference
+            android:id="@+id/check1"
+            android:key="check1"
+            android:summary="summary_option"
+            android:title="titlecheckbox1"
+            android:defaultValue="false" >
+        </CheckBoxPreference>
+        <SwitchPreference
+            android:id="@+id/switch1"
+            android:key="switch1"
+            android:summary="summary_switch"
+            android:title="titlesummary">
+        </SwitchPreference>
+        <Preference
+            android:key="pref1"
+            android:dependency="check1"
+            android:summary="something"
+            android:title="preference1">
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="second Category"
+        android:key="second category">
+        <Preference
+            android:key="pref2"
+            android:dependency="switch1"
+            android:summary="somethingelse"
+            android:title="another preference">
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>
