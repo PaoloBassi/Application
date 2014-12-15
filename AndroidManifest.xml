@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="paoledo.app.theunknownepisode" >
 
-    <uses-sdk android:minSdkVersion="14"
+    <uses-sdk android:minSdkVersion="13"
         android:maxSdkVersion="20"
         android:targetSdkVersion="19">
 
@@ -29,6 +29,23 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activities.SettingsActivity"
+            android:label="Settings">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activities.AddNewEventActivity"
+            android:label="AddNewEvent">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
         </activity>
     </application>
 
