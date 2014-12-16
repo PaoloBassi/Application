@@ -1,4 +1,4 @@
-package paoledo.app.theunknownepisode.Fragments;
+package unozerouno.givemetime.Fragments;
 
 // Fragment class of the drawer list
 
@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import paoledo.app.theunknownepisode.R;
+import unozerouno.givemetime.R;
 
 public class DrawerListFragment extends Fragment{
 

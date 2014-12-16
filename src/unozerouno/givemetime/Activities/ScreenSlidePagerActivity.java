@@ -1,4 +1,4 @@
-package paoledo.app.theunknownepisode.Activities;
+package unozerouno.givemetime.Activities;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
@@ -8,12 +8,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-
-import paoledo.app.theunknownepisode.Fragments.ScreenSlidePageFragmentOne;
-import paoledo.app.theunknownepisode.Fragments.ScreenSlidePageFragmentThree;
-import paoledo.app.theunknownepisode.Fragments.ScreenSlidePageFragmentTwo;
-import paoledo.app.theunknownepisode.R;
-import paoledo.app.theunknownepisode.Utilities.LoginPreferences;
+import unozerouno.givemetime.R;
+import unozerouno.givemetime.Fragments.ScreenSlidePageFragmentOne;
+import unozerouno.givemetime.Fragments.ScreenSlidePageFragmentThree;
+import unozerouno.givemetime.Fragments.ScreenSlidePageFragmentTwo;
+import unozerouno.givemetime.Utilities.LoginPreferences;
 
 public class ScreenSlidePagerActivity extends FragmentActivity{
 

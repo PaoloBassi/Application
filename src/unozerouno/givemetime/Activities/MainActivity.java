@@ -1,7 +1,6 @@
-package paoledo.app.theunknownepisode.Activities;
+package unozerouno.givemetime.Activities;
 
-import paoledo.app.theunknownepisode.R;
-import paoledo.app.theunknownepisode.Fragments.DrawerListFragment;
+import unozerouno.givemetime.R;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -21,9 +20,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import paoledo.app.theunknownepisode.Fragments.DrawerListFragment;
-import paoledo.app.theunknownepisode.R;
+import unozerouno.givemetime.R;
+import unozerouno.givemetime.Fragments.DrawerListFragment;
 public class MainActivity extends Activity {
 
     // titles in the drawer

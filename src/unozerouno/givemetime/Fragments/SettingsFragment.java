@@ -1,9 +1,9 @@
-package paoledo.app.theunknownepisode.Fragments;
+package unozerouno.givemetime.Fragments;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
-import paoledo.app.theunknownepisode.R;
+import unozerouno.givemetime.R;
 
 /**
  * Fragment handling the menu settings

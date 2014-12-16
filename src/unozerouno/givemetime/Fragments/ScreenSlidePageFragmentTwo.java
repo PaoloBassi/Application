@@ -1,4 +1,4 @@
-package paoledo.app.theunknownepisode.Fragments;
+package unozerouno.givemetime.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import paoledo.app.theunknownepisode.R;
+import unozerouno.givemetime.R;
 
 public class ScreenSlidePageFragmentTwo extends Fragment{
 

@@ -1,6 +1,6 @@
-package paoledo.app.theunknownepisode.Activities;
+package unozerouno.givemetime.Activities;
 
-import paoledo.app.theunknownepisode.R;
+import unozerouno.givemetime.R;
 import android.app.Activity;
 import android.os.Bundle;
 

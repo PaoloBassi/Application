@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">TheUnknownEpisode</string>
+    <string name="app_name">GiveMeTime</string>
     <string name="hello_world">Here we are in the main</string>
     <string name="action_settings">Settings</string>
-    <string name="firstPage">Prima pagina</string>
-    <string name="secondPage">Seconda Pagina</string>
-    <string name="thirdPage">Terza Pagina</string>
-    <string name="skipButton">Salta</string>
-    <string name="continueButton">Continua</string>
+    <string name="firstPage">First Tutorial Page</string>
+    <string name="secondPage">Second Tutorial Page</string>
+    <string name="thirdPage">Third Tutorial Page</string>
+    <string name="skipButton">Skip</string>
+    <string name="continueButton">Continue</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>

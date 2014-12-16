@@ -1,10 +1,9 @@
-package paoledo.app.theunknownepisode.Activities;
+package unozerouno.givemetime.Activities;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-
-import paoledo.app.theunknownepisode.Fragments.SettingsFragment;
+import unozerouno.givemetime.Fragments.SettingsFragment;
 
 /**
  * Activity showing the settings menu
