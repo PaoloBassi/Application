@@ -1,4 +1,4 @@
-package unozerouno.givemetime.Fragments;
+package unozerouno.givemetime.view.intro.fragments;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import unozerouno.givemetime.R;
-import unozerouno.givemetime.Activities.ScreenSlidePagerActivity;
 
 public class ScreenSlidePageFragmentOne extends Fragment{
 

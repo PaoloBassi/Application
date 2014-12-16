@@ -1,4 +1,4 @@
-package unozerouno.givemetime.Fragments;
+package unozerouno.givemetime.view.main.fragments;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;

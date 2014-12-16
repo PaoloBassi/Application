@@ -1,4 +1,4 @@
-package unozerouno.givemetime.Activities;
+package unozerouno.givemetime.view.editor;
 
 import unozerouno.givemetime.R;
 import android.app.Activity;

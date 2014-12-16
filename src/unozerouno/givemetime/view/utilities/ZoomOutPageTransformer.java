@@ -1,4 +1,4 @@
-package unozerouno.givemetime.Utilities;
+package unozerouno.givemetime.view.utilities;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;

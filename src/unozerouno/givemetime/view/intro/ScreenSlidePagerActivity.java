@@ -1,4 +1,4 @@
-package unozerouno.givemetime.Activities;
+package unozerouno.givemetime.view.intro;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
@@ -9,10 +9,11 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import unozerouno.givemetime.R;
-import unozerouno.givemetime.Fragments.ScreenSlidePageFragmentOne;
-import unozerouno.givemetime.Fragments.ScreenSlidePageFragmentThree;
-import unozerouno.givemetime.Fragments.ScreenSlidePageFragmentTwo;
-import unozerouno.givemetime.Utilities.LoginPreferences;
+import unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentOne;
+import unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentThree;
+import unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentTwo;
+import unozerouno.givemetime.view.main.MainActivity;
+import unozerouno.givemetime.view.utilities.LoginPreferences;
 
 public class ScreenSlidePagerActivity extends FragmentActivity{
 

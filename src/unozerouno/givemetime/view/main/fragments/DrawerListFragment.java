@@ -1,4 +1,4 @@
-package unozerouno.givemetime.Fragments;
+package unozerouno.givemetime.view.main.fragments;
 
 // Fragment class of the drawer list
 

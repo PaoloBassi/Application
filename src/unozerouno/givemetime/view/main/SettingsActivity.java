@@ -1,9 +1,9 @@
-package unozerouno.givemetime.Activities;
+package unozerouno.givemetime.view.main;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import unozerouno.givemetime.Fragments.SettingsFragment;
+import unozerouno.givemetime.view.main.fragments.SettingsFragment;
 
 /**
  * Activity showing the settings menu

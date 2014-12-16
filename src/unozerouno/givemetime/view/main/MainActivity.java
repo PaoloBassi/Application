@@ -1,6 +1,8 @@
-package unozerouno.givemetime.Activities;
+package unozerouno.givemetime.view.main;
 
 import unozerouno.givemetime.R;
+import unozerouno.givemetime.view.editor.AddNewEventActivity;
+import unozerouno.givemetime.view.main.fragments.DrawerListFragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -8,7 +10,6 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
@@ -20,8 +21,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-import unozerouno.givemetime.R;
-import unozerouno.givemetime.Fragments.DrawerListFragment;
 public class MainActivity extends Activity {
 
     // titles in the drawer
@@ -39,7 +38,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // load the main content
         setContentView(R.layout.main_drawer);
 

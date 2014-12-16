@@ -1,4 +1,4 @@
-package unozerouno.givemetime.Utilities;
+package unozerouno.givemetime.view.utilities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
