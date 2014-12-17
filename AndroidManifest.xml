@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="unozerouno.givemetime" >
+    package="it.unozerouno.givemetime" >
 
      <uses-sdk android:minSdkVersion="14"
         android:maxSdkVersion="20"
@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="unozerouno.givemetime.view.intro.ScreenSlidePagerActivity"
+            android:name="it.unozerouno.givemetime.view.intro.ScreenSlidePagerActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +25,7 @@
         Use the following option for showing the action bar in the bottom of the screen
         android:uiOptions="splitActionBarWhenNarrow" -->
         <activity
-            android:name="unozerouno.givemetime.view.main.MainActivity"
+            android:name="it.unozerouno.givemetime.view.main.MainActivity"
             android:label="MainActivity" >
             <meta-data android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow"/>
@@ -35,7 +35,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="unozerouno.givemetime.view.main.SettingsActivity"
+            android:name="it.unozerouno.givemetime.view.main.SettingsActivity"
             android:label="Settings">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -43,7 +43,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="unozerouno.givemetime.view.editor.AddNewEventActivity"
+            android:name="it.unozerouno.givemetime.view.editor.AddNewEventActivity"
             android:label="AddNewEvent">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
