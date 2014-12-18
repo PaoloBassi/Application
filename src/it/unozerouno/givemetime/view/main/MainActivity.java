@@ -1,5 +1,6 @@
 package it.unozerouno.givemetime.view.main;
 
+import it.unozerouno.givemetime.controller.fetcher.ApiController;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.fragments.DrawerListFragment;
 import it.unozerouno.givemetime.R;
@@ -175,6 +176,8 @@ public class MainActivity extends Activity {
 
         return super.onCreateOptionsMenu(menu);
     }
+    
+   
 
 
     // called every time an item in the action bar is selected

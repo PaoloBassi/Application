@@ -22,7 +22,7 @@
             android:gravity="top"
             android:text="@string/firstPage"
             />
-
+        
         <RelativeLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"

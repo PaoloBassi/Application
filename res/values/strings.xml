@@ -4,8 +4,8 @@
     <string name="app_name">GiveMeTime</string>
     <string name="hello_world">Here we are in the main</string>
     <string name="action_settings">Settings</string>
-    <string name="firstPage">First Tutorial Page</string>
-    <string name="secondPage">Second Tutorial Page</string>
+    <string name="firstPage">Welcome and Disclaimer</string>
+    <string name="secondPage">Calendar Selection</string>
     <string name="thirdPage">Third Tutorial Page</string>
     <string name="skipButton">Skip</string>
     <string name="continueButton">Continue</string>

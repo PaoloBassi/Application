@@ -1,7 +1,8 @@
 package it.unozerouno.givemetime.view.intro;
 
+import it.unozerouno.givemetime.controller.fetcher.ApiController;
 import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentOne;
-import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentThree;
+import it.unozerouno.givemetime.view.intro.fragments.CalendarPickerFragment;
 import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentTwo;
 import it.unozerouno.givemetime.view.main.MainActivity;
 import it.unozerouno.givemetime.view.utilities.LoginPreferences;
@@ -13,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import it.unozerouno.givemetime.R;
 
 public class ScreenSlidePagerActivity extends FragmentActivity{
@@ -63,7 +65,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
     }
-
+   
+    /**
+     * Launch the API Controller
+     */
+    public void initializeApi(View v){
+        	startActivity(new Intent(this, ApiController.class));
+    }
+    
     // adapter as an internal class
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter{
 
@@ -77,13 +86,15 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
             // choose the right fragment to display
             switch (i){
                 case 0: return new ScreenSlidePageFragmentOne();
-                case 1: return new ScreenSlidePageFragmentThree();
+                case 1: return new CalendarPickerFragment();
                 case 2: return new ScreenSlidePageFragmentTwo();
                 default: return null;
             }
 
 
         }
+        
+        
 
         @Override
         public int getCount() {
