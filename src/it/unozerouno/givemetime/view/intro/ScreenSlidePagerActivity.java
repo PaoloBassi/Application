@@ -1,6 +1,7 @@
 package it.unozerouno.givemetime.view.intro;
 
 import it.unozerouno.givemetime.controller.fetcher.ApiController;
+import it.unozerouno.givemetime.controller.fetcher.PlayController;
 import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentOne;
 import it.unozerouno.givemetime.view.intro.fragments.CalendarPickerFragment;
 import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentTwo;
@@ -15,6 +16,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.ProgressBar;
 import it.unozerouno.givemetime.R;
 
 public class ScreenSlidePagerActivity extends FragmentActivity{
@@ -70,7 +72,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
      * Launch the API Controller
      */
     public void initializeApi(View v){
-        	startActivity(new Intent(this, ApiController.class));
+    	startActivity(new Intent(this, PlayController.class));
+    	int progressBarLayout = R.id.progressBar;
+    	android.app.Fragment fragment = getFragmentManager().findFragmentById(R.layout.fragment_calendar_picker);
+    	ProgressBar progressBar = (ProgressBar) fragment.getView().findViewById(progressBarLayout);
+    	Intent initIntent = new Intent(this,ApiController.class);
+    	initIntent.setAction("API_INIT");
+    	ApiController initializer = new ApiController(this, progressBar);
+    	initializer.execute(initIntent);
     }
     
     // adapter as an internal class
