@@ -54,7 +54,7 @@ public final class ApiController extends AsyncTask<Intent, ProgressBar, String> 
 
 	@Override
 	protected String doInBackground(Intent... params) {
-		if (params[1].getAction()=="API_INIT"){
+		if (params[0].getAction()=="API_INIT"){
 		initializeApis();
 		return "OK";
 		}

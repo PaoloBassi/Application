@@ -2,6 +2,8 @@ package it.unozerouno.givemetime.controller.fetcher;
 
 import java.util.Collections;
 
+import org.apache.http.cookie.SetCookie;
+
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.CalendarScopes;
@@ -30,14 +32,14 @@ public class PlayController extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		
-		  // Google Accounts
+		// Google Accounts for Calendars
 		  if(credential == null){
 			  credential = GoogleAccountCredential.usingOAuth2(this, Collections.singleton(CalendarScopes.CALENDAR));
 		  }
 		    SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
 		    credential.setSelectedAccountName(settings.getString(PREFERRED_ACCOUNT_NAME, null));
 	}
+
 	
 	@Override
 	protected void onResume() {
@@ -70,6 +72,7 @@ public class PlayController extends Activity {
 		            Toast toast = Toast.makeText(getApplicationContext(), "Account set", Toast.LENGTH_LONG);
 		            setResult(RESULT_OK);
 			    	toast.show();
+			    	finish();
 		          }
 		        }
 		        break;
@@ -115,6 +118,7 @@ public class PlayController extends Activity {
 		    startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
 		  }
 	public static GoogleAccountCredential getCredential() {
+		
 		return credential;
 	}
 }

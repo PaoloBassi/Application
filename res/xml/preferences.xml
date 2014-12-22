@@ -33,4 +33,7 @@
             android:title="another preference">
         </Preference>
     </PreferenceCategory>
+    <PreferenceCategory android:title="Debug" >
+        <Preference android:title="Wipe Shared Preferences" android:key="wipeSharedPrefs"/>
+    </PreferenceCategory>
 </PreferenceScreen>

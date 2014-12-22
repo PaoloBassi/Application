@@ -68,19 +68,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
         }
     }
    
-    /**
-     * Launch the API Controller
-     */
-    public void initializeApi(View v){
-    	startActivity(new Intent(this, PlayController.class));
-    	int progressBarLayout = R.id.progressBar;
-    	android.app.Fragment fragment = getFragmentManager().findFragmentById(R.layout.fragment_calendar_picker);
-    	ProgressBar progressBar = (ProgressBar) fragment.getView().findViewById(progressBarLayout);
-    	Intent initIntent = new Intent(this,ApiController.class);
-    	initIntent.setAction("API_INIT");
-    	ApiController initializer = new ApiController(this, progressBar);
-    	initializer.execute(initIntent);
-    }
+    
     
     // adapter as an internal class
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter{

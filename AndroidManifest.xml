@@ -56,10 +56,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="it.unozerouno.givemetime.controller.fetcher.ApiController"
-            android:label="ApiController"
-            android:theme="@android:style/Theme.NoDisplay"
+            android:name="it.unozerouno.givemetime.controller.fetcher.PlayController"
+            android:label="Account Selection"
+            android:theme="@android:style/Theme.NoDisplay" 
             >
+            
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
