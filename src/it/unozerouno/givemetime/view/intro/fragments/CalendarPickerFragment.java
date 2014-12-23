@@ -1,7 +1,8 @@
 package it.unozerouno.givemetime.view.intro.fragments;
 
-import java.util.List;
-
+import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.ApiController;
+import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,15 +13,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import it.unozerouno.givemetime.R;
-import it.unozerouno.givemetime.controller.fetcher.ApiController;
-import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
-import it.unozerouno.givemetime.controller.fetcher.PlayController;
 
 public class CalendarPickerFragment extends Fragment{
 	ProgressBar progressBar;
 	ListView calendarList;
 	Button apiTestButton;
+	Button loginButton;
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,7 +29,7 @@ public class CalendarPickerFragment extends Fragment{
         //Getting Calendar List from UI
         calendarList = (ListView) rootView.findViewById(R.id.list_calendar);
         //Setting API_TEST_BUTTON onclick
-        apiTestButton = (Button) rootView.findViewById(R.id.api_test_btn);
+        apiTestButton = (Button) rootView.findViewById(R.id.api_init_btn);
         apiTestButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	initializeApi(v);
@@ -45,18 +43,36 @@ public class CalendarPickerFragment extends Fragment{
 				getCalendarList();				
 			}
 		});
+        
+      //Setting Login Button onClick
+        loginButton = (Button) rootView.findViewById(R.id.login_btn);
+        loginButton.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {
+				login();				
+			}
+		});
+        
+        
         return rootView;
+        
+        
+        
     }
     
     /**
      * Launch the API Controller
      */
     public void initializeApi(View v){
-    	startActivity(new Intent(this.getActivity(), PlayController.class));
+    	
+    	
     	Intent initIntent = new Intent(this.getActivity(),ApiController.class);
     	initIntent.setAction("API_INIT");
     	ApiController initializer = new ApiController(this.getActivity(), progressBar);
     	initializer.execute(initIntent);
+    }
+    
+    public void login(){
+    	
     }
     
     public void getCalendarList(){

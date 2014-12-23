@@ -1,20 +1,32 @@
 package it.unozerouno.givemetime.view.main.fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.media.DeniedByServerException;
+import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.model.UserKeyRing;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.widget.Toast;
-import it.unozerouno.givemetime.R;
 
 /**
  * Fragment handling the menu settings
  */
 public class SettingsFragment extends PreferenceFragment{
+	
+	//List of preferences to manipulate
+	
+	
+	//debug category
+	Preference debugWipeSettings;
+	Preference debugUserEmail;
+	Preference debugUserToken;
+	Preference debugCalendarToken;
+	SwitchPreference debugFirstTime;
+	
+	
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,21 +34,39 @@ public class SettingsFragment extends PreferenceFragment{
         addPreferencesFromResource(R.xml.preferences);
         
         
-        //Bind Debug Preferences
-       Preference debugWipePrefs = (Preference) findPreference("wipeSharedPrefs");
-        debugWipePrefs.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        //Getting Debug Preferences
+      debugUserEmail = (Preference) findPreference("debug_user_email");
+      debugWipeSettings = (Preference) findPreference("debug_wipe");
+      debugUserToken = (Preference) findPreference("debug_user_token"); 
+      debugCalendarToken = (Preference) findPreference("debug_cal_token");
+      debugFirstTime = (SwitchPreference) findPreference("debug_first_time");
+      
+       
+       //Setting actions for wipe debug preference
+       debugWipeSettings.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference arg0) {
-				
-				//TODO: This is not wiping all the settings correctly
-				SharedPreferences sharedPrefs = getActivity().getSharedPreferences("my_preferences", Context.MODE_PRIVATE);
-				sharedPrefs.edit().clear();
-				sharedPrefs.edit().commit();
+				UserKeyRing.resetSharedPreferences(getActivity());
 				Toast toast = Toast.makeText(getActivity(), "Settings Wiped", Toast.LENGTH_LONG);
 				toast.show();
 				return false;
 			}
 		});
-        
+       
+       //Setting values to show
+       debugUserEmail.setSummary(UserKeyRing.getUserEmail(this.getActivity()));
+       debugUserToken.setSummary(UserKeyRing.getUserToken(this.getActivity()));
+       debugCalendarToken.setSummary(UserKeyRing.getCalendarToken(this.getActivity()));
+       debugFirstTime.setChecked(UserKeyRing.isFirstTimeLogin(getActivity()));
+       //Setting Action for DebugFirstTime
+       debugFirstTime.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+		@Override
+		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			boolean switched = ((SwitchPreference) preference).isChecked();
+			UserKeyRing.setFirstLogin(getActivity(), !switched);
+			Toast.makeText(getActivity(), "Setting Saved", Toast.LENGTH_SHORT).show();
+			return true;
+		}
+	});
     }
     
 }

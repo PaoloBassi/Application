@@ -1,23 +1,19 @@
 package it.unozerouno.givemetime.view.intro;
 
-import it.unozerouno.givemetime.controller.fetcher.ApiController;
-import it.unozerouno.givemetime.controller.fetcher.PlayController;
-import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentOne;
+import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.intro.fragments.CalendarPickerFragment;
+import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentOne;
 import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentTwo;
 import it.unozerouno.givemetime.view.main.MainActivity;
 import it.unozerouno.givemetime.view.utilities.LoginPreferences;
 import android.content.Intent;
-import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.View;
-import android.widget.ProgressBar;
-import it.unozerouno.givemetime.R;
 
 public class ScreenSlidePagerActivity extends FragmentActivity{
 
