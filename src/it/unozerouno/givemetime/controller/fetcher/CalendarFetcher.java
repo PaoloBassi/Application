@@ -6,9 +6,16 @@ package it.unozerouno.givemetime.controller.fetcher;
 import it.unozerouno.givemetime.controller.fetcher.sample.UnifiedController;
 import it.unozerouno.givemetime.model.UserKeyRing;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -16,6 +23,7 @@ import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
@@ -36,6 +44,7 @@ public final class CalendarFetcher extends AsyncTask<Intent, Exception, Boolean>
 	private Activity caller;
 	private static com.google.api.services.calendar.Calendar calendarClient;
 	private String response;
+	private static final String ROOT_URL =  "https://www.googleapis.com/calendar/v3";
 	public CalendarFetcher(Activity caller, ListView calendarList) {
 		this.caller = caller;
 		this.calendarList = calendarList;
@@ -50,7 +59,13 @@ public final class CalendarFetcher extends AsyncTask<Intent, Exception, Boolean>
 		
 		for (Intent currentIntent : intent) {
 			if (currentIntent.getAction()=="FETCH_CALENDARS"){
-				fetchCalendars();
+			//	fetchCalendars();
+				try {
+					getCalendarListA();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 			}
 		}
 		return true;
@@ -66,7 +81,26 @@ public final class CalendarFetcher extends AsyncTask<Intent, Exception, Boolean>
 	}
 	
 	
-	private void fetchCalendars(){
+	private void getCalendarListA() throws IOException{
+		System.out.println("Trying to fetch calendars");
+		// Initialize Calendar service with valid OAuth credentials
+		Calendar service = UnifiedController.getCalendarClient();
+
+		// Iterate through entries in calendar list
+		String pageToken = null;
+		do {
+		  CalendarList calendarList = service.calendarList().list().setPageToken(pageToken).execute();
+		  List<CalendarListEntry> items = calendarList.getItems();
+
+		  for (CalendarListEntry calendarListEntry : items) {
+		    System.out.println(calendarListEntry.getSummary());
+		  }
+		  pageToken = calendarList.getNextPageToken();
+		} while (pageToken != null);
+		System.out.println("Calendar Fetching Done");
+	}
+	
+	private void fetchCalendar(){
 		try {
 		String pageToken = null;
 			do {
@@ -88,7 +122,40 @@ public final class CalendarFetcher extends AsyncTask<Intent, Exception, Boolean>
 		}
 		
 	}
+	/**
+	 * Tester
+	 * @throws IOException
+	 * @throws JSONException
+	 */
+	private void fetchCalendarList() throws IOException, JSONException {
+        String token = UserKeyRing.getUserToken(caller);
+        if (token == null) {
+          // error has already been handled in fetchToken()
+          return;
+        }
+        URL url = new URL(ROOT_URL + "/users/me/calendarList" + "?access_token=" + token);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        int responseCode = connection.getResponseCode();
+        if (responseCode == 200) {
+          InputStream response = connection.getInputStream();
+          String calendarId = ResponseParser.getCalendarId(response);
+          System.out.println("Found calendar number:" + calendarId + "!");
+          response.close();
+          return;
+        } else if (responseCode == 401) {
+            GoogleAuthUtil.invalidateToken(caller, token);
+            System.err.println("Server auth error, please try again.");
+            System.out.println("Server auth error: " + ResponseParser.readResponse(connection.getErrorStream()));
+            return;
+        } else {
+          System.err.println("Server returned the following error code: " + responseCode);
+          return;
+        }
+    }
 	
+
+	
+
 	
 	/**
 	 * This will send to the UI all exceptions generated during the process
@@ -111,5 +178,31 @@ public final class CalendarFetcher extends AsyncTask<Intent, Exception, Boolean>
 		
 	}
 	
+	private static class ResponseParser {
+		/**
+	     * Reads the response from the input stream and returns it as a string.
+	     */
+	    public static String readResponse(InputStream is) throws IOException {
+	        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	        byte[] data = new byte[2048];
+	        int len = 0;
+	        while ((len = is.read(data, 0, data.length)) >= 0) {
+	            bos.write(data, 0, len);
+	        }
+	        return new String(bos.toByteArray(), "UTF-8");
+	    }
+	    
+		  /**
+	     * Parses the response and returns the first name of the user.
+	     * @throws JSONException if the response is not JSON or if first name does not exist in response
+		 * @throws IOException 
+	     */
+	    private static String getCalendarId(InputStream response) throws JSONException, IOException {
+	      JSONObject profile = new JSONObject(readResponse(response));
+	      return profile.getString("id");
+	    }
+		
+		
+	}
 	  
 	}

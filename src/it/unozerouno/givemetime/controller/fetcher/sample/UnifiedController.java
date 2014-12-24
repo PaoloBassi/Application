@@ -4,17 +4,29 @@ import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.TaskListener;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.calendar.Calendar;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -35,6 +47,7 @@ public class UnifiedController extends Activity {
 	private static final String SCOPE_CALENDAR = "https://www.googleapis.com/auth/calendar";
 	private static ArrayList<String> scopes;
 	private static GoogleAccountCredential credential;
+	private static Credential calendarCredential;
 	private static com.google.api.services.calendar.Calendar calendarClient;
 	private static final HttpTransport transport = AndroidHttp.newCompatibleTransport();
 	private static final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
@@ -109,8 +122,7 @@ public class UnifiedController extends Activity {
 	            Toast.makeText(this, R.string.pick_account, Toast.LENGTH_SHORT).show();
 	        }
 	        
-	    } else if ((requestCode == REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR)
-	            && resultCode == RESULT_OK) {
+	    } else if ((requestCode == REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR)/* && resultCode == RESULT_OK*/) {
 	        // Receiving a result that follows a GoogleAuthException, try auth again
 	        login();
 	    }
@@ -127,7 +139,7 @@ public class UnifiedController extends Activity {
 	        if (isDeviceOnline()) {
 	        	//Debug
 	        	System.out.println("Is Online");
-	        	//invokeTokenFetcher(); //For using old auth mode
+	        	invokeTokenFetcher(); //For using old auth mode
 	        	credential = GoogleAccountCredential.usingOAuth2(this, scopes);
 	        	credential.setSelectedAccountName(UserKeyRing.getUserEmail(this));
 	   		  /*debug*/  System.out.println("Setting credential: " + credential.getSelectedAccountName() + " with scope:" + credential.getScope() );
@@ -153,7 +165,7 @@ public class UnifiedController extends Activity {
 				}
 				//All token are stored successfully
 				UnifiedController.this.setResult(RESULT_OK);
-				UnifiedController.this.finish();
+			//	UnifiedController.this.finish();
 			}
 		});
         
@@ -163,11 +175,38 @@ public class UnifiedController extends Activity {
 	}
 	
 	private void initializeCalendarClient(){
+		//TODO: Something is missing, "Request Login" response is always given
+		
+		
 		// Calendar client
-		  
-	   	  calendarClient = new com.google.api.services.calendar.Calendar.Builder(transport, jsonFactory, credential).setApplicationName("UnoZeroUno-GiveMeTime/0.1a").build();
+		 // The clientId and clientSecret can be found in Google Developers Console
+	    String clientId = "483142858723-kj0m4jb84unkdnqsqntk22hniksv72f2.apps.googleusercontent.com";
+	    String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
+	     
+	    
+		try {
+			GoogleClientSecrets secrets = GoogleClientSecrets.load(jsonFactory, new InputStreamReader(getAssets().open("client.json")));
+	  
+	    calendarCredential = new GoogleCredential.Builder()
+	        .setTransport(transport)
+	        .setJsonFactory(jsonFactory)
+	        .setClientSecrets(secrets)
+	        .build().setAccessToken(UserKeyRing.getUserToken(UnifiedController.this));
+	    
+	    calendarClient = new Calendar.Builder(transport, jsonFactory, calendarCredential).setApplicationName("UnoZeroUno-GiveMeTime/0.1a").build(); 
+		
+		
+	
 		    System.out.println("Calendar API Initialized");
 		    initCalendar = false;
+		   
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		    
+		    
+		    
+		    
 	  }	
 	public static com.google.api.services.calendar.Calendar getCalendarClient() {
 		return calendarClient;
@@ -183,35 +222,64 @@ public class UnifiedController extends Activity {
 			    }
 	}
 	
+	
+	
+	public String loadJSONFromAsset() {
+	    String json = null;
+	    try {
+
+	        InputStream is = getAssets().open("yourfilename.json");
+
+	        int size = is.available();
+
+	        byte[] buffer = new byte[size];
+
+	        is.read(buffer);
+
+	        is.close();
+
+	        json = new String(buffer, "UTF-8");
+
+
+	    } catch (IOException ex) {
+	        ex.printStackTrace();
+	        return null;
+	    }
+	    return json;
+
+	}
+	
 	/**
 	 * This method is a hook for background threads and async tasks that need to
 	 * provide the user a response UI when an exception occurs.
 	 */
 	public void handleException(final Exception e) {
+	System.out.println("Handling new exception");
 	    // Because this call comes from the AsyncTask, we must ensure that the following
 	    // code instead executes on the UI thread.
-	    runOnUiThread(new Runnable() {
-	        @Override
-	        public void run() {
+	   
 	            if (e instanceof GooglePlayServicesAvailabilityException) {
 	                // The Google Play services APK is old, disabled, or not present.
 	                // Show a dialog created by Google Play services that allows
 	                // the user to update the APK
 	                int statusCode = ((GooglePlayServicesAvailabilityException)e)
 	                        .getConnectionStatusCode();
-	                Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode,UnifiedController.this,
-	                        REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
+	                Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode,UnifiedController.this,REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
 	                dialog.show();
 	            } else if (e instanceof UserRecoverableAuthException) {
 	                // Unable to authenticate, such as when the user has not yet granted
 	                // the app access to the account, but the user can fix this.
 	                // Forward the user to an activity in Google Play services.
 	                Intent intent = ((UserRecoverableAuthException)e).getIntent();
-	                startActivityForResult(intent,
-	                        REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
+	                intent.setClass(UnifiedController.this, UnifiedController.class);
+	                System.out.println("Launching recover dialog");
+	                startActivityForResult(intent, REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
 	            }
-	        }
-	    });
+	            System.out.println("Activity handler launched");
+	}
+	
+	public static Credential getCalendarCredential(){
+		return calendarCredential;
 	}
 	
 }
