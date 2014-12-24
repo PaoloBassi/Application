@@ -2,8 +2,8 @@ package it.unozerouno.givemetime.view.intro;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.intro.fragments.CalendarPickerFragment;
-import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentOne;
-import it.unozerouno.givemetime.view.intro.fragments.ScreenSlidePageFragmentTwo;
+import it.unozerouno.givemetime.view.intro.fragments.WelcomeAndDisclaimer;
+import it.unozerouno.givemetime.view.intro.fragments.LastTutorialPage;
 import it.unozerouno.givemetime.view.main.MainActivity;
 import it.unozerouno.givemetime.view.utilities.LoginPreferences;
 import android.content.Intent;
@@ -78,9 +78,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
 
             // choose the right fragment to display
             switch (i){
-                case 0: return new ScreenSlidePageFragmentOne();
+                case 0: return new WelcomeAndDisclaimer();
                 case 1: return new CalendarPickerFragment();
-                case 2: return new ScreenSlidePageFragmentTwo();
+                case 2: return new LastTutorialPage();
                 default: return null;
             }
 
