@@ -57,10 +57,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="it.unozerouno.givemetime.controller.fetcher.sample.AccountController"
+            android:name="it.unozerouno.givemetime.controller.fetcher.sample.UnifiedController"
             android:label="Account Selection"
-            
-            >
+            android:theme="@android:style/Theme.Dialog">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

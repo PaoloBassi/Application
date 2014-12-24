@@ -5,30 +5,19 @@ import it.unozerouno.givemetime.controller.fetcher.sample.TokenTask;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.TaskListener;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.text.InputFilter.LengthFilter;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.internal.lo;
-import com.google.api.client.auth.oauth2.TokenErrorResponse;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
 /**
  * This Task initializes API Clients and generate relative tokens storing them in UserKeyRing
  * You have to provide an Intent as parameter, specifying one of the following actions:

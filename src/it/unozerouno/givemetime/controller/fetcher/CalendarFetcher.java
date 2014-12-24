@@ -3,6 +3,7 @@ package it.unozerouno.givemetime.controller.fetcher;
 
 
 
+import it.unozerouno.givemetime.controller.fetcher.sample.UnifiedController;
 import it.unozerouno.givemetime.model.UserKeyRing;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
@@ -29,7 +31,7 @@ import android.widget.Toast;
 
 
 
-public final class CalendarFetcher extends AsyncTask<Intent, Void, Boolean> {
+public final class CalendarFetcher extends AsyncTask<Intent, Exception, Boolean> {
 	private ListView calendarList;
 	private Activity caller;
 	private static com.google.api.services.calendar.Calendar calendarClient;
@@ -40,7 +42,7 @@ public final class CalendarFetcher extends AsyncTask<Intent, Void, Boolean> {
 	}
 	@Override
 	protected Boolean doInBackground(Intent... intent) {
-		calendarClient = ApiController.getCalendarClient();
+		calendarClient = UnifiedController.getCalendarClient();
 		if (calendarClient == null) {
 			response = "Error: Calendar Client has not been initialized";
 			return false;
@@ -66,8 +68,6 @@ public final class CalendarFetcher extends AsyncTask<Intent, Void, Boolean> {
 	
 	private void fetchCalendars(){
 		try {
-		String token = UserKeyRing.getUserToken(caller);
-		if (token != null){
 		String pageToken = null;
 			do {
 			  CalendarList calendarFetchedList;
@@ -75,20 +75,35 @@ public final class CalendarFetcher extends AsyncTask<Intent, Void, Boolean> {
 			
 			  List<CalendarListEntry> items = calendarFetchedList.getItems();
 			  for (CalendarListEntry calendarListEntry : items) {
+				  System.out.println("I've Fetched SOmething!!");
 				  response = response + calendarListEntry.getSummary();
 			  }
 			  pageToken = calendarFetchedList.getNextPageToken();
 			} while (pageToken != null);
 		}
-		else {
-			//TODO: no Token received
-			System.err.println("Tried Fetching calendars with no token!");
-		}
-		} catch (IOException e) {
+		catch (IOException e) 
+		{
 			e.printStackTrace();
+			publishProgress(e);
 		}
 		
 	}
+	
+	
+	/**
+	 * This will send to the UI all exceptions generated during the process
+	 */
+	@Override
+	protected void onProgressUpdate(Exception... values) {
+		super.onProgressUpdate(values);
+		UnifiedController handler = new UnifiedController();
+		for (Exception exception : values) {
+			handler.handleException(exception);
+		}
+		
+		
+	}
+	
 	private void saveToLocalDB(){
 		
 	}

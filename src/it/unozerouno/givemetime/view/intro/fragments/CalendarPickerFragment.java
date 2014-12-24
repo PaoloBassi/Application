@@ -3,6 +3,7 @@ package it.unozerouno.givemetime.view.intro.fragments;
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.ApiController;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
+import it.unozerouno.givemetime.controller.fetcher.sample.UnifiedController;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -72,6 +73,9 @@ public class CalendarPickerFragment extends Fragment{
     }
     
     public void login(){
+    	Intent initIntent = new Intent(this.getActivity(),UnifiedController.class);
+    	initIntent.setAction("FULL_INIT");
+    	getActivity().startActivity(initIntent);
     	
     }
     
