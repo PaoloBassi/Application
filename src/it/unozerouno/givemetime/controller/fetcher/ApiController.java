@@ -1,138 +1,128 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
-import java.nio.channels.SelectableChannel;
-import java.util.Collections;
+import it.unozerouno.givemetime.controller.fetcher.sample.AccountController;
+import it.unozerouno.givemetime.controller.fetcher.sample.TokenTask;
+import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.utils.TaskListener;
 
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import java.util.ArrayList;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.view.View;
+import android.widget.ProgressBar;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.calendar.CalendarScopes;
-
-import android.accounts.AccountManager;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.widget.Toast;
 /**
- * This class manages oAuth and clients for all the APIs used by GiveMeTime
+ * This Task initializes API Clients and generate relative tokens storing them in UserKeyRing
+ * You have to provide an Intent as parameter, specifying one of the following actions:
+ * -"API_INIT": initialize all API clients and relative tokens for the application
+ * -"CALENDAR_INIT": initialize calendar API and relative token
+ * 
+ * Note that you can select multiple Actions providing multiple intents as execute() parameters.
+ * Is it possible to manage a progressbar provided to the constructor
  * @author edoardo
  *
  */
-public final class ApiController extends Activity {
+public final class ApiController extends AsyncTask<Intent, ProgressBar,Void> {
 	
-	
-	
-	private static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
-	private static final int REQUEST_ACCOUNT_PICKER = 1;
-	private static final String PREFERRED_ACCOUNT_NAME = "DefaultAccount";
-	
-	private static GoogleAccountCredential credential;
 	private static com.google.api.services.calendar.Calendar calendarClient;
+	private final String CALENDAR_SCOPE_URI = "https://www.googleapis.com/auth/calendar";
+	private ArrayList<String> scopeList;
 	final HttpTransport transport = AndroidHttp.newCompatibleTransport();
 	final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setApiClients();
-		
-	}
-	@Override
-	protected void onResume() {
-	    super.onResume();
-	    if (checkGooglePlayServicesAvailable()) {
-	      haveGooglePlayServices();
-	    }
-	  }
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		switch (requestCode) {
-		
-		 case REQUEST_GOOGLE_PLAY_SERVICES:
-		        if (resultCode == Activity.RESULT_OK) {
-		          haveGooglePlayServices();
-		        } else {
-		          checkGooglePlayServicesAvailable();
-		        }
-		        break;
-		      case REQUEST_ACCOUNT_PICKER:
-		        if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
-		          String accountName = data.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
-		          if (accountName != null) {
-		            credential.setSelectedAccountName(accountName);
-		            SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-		            SharedPreferences.Editor editor = settings.edit();
-		            editor.putString(PREFERRED_ACCOUNT_NAME, accountName);
-		            editor.commit();
-		            Toast toast = Toast.makeText(getApplicationContext(), "ready to Fetch Calendars", Toast.LENGTH_LONG);
-			    	toast.show();
-		          }
-		        }
-		        break;
-
-		default:
-			break;
-		}
-	}
+	//these flags indicate which apis are to activate, since tokens must be fetched on the UI thread
+	private boolean initCalendars = false;
 	
-	/** Check that Google Play services APK is installed and up to date. */
-	  private boolean checkGooglePlayServicesAvailable() {
-	    final int connectionStatusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-	    if (GooglePlayServicesUtil.isUserRecoverableError(connectionStatusCode)) {
-	      showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
-	      return false;
-	    }
-	    return true;
+	private Activity caller;
+	private ProgressBar progressBar;
+
+	 
+	  private void initializeCalendarClient(){
+		// Calendar client
+		  GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(caller, scopeList);
+		  credential.setSelectedAccountName(UserKeyRing.getUserEmail(caller));
+		  System.out.println("Setting credential: " + credential.getSelectedAccountName() + " with scope:" + credential.getScope() );
+		  calendarClient = new com.google.api.services.calendar.Calendar.Builder(transport, jsonFactory, credential).setApplicationName("UnoZeroUno-GiveMeTime/0.1a").build();
+		    System.out.println("Calendar API Initialized");
 	  }
 	  
-	  private void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
-		    runOnUiThread(new Runnable() {
-		      public void run() {
-		        Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
-		            connectionStatusCode, ApiController.this, REQUEST_GOOGLE_PLAY_SERVICES);
-		        dialog.show();
-		      }
-		    });
-		  }
-	  
-	  private void haveGooglePlayServices() {
-		    // check if there is already an account selected
-		    if (credential.getSelectedAccountName() == null) {
-		      // ask user to choose account
-		      chooseAccount();
-		    } else {
-		    	Toast toast = Toast.makeText(getApplicationContext(), "ready to Fetch Calendars", Toast.LENGTH_LONG);
-		    	toast.show();
-		    }
-		  }
-	  
-	  private void setApiClients(){
-		  // Google Accounts
-		  if(credential == null){
-			  credential = GoogleAccountCredential.usingOAuth2(this, Collections.singleton(CalendarScopes.CALENDAR));
-		  }
-		    SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-		    credential.setSelectedAccountName(settings.getString(PREFERRED_ACCOUNT_NAME, null));
-		    // Calendar client
-		    calendarClient = new com.google.api.services.calendar.Calendar.Builder(
-		        transport, jsonFactory, credential).setApplicationName("Google-CalendarAndroidSample/1.0")
-		        .build();
+	  //Unused
+	  private void initializeCalendarToken(){
+		  TokenTask calendarTokenTask = new TokenTask(caller, UserKeyRing.getUserEmail(caller), scopeList.toArray(new String[scopeList.size()]));
+		  calendarTokenTask.setListener(new TaskListener<String>(caller) {
+			@Override
+			public void onTaskResult(String... results) {
+				for (String token : results) {
+					//Save Token on UserKeyRing
+					UserKeyRing.setCalendarToken(caller, token);
+					System.out.println("Found Calendar Token: " + token);
+				}
+			}
+		});
+		  calendarTokenTask.execute();
 	  }
-	  private void chooseAccount() {
-		    startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
-		  }
-	public static GoogleAccountCredential getCredential() {
-		return credential;
-	}
+	   
+	  
 	public static com.google.api.services.calendar.Calendar getCalendarClient() {
 		return calendarClient;
 	}
-	
+		
+	public ApiController(Activity caller, ProgressBar progressBar) {
+		this.caller = caller;
+		this.progressBar = progressBar;
+	}
+
+	@Override
+	protected void onPreExecute() {
+		super.onPreExecute();
+		scopeList = new ArrayList<String>();
+		
+		progressBar.setVisibility(View.VISIBLE);
+		
+		
+	}
+
+	@Override
+	protected Void doInBackground(Intent... intents) {
+		for (Intent currentIntent : intents) {
+			String action = currentIntent.getAction();
+			if ((action =="API_INIT" )||(action =="CALENDAR_INIT")){
+				//Mark "initialize calendar" as work to be done. Actual call to initializeCalendar() will be place on postExecute method.
+				initCalendars = true;
+				scopeList.add(CALENDAR_SCOPE_URI);
+			}
+		}
+		return null;
+	}
+	@Override
+	protected void onPostExecute(Void noParam) {
+		super.onPostExecute(noParam);
+		
+				
+		//Starting Login Process
+				System.out.println("Login attempt");
+		    	Intent loginIntent = new Intent(caller, AccountController.class);
+		    	loginIntent.putExtra("scopes", scopeList.toArray(new String[scopeList.size()]));
+		    	loginIntent.setAction("ACCOUNT_LOGIN");
+		    	caller.startActivity(loginIntent);
+		
+		
+		
+		if (initCalendars){
+			initializeCalendarClient();
+		}
+		
+		
+		//Hiding Progressbar from caller
+		if(progressBar!=null){
+		progressBar.setVisibility(View.INVISIBLE);
+		}
+	}
 }

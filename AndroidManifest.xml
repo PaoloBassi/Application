@@ -3,6 +3,7 @@
     package="it.unozerouno.givemetime" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
@@ -56,10 +57,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="it.unozerouno.givemetime.controller.fetcher.ApiController"
-            android:label="ApiController">
+            android:name="it.unozerouno.givemetime.controller.fetcher.sample.UnifiedController"
+            android:label="Account Selection"
+            android:theme="@android:style/Theme.Dialog">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

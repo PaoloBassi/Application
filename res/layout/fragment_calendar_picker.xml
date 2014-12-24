@@ -6,17 +6,83 @@
     android:fillViewport="true">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-        <TextView android:id="@+id/view" style="?android:textAppearanceMedium" android:layout_width="fill_parent" android:layout_height="0dp" android:layout_weight="0.19" android:gravity="top" android:lineSpacingMultiplier="1.2" android:padding="16dp" android:text="@string/secondPage"/>
-        <Button android:id="@+id/api_test_btn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="API INIT" android:onClick="initializeApi"/>
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:padding="16dp" >
 
         <RelativeLayout
-            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/view"
+                style="?android:textAppearanceMedium"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:lineSpacingMultiplier="1.2"
+                android:padding="16dp"
+                android:text="@string/secondPage" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.71" >
+
+            <ListView
+                android:id="@+id/list_calendar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true" >
+            </ListView>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <Button
+                    android:id="@+id/login_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Login" />
+
+                <Button
+                    android:id="@+id/api_init_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Api Init" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/fetch_calendar_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FETCH_CALENDARS" />
+
+        </LinearLayout>
+
+        <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="bottom"
+            android:orientation="horizontal" >
 
             <Button
                 android:id="@+id/skipButton"
@@ -24,29 +90,23 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/centerPoint"
-                android:text="@string/skipButton"
-
-                />
+                android:text="@string/skipButton" />
 
             <TextView
                 android:id="@+id/centerPoint"
-                android:text=""
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                />
+                android:text="" />
+
             <Button
                 android:id="@+id/continueButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/centerPoint"
                 android:layout_alignParentRight="true"
-                android:text="@string/continueButton"
-
-                />
+                android:layout_toRightOf="@+id/centerPoint"
+                android:text="@string/continueButton" />
         </RelativeLayout>
-
     </LinearLayout>
-
 
 </ScrollView>
