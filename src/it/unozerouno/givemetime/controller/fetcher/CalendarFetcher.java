@@ -1,5 +1,6 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
 import it.unozerouno.givemetime.utils.TaskListener;
 import android.app.Activity;
@@ -106,6 +107,21 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	}
 	
 	/**
+	 * Build the uri as sync adapter in order to gain more write access
+	 * @param uri
+	 * @param account
+	 * @param accountType
+	 * @return
+	 */
+	static Uri asSyncAdapter(Uri uri, String account, String accountType) {
+	    return uri.buildUpon()
+	        .appendQueryParameter(android.provider.CalendarContract.CALLER_IS_SYNCADAPTER,"true")
+	        .appendQueryParameter(Calendars.ACCOUNT_NAME, account)
+	        .appendQueryParameter(Calendars.ACCOUNT_TYPE, accountType).build();
+	 }
+	
+	
+	/**
 	 * Fetch calendar list and returns each result to the TaskListener attached to CalendarFetcher
 	 * @param projection: Coloumn names 
 	 * @see Calendars
@@ -115,6 +131,10 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	Cursor cur = null;
 	ContentResolver cr = caller.getContentResolver();
 	Uri uri = Calendars.CONTENT_URI;   
+	
+	//For Identifying as SyncAdapter, User must already be logged)
+	//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
+	
 	
 	// Submit the query and get a Cursor object back. 
 	cur = cr.query(uri, projection, null, null, null);

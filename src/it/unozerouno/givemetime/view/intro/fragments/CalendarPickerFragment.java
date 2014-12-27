@@ -2,10 +2,12 @@ package it.unozerouno.givemetime.view.intro.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
+import it.unozerouno.givemetime.controller.fetcher.PlayServicesController;
 import it.unozerouno.givemetime.utils.TaskListener;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.CalendarContract.Calendars;
 import android.support.v4.app.Fragment;
@@ -35,6 +37,11 @@ public class CalendarPickerFragment extends Fragment{
         listAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1,calendars);
         calendarListView.setAdapter(listAdapter);
         
+        
+        
+        //TODO: SyncAdapter is currently disabled (fetching occurs while login is still in progress so result is empty. Not using SyncAdapter don't requires to specify an account)
+        //Log the user in
+        login();
         //fetch calendar list
         getCalendarList();
         
@@ -43,6 +50,16 @@ public class CalendarPickerFragment extends Fragment{
         
         
     }
+    
+    /**
+     * Start the PlayServicesController and let the user pick an account
+     */
+    public void login(){
+    	Intent loginIntent = new Intent(this.getActivity(), PlayServicesController.class);
+    	loginIntent.setAction(PlayServicesController.Actions.ACCOUNT_SELECTION);
+    	startActivity(loginIntent);
+    }
+    
     /**
      * Update the data set containing calendar list
      * @param calendarName

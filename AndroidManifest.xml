@@ -59,7 +59,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="it.unozerouno.givemetime.controller.fetcher.UnifiedController"
+            android:name="it.unozerouno.givemetime.controller.fetcher.PlayServicesController"
             android:label="Account Selection"
             android:theme="@android:style/Theme.Dialog">
             <intent-filter>

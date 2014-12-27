@@ -1,9 +1,8 @@
 package it.unozerouno.givemetime.view.main;
 
-import it.unozerouno.givemetime.controller.fetcher.old.ApiController;
+import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.fragments.DrawerListFragment;
-import it.unozerouno.givemetime.R;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;

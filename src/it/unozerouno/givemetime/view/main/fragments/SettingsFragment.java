@@ -21,9 +21,10 @@ public class SettingsFragment extends PreferenceFragment{
 	//debug category
 	Preference debugWipeSettings;
 	Preference debugUserEmail;
-	Preference debugUserToken;
-	Preference debugCalendarToken;
+	Preference debugToken;
 	SwitchPreference debugFirstTime;
+	Preference debugCalendarId;
+	Preference debugCalendarName;
 	
 	
 	
@@ -37,12 +38,23 @@ public class SettingsFragment extends PreferenceFragment{
         //Getting Debug Preferences
       debugUserEmail = (Preference) findPreference("debug_user_email");
       debugWipeSettings = (Preference) findPreference("debug_wipe");
-      debugUserToken = (Preference) findPreference("debug_user_token"); 
-      debugCalendarToken = (Preference) findPreference("debug_cal_token");
+      debugToken = (Preference) findPreference("debug_user_token"); 
       debugFirstTime = (SwitchPreference) findPreference("debug_first_time");
+      debugCalendarId = (Preference) findPreference("debug_user_selected_cal_id");  
+      debugCalendarName = (Preference) findPreference("debug_user_selected_cal_name"); 
       
+     
        
-       //Setting actions for wipe debug preference
+       //Setting values to show
+       debugUserEmail.setSummary(UserKeyRing.getUserEmail(this.getActivity()));
+       debugToken.setSummary(UserKeyRing.getToken(this.getActivity()));
+       debugFirstTime.setChecked(UserKeyRing.isFirstTimeLogin(getActivity()));
+       debugCalendarId.setSummary(UserKeyRing.getCalendarId(getActivity()));
+       debugCalendarName.setSummary(UserKeyRing.getCalendarName(getActivity()));
+       
+       
+       
+       //Setting action for wipe debug preference
        debugWipeSettings.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference arg0) {
 				UserKeyRing.resetSharedPreferences(getActivity());
@@ -51,12 +63,6 @@ public class SettingsFragment extends PreferenceFragment{
 				return false;
 			}
 		});
-       
-       //Setting values to show
-       debugUserEmail.setSummary(UserKeyRing.getUserEmail(this.getActivity()));
-       debugUserToken.setSummary(UserKeyRing.getUserToken(this.getActivity()));
-       debugCalendarToken.setSummary(UserKeyRing.getCalendarToken(this.getActivity()));
-       debugFirstTime.setChecked(UserKeyRing.isFirstTimeLogin(getActivity()));
        //Setting Action for DebugFirstTime
        debugFirstTime.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 		@Override
@@ -67,6 +73,7 @@ public class SettingsFragment extends PreferenceFragment{
 			return true;
 		}
 	});
+       
     }
     
 }
