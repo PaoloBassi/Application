@@ -25,7 +25,7 @@ public class DrawerListFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // inflate the content of the fragment
         // the fragment content is just an example
-        View rootView = inflater.inflate(R.layout.fragment_screen_page_layout_one, container, false);
+        View rootView = inflater.inflate(R.layout.main_activity, container, false);
         // retrieve the item position number when it is clicked
         int i = getArguments().getInt(ITEM_NUMBER);
         // retrieve the name of the item clicked

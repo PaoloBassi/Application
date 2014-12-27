@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:padding="5dp"
+        android:layout_height="fill_parent"
+        android:divider="?android:dividerHorizontal"
+        android:showDividers="middle"
+        >
+
+        <TextView
+            style="?android:textAppearanceMedium"
+            android:id="@+id/view"
+            android:lineSpacingMultiplier="1.2"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="top"
+            android:text="@string/firstPage"
+            />
+
+    </LinearLayout>
+
+
+</ScrollView>
