@@ -1,9 +1,8 @@
 package it.unozerouno.givemetime.view.main;
 
-import it.unozerouno.givemetime.controller.fetcher.ApiController;
+import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.fragments.DrawerListFragment;
-import it.unozerouno.givemetime.R;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -189,34 +188,33 @@ public class MainActivity extends Activity {
             return true;
         }
 
-        // handle here the other action bar items
-        switch (item.getItemId()){
-            case R.id.action_websearch:
-                // create the intent to handle this option
-                Intent websearch = new Intent(Intent.ACTION_WEB_SEARCH);
-                // save the title of the action bar
-                websearch.putExtra(SearchManager.QUERY, getActionBar().getTitle());
-                // check if the action could be handled, otherwise show an error message
-                if (websearch.resolveActivity(getPackageManager()) != null){
-                    startActivity(websearch);
-                } else {
-                    Toast.makeText(this, R.string.app_not_available, Toast.LENGTH_LONG).show();
-                }
-                return true;
-            case R.id.addEvent:
-                // Create the intent to handle this option
-                Intent addEvent = new Intent(this, AddNewEventActivity.class);
-                startActivity(addEvent); // maybe with result?
-                return true;
-            case R.id.action_settings:
-                // create the intent
-                Intent settings = new Intent(this, SettingsActivity.class);
-                // launch it
-                startActivity(settings);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        int itemId = item.getItemId();
+		if (itemId == R.id.action_websearch) {
+			// create the intent to handle this option
+			Intent websearch = new Intent(Intent.ACTION_WEB_SEARCH);
+			// save the title of the action bar
+			websearch.putExtra(SearchManager.QUERY, getActionBar().getTitle());
+			// check if the action could be handled, otherwise show an error message
+			if (websearch.resolveActivity(getPackageManager()) != null){
+			    startActivity(websearch);
+			} else {
+			    Toast.makeText(this, R.string.app_not_available, Toast.LENGTH_LONG).show();
+			}
+			return true;
+		} else if (itemId == R.id.addEvent) {
+			// Create the intent to handle this option
+			Intent addEvent = new Intent(this, AddNewEventActivity.class);
+			startActivity(addEvent); // maybe with result?
+			return true;
+		} else if (itemId == R.id.action_settings) {
+			// create the intent
+			Intent settings = new Intent(this, SettingsActivity.class);
+			// launch it
+			startActivity(settings);
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
 
     }
 }

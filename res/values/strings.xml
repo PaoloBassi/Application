@@ -9,10 +9,13 @@
     <string name="thirdPage">Third Tutorial Page</string>
     <string name="skipButton">Skip</string>
     <string name="continueButton">Continue</string>
+    <string name="swipeNext">>>> Swipe to Continue >>></string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_websearch">Web search</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
+    <string name="pick_account">Please, select your account</string>
+    <string name="not_online">It seems you are not connected. Please check connectivity and retry.</string>
 
 </resources>
