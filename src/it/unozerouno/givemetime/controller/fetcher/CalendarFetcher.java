@@ -1,208 +1,141 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
-
-
-
-import it.unozerouno.givemetime.controller.fetcher.sample.UnifiedController;
-import it.unozerouno.givemetime.model.UserKeyRing;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
-
+import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
+import it.unozerouno.givemetime.utils.TaskListener;
 import android.app.Activity;
-import android.app.Application;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Debug;
-import android.widget.ListView;
-import android.widget.Toast;
-
-
-
-
-public final class CalendarFetcher extends AsyncTask<Intent, Exception, Boolean> {
-	private ListView calendarList;
-	private Activity caller;
-	private static com.google.api.services.calendar.Calendar calendarClient;
-	private String response;
-	private static final String ROOT_URL =  "https://www.googleapis.com/calendar/v3";
-	public CalendarFetcher(Activity caller, ListView calendarList) {
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Calendars;
+import android.view.View;
+import android.widget.ProgressBar;
+/**
+ * Fetcher for device stored calendars.
+ * Please specify a task with setAction() before calling .execute(), you can chose them from CalendarFetcher.Actions
+ * You also have to specify the query projection when calling execute(), you can pick one from CalendarFetcher.Projections or specify your own.
+ * Results are returned to attached TaskListener (use setListener)
+ * can also manage a progressBar
+ * @author <edoardo.giacomello1990@gmail.com>
+ * @see TaskListener
+ */
+public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[]> {
+	//NOTICE: For the developers - When adding new functions, please comply with the present structure.
+	//I.E: Adding an actions: provide "Actions" integer with relative projections (if needed)
+	//Add "case" in doInBackground()
+	//Compute result in a separate function. See "getCalendarlist" for example.
+	//Don't forget to call "setResult" whenever a single result (row) is ready!
+	
+	/**
+	 * Overview of the possible actions performable from CalendarFetcher
+	 * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com>
+	 *
+	 */
+	public static class Actions{
+		public static final int NO_ACTION = -1;
+		public static final int LIST_CALENDARS = 0;
+		//... here other actions
+	}
+	/**
+	 * Overview of recurrent projections to be used in CalendarFetcher
+	 * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com>
+	 *
+	 */
+	public static class Projections {
+		//Calendar related
+		public static String[] CALENDAR_ID_NAME_PROJ = {Calendars._ID, Calendars.NAME};
+		//Event related
+		//...
+	}
+	
+	
+	private static int task = Actions.NO_ACTION;
+	Activity caller;
+	ProgressBar progressBar;
+	CalendarContract.Calendars calendars;
+	
+	public CalendarFetcher(Activity caller) {
 		this.caller = caller;
-		this.calendarList = calendarList;
 	}
-	@Override
-	protected Boolean doInBackground(Intent... intent) {
-		calendarClient = UnifiedController.getCalendarClient();
-		if (calendarClient == null) {
-			response = "Error: Calendar Client has not been initialized";
-			return false;
-		}
-		
-		for (Intent currentIntent : intent) {
-			if (currentIntent.getAction()=="FETCH_CALENDARS"){
-			//	fetchCalendars();
-				try {
-					getCalendarListA();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-			}
-		}
-		return true;
+	
+	public CalendarFetcher(Activity caller, ProgressBar progressBar){
+		this(caller);
+		this.progressBar =progressBar;
+	}
+	
+	/**
+	 * Set the action to perform in order to get expected result
+	 * @param action
+	 * @see CalendarFetcher
+	 */
+	public void setAction(int action){
+		task = action;
 	}
 	
 	@Override
-	protected void onPostExecute(Boolean result) {
+	protected void onPreExecute() {
+		super.onPreExecute();
+		//If progressbar is present, than show it
+		if (progressBar != null){
+			progressBar.setVisibility(View.VISIBLE);
+		}
+	}
+	@Override
+	protected void onPostExecute(String[] result) {
 		super.onPostExecute(result);
-		if (response != null){
-		Toast responseToast = Toast.makeText(caller, response, Toast.LENGTH_SHORT);
-    	responseToast.show();
+		//If progressbar is present, than hide it
+		if (progressBar != null){
+			progressBar.setVisibility(View.INVISIBLE);
 		}
 	}
 	
-	
-	private void getCalendarListA() throws IOException{
-		System.out.println("Trying to fetch calendars");
-		// Initialize Calendar service with valid OAuth credentials
-		Calendar service = UnifiedController.getCalendarClient();
-
-		// Iterate through entries in calendar list
-		String pageToken = null;
-		do {
-		  CalendarList calendarList = service.calendarList().list().setPageToken(pageToken).execute();
-		  List<CalendarListEntry> items = calendarList.getItems();
-
-		  for (CalendarListEntry calendarListEntry : items) {
-		    System.out.println(calendarListEntry.getSummary());
-		  }
-		  pageToken = calendarList.getNextPageToken();
-		} while (pageToken != null);
-		System.out.println("Calendar Fetching Done");
-	}
-	
-	private void fetchCalendar(){
-		try {
-		String pageToken = null;
-			do {
-			  CalendarList calendarFetchedList;
-			  calendarFetchedList = calendarClient.calendarList().list().setPageToken(pageToken).execute();
-			
-			  List<CalendarListEntry> items = calendarFetchedList.getItems();
-			  for (CalendarListEntry calendarListEntry : items) {
-				  System.out.println("I've Fetched SOmething!!");
-				  response = response + calendarListEntry.getSummary();
-			  }
-			  pageToken = calendarFetchedList.getNextPageToken();
-			} while (pageToken != null);
-		}
-		catch (IOException e) 
-		{
-			e.printStackTrace();
-			publishProgress(e);
-		}
-		
-	}
-	/**
-	 * Tester
-	 * @throws IOException
-	 * @throws JSONException
-	 */
-	private void fetchCalendarList() throws IOException, JSONException {
-        String token = UserKeyRing.getUserToken(caller);
-        if (token == null) {
-          // error has already been handled in fetchToken()
-          return;
-        }
-        URL url = new URL(ROOT_URL + "/users/me/calendarList" + "?access_token=" + token);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        int responseCode = connection.getResponseCode();
-        if (responseCode == 200) {
-          InputStream response = connection.getInputStream();
-          String calendarId = ResponseParser.getCalendarId(response);
-          System.out.println("Found calendar number:" + calendarId + "!");
-          response.close();
-          return;
-        } else if (responseCode == 401) {
-            GoogleAuthUtil.invalidateToken(caller, token);
-            System.err.println("Server auth error, please try again.");
-            System.out.println("Server auth error: " + ResponseParser.readResponse(connection.getErrorStream()));
-            return;
-        } else {
-          System.err.println("Server returned the following error code: " + responseCode);
-          return;
-        }
-    }
-	
-
-	
-
-	
-	/**
-	 * This will send to the UI all exceptions generated during the process
-	 */
 	@Override
-	protected void onProgressUpdate(Exception... values) {
-		super.onProgressUpdate(values);
-		UnifiedController handler = new UnifiedController();
-		for (Exception exception : values) {
-			handler.handleException(exception);
+	protected String[] doInBackground(String... projection) {
+		switch (task) {
+		case Actions.NO_ACTION:
+			break;
+		case Actions.LIST_CALENDARS:
+			getCalendars(projection);
+			break;
+		//Add here new actions
+		default:
+			break;
 		}
 		
-		
+		return null;
 	}
 	
-	private void saveToLocalDB(){
-		
-	}
-	private void updateRemoteCalendar(){
-		
-	}
+	/**
+	 * Fetch calendar list and returns each result to the TaskListener attached to CalendarFetcher
+	 * @param projection: Coloumn names 
+	 * @see Calendars
+	 */
+	private void getCalendars(String[] projection){
+	// Run query
+	Cursor cur = null;
+	ContentResolver cr = caller.getContentResolver();
+	Uri uri = Calendars.CONTENT_URI;   
 	
-	private static class ResponseParser {
-		/**
-	     * Reads the response from the input stream and returns it as a string.
-	     */
-	    public static String readResponse(InputStream is) throws IOException {
-	        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	        byte[] data = new byte[2048];
-	        int len = 0;
-	        while ((len = is.read(data, 0, data.length)) >= 0) {
-	            bos.write(data, 0, len);
-	        }
-	        return new String(bos.toByteArray(), "UTF-8");
-	    }
-	    
-		  /**
-	     * Parses the response and returns the first name of the user.
-	     * @throws JSONException if the response is not JSON or if first name does not exist in response
-		 * @throws IOException 
-	     */
-	    private static String getCalendarId(InputStream response) throws JSONException, IOException {
-	      JSONObject profile = new JSONObject(readResponse(response));
-	      return profile.getString("id");
-	    }
-		
-		
+	// Submit the query and get a Cursor object back. 
+	cur = cr.query(uri, projection, null, null, null);
+	
+	// Use the cursor to step through the returned records
+	while (cur.moveToNext()) {
+	   String[] result = new String[projection.length];
+	   for (int i = 0; i < result.length; i++) {
+		result[i] = cur.getString(i);
 	}
-	  
+	   //Provide result to TaskListener
+	   setResult(result);
 	}
+
+	}
+
+	
+
+	
+
+	
+	
+	
+}

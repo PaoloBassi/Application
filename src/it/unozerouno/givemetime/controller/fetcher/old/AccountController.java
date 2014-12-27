@@ -1,8 +1,9 @@
-package it.unozerouno.givemetime.controller.fetcher.sample;
+package it.unozerouno.givemetime.controller.fetcher.old;
 
 import java.util.ArrayList;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.TokenTask;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.TaskListener;
 

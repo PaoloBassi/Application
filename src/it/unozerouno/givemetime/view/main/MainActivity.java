@@ -1,6 +1,6 @@
 package it.unozerouno.givemetime.view.main;
 
-import it.unozerouno.givemetime.controller.fetcher.ApiController;
+import it.unozerouno.givemetime.controller.fetcher.old.ApiController;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.fragments.DrawerListFragment;
 import it.unozerouno.givemetime.R;

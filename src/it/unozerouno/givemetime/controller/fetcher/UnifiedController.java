@@ -1,4 +1,4 @@
-package it.unozerouno.givemetime.controller.fetcher.sample;
+package it.unozerouno.givemetime.controller.fetcher;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.model.UserKeyRing;

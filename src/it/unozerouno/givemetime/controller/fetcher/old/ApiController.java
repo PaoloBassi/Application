@@ -1,7 +1,6 @@
-package it.unozerouno.givemetime.controller.fetcher;
+package it.unozerouno.givemetime.controller.fetcher.old;
 
-import it.unozerouno.givemetime.controller.fetcher.sample.AccountController;
-import it.unozerouno.givemetime.controller.fetcher.sample.TokenTask;
+import it.unozerouno.givemetime.controller.fetcher.TokenTask;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.TaskListener;
 
