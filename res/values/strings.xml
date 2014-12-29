@@ -10,6 +10,9 @@
     <string name="skipButton">Skip</string>
     <string name="continueButton">Continue</string>
     <string name="swipeNext">>>> Swipe to Continue >>></string>
+    <string name="frag1_text">First main page</string>
+    <string name="frag2_text">Second main page</string>
+    <string name="frag3_text">Third main page</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
