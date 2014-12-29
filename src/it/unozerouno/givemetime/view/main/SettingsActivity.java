@@ -1,7 +1,6 @@
 package it.unozerouno.givemetime.view.main;
 
 import it.unozerouno.givemetime.view.main.fragments.SettingsFragment;
-import android.app.Activity;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 

@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
  *
  */
 public final class UserKeyRing {
+	//General
 	private static SharedPreferences prefs;
 	private static SharedPreferences.Editor editor;
 	private static final String SHARED_PREF_GENERAL = "givemetime_preferences";
@@ -20,10 +21,14 @@ public final class UserKeyRing {
 	private static final String firstTimeLoginPref = "first_time_login";		
 	private static final String userEmailPref = "user_email";
 	private static final String userTokenPref = "token_user";
+	private static final String userNamePref = "user_name";
+	private static final String userSurnamePref = "user_surname";
 	
 	//Calendar Selection preferences
 	private static final String selectedCalendarId = "calendar_selected_id";
-	private static final String selectedCalendarName = "calendar_selected_id";
+	private static final String selectedCalendarName = "calendar_selected_name";
+	
+	
 	
 	@SuppressLint("CommitPrefEdits") 
 	private static void setSharedPreferences(Context context){
@@ -45,6 +50,16 @@ public final class UserKeyRing {
 	public static void setUserEmail(Context context, String userEmail) {
 		setSharedPreferences(context);
 		editor.putString(userEmailPref, userEmail);
+		editor.commit();
+	}
+	public static void setUserName(Context context, String userName) {
+		setSharedPreferences(context);
+		editor.putString(userNamePref, userName);
+		editor.commit();
+	}
+	public static void setUserSurname(Context context, String userSurname) {
+		setSharedPreferences(context);
+		editor.putString(userSurnamePref, userSurname);
 		editor.commit();
 	}
 	
@@ -80,6 +95,14 @@ public final class UserKeyRing {
 		setSharedPreferences(context);
 		return prefs.getString(userEmailPref, null);
 		}
+	public static String getUserName(Context context) {
+		setSharedPreferences(context);
+		return prefs.getString(userNamePref, "");
+	}
+	public static String getUserSurname(Context context) {
+		setSharedPreferences(context);
+		return prefs.getString(userSurnamePref, "");
+	}
 	public static String getToken(Context context) {
 		setSharedPreferences(context);
 		return prefs.getString(userTokenPref, null);
@@ -98,5 +121,7 @@ public final class UserKeyRing {
 		setSharedPreferences(context);
 		return prefs.getString(selectedCalendarName, "");
 	}
+	
+	
 	
 }
