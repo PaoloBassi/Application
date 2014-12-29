@@ -3,26 +3,32 @@ package it.unozerouno.givemetime.view.intro.fragments;
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
 import it.unozerouno.givemetime.controller.fetcher.PlayServicesController;
+import it.unozerouno.givemetime.model.CalendarModel;
+import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.TaskListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.CalendarContract.Calendars;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 public class CalendarPickerFragment extends Fragment{
 	ProgressBar progressBar;
 	ListView calendarListView;
-	ArrayList<String> calendars;
-	ArrayAdapter<String> listAdapter;
+	ArrayList<CalendarModel> calendars;
+	CalendarListAdapter listAdapter;
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,9 +39,23 @@ public class CalendarPickerFragment extends Fragment{
         progressBar.setVisibility(View.INVISIBLE);
         //Getting Calendar List from UI
         calendarListView = (ListView) rootView.findViewById(R.id.list_calendar);
-        calendars = new ArrayList<String>();
-        listAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1,calendars);
+        calendars = new ArrayList<CalendarModel>();
+        listAdapter = new CalendarListAdapter(getActivity(), R.layout.element_list_calendar, calendars);
         calendarListView.setAdapter(listAdapter);
+        //Setting onClick for calendars
+        calendarListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+				CalendarModel calendarSelected = (CalendarModel) adapter.getItemAtPosition(position);
+				CalendarPickerFragment.this.calendarListView.setSelection(position);
+				//Saving selected calendar ID
+				UserKeyRing.setCalendarId(getActivity(), calendarSelected.getId());
+				UserKeyRing.setCalendarName(getActivity(), calendarSelected.getName());
+			}
+        	
+		});
+        
         
         
         
@@ -52,7 +72,7 @@ public class CalendarPickerFragment extends Fragment{
     }
     
     /**
-     * Start the PlayServicesController and let the user pick an account
+     * Starts the PlayServicesController and let the user pick an account
      */
     public void login(){
     	Intent loginIntent = new Intent(this.getActivity(), PlayServicesController.class);
@@ -60,49 +80,88 @@ public class CalendarPickerFragment extends Fragment{
     	startActivity(loginIntent);
     }
     
-    /**
-     * Update the data set containing calendar list
-     * @param calendarName
-     */
-    public void addCalendarToList(String calendarName){
-    	calendars.add(calendarName);
-    }
-    /**
-     * Update calendar ListView through the listAdapter. Must be called from the UI thread. 
-     */
-    public void updateList(){
-    	listAdapter.notifyDataSetChanged();
-    }
+    
  
     /**
-     * Retrives calendar list calling the fetcher
+     * Retrieves calendar list calling the fetcher
      */
     public void getCalendarList(){
     	
-    	//NOTICE: This is an example on how to use TaskListeners and CalendarFetcher
+    	//EXAMPLE: This is an example on how to use TaskListeners and CalendarFetcher in "Internal query mode" 
     	CalendarFetcher listFetcher = new CalendarFetcher(this.getActivity(), progressBar);
-    	//Setting what the fetcher has to do
-    	listFetcher.setAction(CalendarFetcher.Actions.LIST_CALENDARS);    	
-    	//Column names expected as result - Equivalent to String[] projection = {Calendars._ID, Calendars.NAME}; 
-    	String[] projection = CalendarFetcher.Projections.CALENDAR_ID_NAME_PROJ;
+    	//Setting what the fetcher has to do (Fetch calendar list and build the model)
+    	listFetcher.setAction(CalendarFetcher.Actions.CALENDARS_TO_MODEL);    	
     	//Adding TaskListener for getting results from AsyncTask
     	listFetcher.setListener(new TaskListener<String[]>(this.getActivity()) {
 			@Override
 			public void onTaskResult(String[]... results) {
-				// Only one row at a time is given. Columns corresponds to the ones specified in projection 
-				//Adding calendar name to the ArrayList
-				CalendarPickerFragment.this.addCalendarToList(results[0][1]);
+				if (results[0] == CalendarFetcher.Results.RESULT_OK){
+				calendars.addAll(CalendarFetcher.getCalendarList());
 				//UI update MUST be run from UI Thread
 				CalendarPickerFragment.this.getActivity().runOnUiThread(new Runnable(){
 			        public void run(){
-			        	CalendarPickerFragment.this.updateList();
+			        	CalendarPickerFragment.this.listAdapter.notifyDataSetChanged();
 			        }
 			    });
-								
+				}				
 			}
 		});
-    	//Executing the fetcher with chosen projection
-    	listFetcher.execute(projection);
+    	//Executing the fetcher
+    	listFetcher.execute();
         }
-  
+ 
+    /**
+     * Adapter for the calendar list view
+     * @author Edoardo Giacomello
+     *
+     */
+    private class CalendarListAdapter extends ArrayAdapter<CalendarModel>{
+
+		public CalendarListAdapter(Context context, int resource, List<CalendarModel> objects) {
+			super(context, resource, objects);
+		}
+		
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			return getViewOptimize(position, convertView, parent);
+		}
+		
+		
+		public View getViewOptimize(int position, View convertView, ViewGroup parent) {
+			   ViewHolder viewHolder = null;
+		        if (convertView == null) {
+			  LayoutInflater inflater = (LayoutInflater) getContext()
+			             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			        convertView = inflater.inflate(R.layout.element_list_calendar, null);
+			        viewHolder = new ViewHolder();
+			        viewHolder.name = (TextView)convertView.findViewById(R.id.calendar_name);
+			        viewHolder.owner = (TextView)convertView.findViewById(R.id.calendar_owner);
+			        viewHolder.color = convertView.findViewById(R.id.calendar_color);
+			        convertView.setTag(viewHolder);
+		        }
+		        else
+		        {
+		        	viewHolder = (ViewHolder) convertView.getTag();
+		        }
+			        
+			        CalendarModel calendarItem = getItem(position);
+			        viewHolder.name.setText(calendarItem.getName());
+			        viewHolder.owner.setText(calendarItem.getOwner());
+			        viewHolder.color.setBackgroundColor(calendarItem.getColor());
+			       
+			        
+			        return convertView;
+		}
+		/**
+		 * Avoids the inflatation of every single element on list scroll
+		 * @author Edoardo Giacomello
+		 *
+		 */
+		 private class ViewHolder {
+		        public TextView name;
+		        public TextView owner;
+		        public View color;
+		    }
+    }
+    
 }

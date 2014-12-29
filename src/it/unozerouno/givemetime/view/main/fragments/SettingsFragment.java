@@ -21,6 +21,8 @@ public class SettingsFragment extends PreferenceFragment{
 	//debug category
 	Preference debugWipeSettings;
 	Preference debugUserEmail;
+	Preference debugUserName;
+	Preference debugUserSurname;
 	Preference debugToken;
 	SwitchPreference debugFirstTime;
 	Preference debugCalendarId;
@@ -33,10 +35,12 @@ public class SettingsFragment extends PreferenceFragment{
         super.onCreate(savedInstanceState);
         // load preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
-        
+        System.out.println("Settings opened");
         
         //Getting Debug Preferences
       debugUserEmail = (Preference) findPreference("debug_user_email");
+      debugUserName = (Preference) findPreference("debug_user_name");
+      debugUserSurname = (Preference) findPreference("debug_user_surname");
       debugWipeSettings = (Preference) findPreference("debug_wipe");
       debugToken = (Preference) findPreference("debug_user_token"); 
       debugFirstTime = (SwitchPreference) findPreference("debug_first_time");
@@ -47,6 +51,8 @@ public class SettingsFragment extends PreferenceFragment{
        
        //Setting values to show
        debugUserEmail.setSummary(UserKeyRing.getUserEmail(this.getActivity()));
+       debugUserName.setSummary(UserKeyRing.getUserName(getActivity()));
+       debugUserSurname.setSummary(UserKeyRing.getUserSurname(getActivity()));
        debugToken.setSummary(UserKeyRing.getToken(this.getActivity()));
        debugFirstTime.setChecked(UserKeyRing.isFirstTimeLogin(getActivity()));
        debugCalendarId.setSummary(UserKeyRing.getCalendarId(getActivity()));
