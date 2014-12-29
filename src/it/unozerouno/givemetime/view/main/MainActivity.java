@@ -1,8 +1,16 @@
 package it.unozerouno.givemetime.view.main;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.fragments.DrawerListFragment;
+import it.unozerouno.givemetime.view.main.fragments.FragmentOne;
+import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
+import it.unozerouno.givemetime.view.main.fragments.FragmentTwo;
+import it.unozerouno.givemetime.view.utilities.DrawerItem;
+import it.unozerouno.givemetime.view.utilities.DrawerListAdapter;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -30,12 +38,17 @@ public class MainActivity extends Activity {
 
     private CharSequence drawerTitle;
     private CharSequence title;
+    private DrawerListAdapter adapter;
+    
+    private List<DrawerItem> dataList; 
 
     // manage the interaction between the action bar and the drawer
     // Moreover, it implements the drawer listener, useful for managing the drawer actions
-    private ActionBarDrawerToggle drawerToggle;
+    @SuppressWarnings("deprecation")
+	private ActionBarDrawerToggle drawerToggle;
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // load the main content
@@ -48,6 +61,8 @@ public class MainActivity extends Activity {
         // acquire the current title of the activity
         title = drawerTitle = getTitle();
 
+        // initialize the list in the nav drawer
+        dataList = new ArrayList<DrawerItem>();
         // obtain the list of titles
         titles = getResources().getStringArray(R.array.menu_list);
         // retrieve the drawer layout
@@ -56,8 +71,23 @@ public class MainActivity extends Activity {
         drawerList = (ListView)findViewById(R.id.left_drawer);
         // set a custom shadow that overlays the main content when the drawer opens
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        
+        // add elements to the list navigation drawer
+        dataList.add(new DrawerItem(true));	// add a spinner
+        
+        dataList.add(new DrawerItem("Menu Options")); // add a header
+        dataList.add(new DrawerItem("First Page", R.drawable.action_search));
+        dataList.add(new DrawerItem("Second Page", R.drawable.action_search));
+        dataList.add(new DrawerItem("Third Page", R.drawable.action_search));
+        
+        dataList.add(new DrawerItem("Settings")); // add a header
+        dataList.add(new DrawerItem("Settings", R.drawable.ic_action_settings));
+        dataList.add(new DrawerItem("About", R.drawable.ic_action_about));
+        
         // set the adapters for the list
-        drawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, titles));
+        adapter = new DrawerListAdapter(this, R.layout.drawer_list_item, dataList);
+        drawerList.setAdapter(adapter);
+        
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
         // set the action bar icons
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -94,9 +124,19 @@ public class MainActivity extends Activity {
         // set the prepared drawer toggle as the drawer listener
         drawerLayout.setDrawerListener(drawerToggle);
 
-        // if there is no savedInstanceState, start from the first Item
+        // if there is no savedInstanceState, start from the first useful Item
         if (savedInstanceState == null){
-            selectItem(0);
+            
+        	// both spinner and header are present
+        	if(dataList.get(0).isSpinner() && dataList.get(1).getTitle() != null){
+        		selectItem(2);
+        	// spinner is missing
+        	} else if (dataList.get(0).getTitle() != null) {
+        		selectItem(1);
+        	// both are missing
+        	} else {
+        		selectItem(0);
+        	}
         }
 
     }
@@ -106,32 +146,53 @@ public class MainActivity extends Activity {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position);
+            if (dataList.get(position).getTitle() == null){
+            	selectItem(position);
+            }
         }
     }
 
     // swaps fragment in the main content view
     private void selectItem(int position){
         // create a Fragment
-        Fragment fragment = new DrawerListFragment();
+        Fragment fragment = null;
         Bundle args = new Bundle();
-        // save the position clicked in the string item_number
-        args.putInt(DrawerListFragment.ITEM_NUMBER, position);
-        // assign the value to the fragment
-        fragment.setArguments(args);
-
-        // insert the fragment into the view, replacing the existing one
-        // obtain the fragment manager
-        FragmentManager fragmentManager = getFragmentManager();
-        // start transaction, replace the fragment, commit
-        fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, fragment)
-                        .commit();
-
+        
+        // cases must be evaluated depending on how the items are inserted into the drawerList
+        switch(position){
+        	case 2:	fragment = new FragmentOne();
+        			args.putString(FragmentOne.ITEM_NAME, dataList.get(position).getItemName());
+        			break;
+        	case 3: fragment = new FragmentTwo();
+        			args.putString(FragmentOne.ITEM_NAME, dataList.get(position).getItemName());
+        			break;
+        	case 4: fragment = new FragmentThree();
+        			args.putString(FragmentOne.ITEM_NAME, dataList.get(position).getItemName());
+        			break;
+        	case 6: Intent settings = new Intent(this, SettingsActivity.class);
+    				startActivity(settings);
+    				break;
+        	case 7: Toast.makeText(getBaseContext(), "Lauch about popup", Toast.LENGTH_SHORT).show();
+        			break;
+        }
+        
+        if (fragment != null){
+	        // assign the value to the fragment
+	        fragment.setArguments(args);
+	
+	        // insert the fragment into the view, replacing the existing one
+	        // obtain the fragment manager
+	        FragmentManager fragmentManager = getFragmentManager();
+	        // start transaction, replace the fragment, commit
+	        fragmentManager.beginTransaction()
+	                        .replace(R.id.content_frame, fragment)
+	                        .commit();
+	        
+        }
         // highlight the selected item
         drawerList.setItemChecked(position, true);
         // update the title
-        setTitle(titles[position]);
+        setTitle(dataList.get(position).getItemName());
         // close the drawer
         drawerLayout.closeDrawer(drawerList);
     }
