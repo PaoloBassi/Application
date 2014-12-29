@@ -148,8 +148,8 @@ public class MainActivity extends Activity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         // if the navigation drawer is open, hide the action item related to the content view
         boolean drawerOpen = drawerLayout.isDrawerOpen(drawerList);
-        // set the visibility according to drawerOpen
-        menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
+        // set the visibility according to drawerOpen, if there are any
+        // menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -189,19 +189,7 @@ public class MainActivity extends Activity {
         }
 
         int itemId = item.getItemId();
-		if (itemId == R.id.action_websearch) {
-			// create the intent to handle this option
-			Intent websearch = new Intent(Intent.ACTION_WEB_SEARCH);
-			// save the title of the action bar
-			websearch.putExtra(SearchManager.QUERY, getActionBar().getTitle());
-			// check if the action could be handled, otherwise show an error message
-			if (websearch.resolveActivity(getPackageManager()) != null){
-			    startActivity(websearch);
-			} else {
-			    Toast.makeText(this, R.string.app_not_available, Toast.LENGTH_LONG).show();
-			}
-			return true;
-		} else if (itemId == R.id.addEvent) {
+		if (itemId == R.id.addEvent) {
 			// Create the intent to handle this option
 			Intent addEvent = new Intent(this, AddNewEventActivity.class);
 			startActivity(addEvent); // maybe with result?
