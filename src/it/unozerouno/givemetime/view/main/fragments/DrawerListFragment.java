@@ -1,6 +1,9 @@
 package it.unozerouno.givemetime.view.main.fragments;
 
-// Fragment class of the drawer list
+/** 
+ * Fragment class of the drawer list
+ * @author Paolo
+ */
 
 import android.os.Bundle;
 import android.app.Fragment;
@@ -29,7 +32,7 @@ public class DrawerListFragment extends Fragment{
         // retrieve the item position number when it is clicked
         int i = getArguments().getInt(ITEM_NUMBER);
         // retrieve the name of the item clicked
-        String item = getResources().getStringArray(R.array.menu_list)[i];
+        String item = getResources().getStringArray(R.array.menu_list)[i - 2];
         // (example) obtain the text view of the fragment and set the name of the item clicked
         ((TextView)rootView.findViewById(R.id.view)).setText(item);
         // set the activity name equal to the item selected
