@@ -19,6 +19,6 @@
     <string name="action_websearch">Web search</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
     <string name="pick_account">Please, select your account</string>
-    <string name="not_online">It seems you are not connected. Please check connectivity and retry.</string>
-
+    <string name="not_online">It seems that you are not connected. Please check connectivity and retry.</string>
+	<string name="calendar_selection_text1">"Welcome! Please import a calendar or create a new one"</string>
 </resources>

@@ -46,7 +46,7 @@ public class PlayServicesController extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.auth_controller_dialog);
+		setContentView(R.layout.dialog_login);
 		scopes = new ArrayList<String>();
 		//Get stored data if present
 		mEmail = UserKeyRing.getUserEmail(this);
@@ -226,6 +226,11 @@ public class PlayServicesController extends Activity {
 	            }
 	            System.out.println("Activity handler launched");
 	}
+	
+	
+	
+	
+	
 	
 	
 	

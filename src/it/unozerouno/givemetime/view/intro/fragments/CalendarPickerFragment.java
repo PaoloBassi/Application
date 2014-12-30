@@ -2,14 +2,18 @@ package it.unozerouno.givemetime.view.intro.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
-import it.unozerouno.givemetime.controller.fetcher.PlayServicesController;
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.TaskListener;
+import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.gms.common.api.Result;
+
+import android.app.Activity;
+import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +21,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView.FindListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -24,7 +29,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class CalendarPickerFragment extends Fragment{
+public class CalendarPickerFragment extends Fragment {
 	ProgressBar progressBar;
 	ListView calendarListView;
 	ArrayList<CalendarModel> calendars;
@@ -59,11 +64,9 @@ public class CalendarPickerFragment extends Fragment{
         
         
         
-        //TODO: SyncAdapter is currently disabled (fetching occurs while login is still in progress so result is empty. Not using SyncAdapter don't requires to specify an account)
+        //TODO: SyncAdapter is currently disabled 
         //Log the user in
         login();
-        //fetch calendar list
-        getCalendarList();
         
         return rootView;
         
@@ -71,13 +74,23 @@ public class CalendarPickerFragment extends Fragment{
         
     }
     
+    
+    
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+       	super.onActivityResult(requestCode, resultCode, data);
+       	if (requestCode == ApiLoginInterface.RequestCode.LOGIN && resultCode == ApiLoginInterface.ResultCode.DONE){
+       		getCalendarList();
+       	}
+    }
+    
+    
     /**
-     * Starts the PlayServicesController and let the user pick an account
+     * Starts the ApiController and let the user pick an account
      */
     public void login(){
-    	Intent loginIntent = new Intent(this.getActivity(), PlayServicesController.class);
-    	loginIntent.setAction(PlayServicesController.Actions.ACCOUNT_SELECTION);
-    	startActivity(loginIntent);
+    	Intent loginIntent = new Intent(this.getActivity(),ApiLoginInterface.class);
+    	startActivityForResult(loginIntent, ApiLoginInterface.RequestCode.LOGIN);
     }
     
     
@@ -163,5 +176,6 @@ public class CalendarPickerFragment extends Fragment{
 		        public View color;
 		    }
     }
-    
+
+	
 }
