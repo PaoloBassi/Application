@@ -5,7 +5,6 @@ import java.util.List;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
-import it.unozerouno.givemetime.view.main.fragments.DrawerListFragment;
 import it.unozerouno.givemetime.view.main.fragments.FragmentOne;
 import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
 import it.unozerouno.givemetime.view.main.fragments.FragmentTwo;
@@ -26,7 +25,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 public class MainActivity extends Activity {

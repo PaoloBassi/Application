@@ -74,7 +74,7 @@ public class DrawerListAdapter extends ArrayAdapter<DrawerItem>{
 			
 			List<DrawerUserProfile> userList = new ArrayList<DrawerUserProfile>();
 			// temporary the add is for the only one user logged in
-			userList.add(new DrawerUserProfile(R.drawable.user, "Nome utente", UserKeyRing.getUserEmail(getContext())));
+			userList.add(new DrawerUserProfile(R.drawable.user, UserKeyRing.getUserName(getContext()) + " " + UserKeyRing.getUserSurname(getContext()), UserKeyRing.getUserEmail(getContext())));
 			// create the adapter for the spinner
 			UserSpinnerAdapter adapter = new UserSpinnerAdapter(context, R.layout.user_profile, userList);
 			// attach it to the holder
