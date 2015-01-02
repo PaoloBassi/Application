@@ -1,9 +1,17 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.android.gms.common.api.Result;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
@@ -179,6 +187,29 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	   //Provide result to TaskListener
 	   setResult(result);
 	}
+	}
+	
+	/**
+	 * Fetches Calendar List from CalendarAPI instead of CalendarProvider
+	 */
+	private void calendarAPI(){
+		try {
+		Calendar client= ApiController.getCalendarClient();
+			String pageToken = null;
+		do {
+		  CalendarList calendarList;
+		  calendarList = client.calendarList().list().setPageToken(pageToken).execute();
+		  List<CalendarListEntry> items = calendarList.getItems();
+
+		  for (CalendarListEntry calendarListEntry : items) {
+		    System.out.println(calendarListEntry.getSummary());
+		  }
+		  pageToken = calendarList.getNextPageToken();
+		} while (pageToken != null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**

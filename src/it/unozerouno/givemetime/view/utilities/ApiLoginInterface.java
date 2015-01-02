@@ -2,24 +2,23 @@ package it.unozerouno.givemetime.view.utilities;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.ApiController;
-import it.unozerouno.givemetime.model.UserKeyRing;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender.SendIntentException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentSender.SendIntentException;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.view.View;
-import android.widget.ProgressBar;
 
 public class ApiLoginInterface extends FragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener {
 	public class RequestCode{
@@ -29,7 +28,7 @@ public class ApiLoginInterface extends FragmentActivity implements ConnectionCal
 		public static final int DONE = 0;
 		public static final int NOT_CONNECTED =1;
 	}
-	private ApiController apiController;
+	private ApiController apiController; //This controls active APIs
 	private Boolean mResolvingError = false; //true if this activity is already attempting to resolve a connection error
     private static final int REQUEST_RESOLVE_ERROR = 1001; // Request code to use when launching the resolution activity
     private static final String DIALOG_ERROR = "dialog_error";  // Unique tag for the error dialog fragment
@@ -49,10 +48,11 @@ public class ApiLoginInterface extends FragmentActivity implements ConnectionCal
 	}
     
     private void initApiController(){
+
     	//Instantiating a new ApiController
     			apiController = new ApiController(this, this, this);
     			apiController.useDefaultApi();
-    			apiController.initializeApiClient();
+    			apiController.initializePlayServicesClient();
     }
     
     
@@ -106,6 +106,8 @@ public class ApiLoginInterface extends FragmentActivity implements ConnectionCal
 		setResult(ResultCode.DONE);
 		//Now fetching user Data
 		getUserData();
+		//Now that we have the user profile, we can initialize other APIs
+		apiController.initializeOtherApis();
 		finish();
 	}
 
@@ -134,6 +136,8 @@ public class ApiLoginInterface extends FragmentActivity implements ConnectionCal
 	        }
 	    }
 	}
+	
+	
 	
 	
 
