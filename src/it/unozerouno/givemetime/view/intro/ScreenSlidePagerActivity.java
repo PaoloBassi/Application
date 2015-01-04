@@ -6,6 +6,8 @@ import it.unozerouno.givemetime.view.intro.fragments.WelcomeAndDisclaimer;
 import it.unozerouno.givemetime.view.intro.fragments.LastTutorialPage;
 import it.unozerouno.givemetime.view.main.MainActivity;
 import it.unozerouno.givemetime.view.utilities.LoginPreferences;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,17 +38,32 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
 
         // if it's the first time that the user launches the app, continue. Else, launch main activity
         if (LoginPreferences.isFirst(this)){
-            // set the layout
-            setContentView(R.layout.activity_screen_slide);
-
-            // instantiate the ViewPager and the adapter
-            mPager = (ViewPager) findViewById(R.id.pager);
-            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-            mPager.setAdapter(mPagerAdapter);
-            // remove comment if you want to use the zoomOutPageTransformer animation
-            // mPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        	if (LoginPreferences.isDeviceOnline(this)){
+	            // set the layout
+	            setContentView(R.layout.activity_screen_slide);
+	
+	            // instantiate the ViewPager and the adapter
+	            mPager = (ViewPager) findViewById(R.id.pager);
+	            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+	            mPager.setAdapter(mPagerAdapter);
+	            // remove comment if you want to use the zoomOutPageTransformer animation
+	            // mPager.setPageTransformer(true, new ZoomOutPageTransformer());
+            } else {
+            	AlertDialog.Builder alert = new AlertDialog.Builder(ScreenSlidePagerActivity.this);
+            	alert.setTitle("No Internet Connection");
+            	alert.setMessage("Turn on your internet connection in order to let GiveMeTime the opportunity to fetch your calendars.")
+            		 .setCancelable(false)
+            		 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					});
+            	alert.show();
+            }
         } else {
-            // lauch main activity
+            // launch main activity
             Intent intent = new Intent();
             intent.setClass(this, MainActivity.class);
             startActivity(intent);
