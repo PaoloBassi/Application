@@ -18,5 +18,9 @@ public class EventModel {
 	private Boolean doNotDisturb;
 	private EventCategory category;
 	
+	public EventModel(String _id, String _name) {
+		ID = _id;
+		name = _name;
+	}
 	
 }

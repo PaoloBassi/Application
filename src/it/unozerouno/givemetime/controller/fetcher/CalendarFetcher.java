@@ -15,6 +15,7 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
 import it.unozerouno.givemetime.utils.TaskListener;
 import android.app.Activity;
@@ -23,6 +24,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
+import android.provider.CalendarContract.Events;
 import android.view.View;
 import android.widget.ProgressBar;
 /**
@@ -51,7 +53,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	
 	//Results
 	private static List<CalendarModel> calendarList;
-	
+	private static List<EventModel> eventList;
 	
 	
 	
@@ -63,7 +65,9 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	public static class Actions{
 		public static final int NO_ACTION = -1;
 		public static final int LIST_CALENDARS = 0;
-		public static final int CALENDARS_TO_MODEL = 1;
+		public static final int LIST_EVENTS = 1;
+		public static final int CALENDARS_TO_MODEL = 2;
+		public static final int EVENTS_TO_MODEL = 3;
 		//... here other actions
 	}
 	/**
@@ -76,6 +80,9 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] CALENDAR_ID_NAME_PROJ = {Calendars._ID, Calendars.NAME};
 		public static String[] CALENDAR_ID_OWNER_NAME_COLOUR = {Calendars._ID, Calendars.OWNER_ACCOUNT, Calendars.NAME, Calendars.CALENDAR_COLOR};
 		//Event related
+		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
+		public static String[] EVENT_INFOS = {Events.CALENDAR_ID, Events._ID, Events.DESCRIPTION, Events.DISPLAY_COLOR, 
+												Events.DURATION, Events.STATUS};
 		//...
 	}
 	public static class Results{
@@ -132,11 +139,18 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		case Actions.LIST_CALENDARS:
 			getCalendars(projection);
 			break;
+		case Actions.LIST_EVENTS:
+			getEvents(projection);
+			break;
 		case Actions.CALENDARS_TO_MODEL:
-			calendarList = getCalendarsModel();
+			calendarList = calendarQuery(Projections.CALENDAR_ID_OWNER_NAME_COLOUR);
 			setResult(Results.RESULT_OK);
 			break;
-		
+		case Actions.EVENTS_TO_MODEL:
+			eventList = eventQuery(Projections.EVENT_ID_TITLE);
+			setResult(Results.RESULT_OK);
+			break;
+
 		//Add here new actions
 		default:
 			break;
@@ -190,6 +204,29 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	}
 	
 	/**
+	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher
+	 * @param projection: Columns Names
+	 */
+	private void getEvents(String[] projection){
+		Cursor cur = null;
+		ContentResolver cr = caller.getContentResolver();
+		Uri uri = Events.CONTENT_URI;
+		
+		// execute the query, get a Cursor back
+		cur = cr.query(uri, projection, null, null, null);
+		
+		// step through the records
+		while(cur.moveToNext()){
+			String[] result = new String[projection.length];
+			for (int i = 0; i < result.length; i++) {
+				result[i] = cur.getString(i);
+			}
+			// provide result to TaskListener
+			setResult(result);
+		}
+	}
+	
+	/**
 	 * Fetches Calendar List from CalendarAPI instead of CalendarProvider
 	 */
 	private void calendarAPI(){
@@ -215,9 +252,8 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	/**
 	 * This function fetches the calendars managing needed projections in order to provide a ready-to-use CalendarModel list.
 	 */
-	private List<CalendarModel> getCalendarsModel(){
+	private List<CalendarModel> calendarQuery(String[] projection){
 		List<CalendarModel> calendarList = new ArrayList<CalendarModel>();
-		String[] projection = Projections.CALENDAR_ID_OWNER_NAME_COLOUR;
 		// Run query
 		Cursor cur = null;
 		ContentResolver cr = caller.getContentResolver();
@@ -237,7 +273,38 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		}
 		return calendarList;
 		}
+	
+	/**
+	 * This function fetches the events managing needed projections in order to provide a ready-to-use EventModel list.
+	 */
+	private List<EventModel> eventQuery(String[] projection){
+		List<EventModel> eventList = new ArrayList<EventModel>();
+		// Run query
+		Cursor cur = null;
+		ContentResolver cr = caller.getContentResolver();
+		Uri uri = Events.CONTENT_URI;   
+		
+		//For Identifying as SyncAdapter, User must already be logged)
+		//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
+		
+		
+		// Submit the query and get a Cursor object back. 
+		cur = cr.query(uri, projection, null, null, null);
+		
+		// Use the cursor to step through the returned records
+		while (cur.moveToNext()) {
+		   EventModel newEvent = new EventModel(cur.getString(0),cur.getString(1));
+		   eventList.add(newEvent);
+		}
+		return eventList;
+		}
+	
+	
 	public static List<CalendarModel> getCalendarList(){
 		return calendarList;
+	}
+	
+	public static List<EventModel> getEventList(){
+		return eventList;
 	}
 	}
