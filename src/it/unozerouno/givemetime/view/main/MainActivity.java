@@ -5,7 +5,7 @@ import java.util.List;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
-import it.unozerouno.givemetime.view.main.fragments.FragmentOne;
+import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
 import it.unozerouno.givemetime.view.main.fragments.FragmentTwo;
 import it.unozerouno.givemetime.view.utilities.DrawerItem;
@@ -158,14 +158,14 @@ public class MainActivity extends Activity {
         
         // cases must be evaluated depending on how the items are inserted into the drawerList
         switch(position){
-        	case 2:	fragment = new FragmentOne();
-        			args.putString(FragmentOne.ITEM_NAME, dataList.get(position).getItemName());
+        	case 2:	fragment = new EventListFragment();
+        			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 3: fragment = new FragmentTwo();
-        			args.putString(FragmentOne.ITEM_NAME, dataList.get(position).getItemName());
+        			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 4: fragment = new FragmentThree();
-        			args.putString(FragmentOne.ITEM_NAME, dataList.get(position).getItemName());
+        			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 6: Intent settings = new Intent(this, SettingsActivity.class);
     				startActivity(settings);

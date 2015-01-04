@@ -21,4 +21,8 @@
     <string name="pick_account">Please, select your account</string>
     <string name="not_online">It seems that you are not connected. Please check connectivity and retry.</string>
 	<string name="calendar_selection_text1">"Welcome! Please import a calendar or create a new one"</string>
+	<string name="event_list">Event List</string>
+	<string name="event_list_text"></string>
+	<string name="refresh">Refresh</string>
+	<string name="new_event">Add New Event</string>
 </resources>
