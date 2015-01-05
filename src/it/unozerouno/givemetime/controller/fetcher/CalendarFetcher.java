@@ -143,11 +143,11 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			getEvents(projection);
 			break;
 		case Actions.CALENDARS_TO_MODEL:
-			calendarList = calendarQuery(Projections.CALENDAR_ID_OWNER_NAME_COLOUR);
+			calendarList = getCalendarModel();
 			setResult(Results.RESULT_OK);
 			break;
 		case Actions.EVENTS_TO_MODEL:
-			eventList = eventQuery(Projections.EVENT_ID_TITLE);
+			eventList = getEventModel();
 			setResult(Results.RESULT_OK);
 			break;
 
@@ -252,12 +252,13 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	/**
 	 * This function fetches the calendars managing needed projections in order to provide a ready-to-use CalendarModel list.
 	 */
-	private List<CalendarModel> calendarQuery(String[] projection){
+	private List<CalendarModel> getCalendarModel(){
 		List<CalendarModel> calendarList = new ArrayList<CalendarModel>();
 		// Run query
 		Cursor cur = null;
 		ContentResolver cr = caller.getContentResolver();
-		Uri uri = Calendars.CONTENT_URI;   
+		Uri uri = Calendars.CONTENT_URI;
+		String[] projection = Projections.CALENDAR_ID_OWNER_NAME_COLOUR;
 		
 		//For Identifying as SyncAdapter, User must already be logged)
 		//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
@@ -277,13 +278,13 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	/**
 	 * This function fetches the events managing needed projections in order to provide a ready-to-use EventModel list.
 	 */
-	private List<EventModel> eventQuery(String[] projection){
+	private List<EventModel> getEventModel(){
 		List<EventModel> eventList = new ArrayList<EventModel>();
 		// Run query
 		Cursor cur = null;
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;   
-		
+		String[] projection = Projections.EVENT_ID_TITLE;
 		//For Identifying as SyncAdapter, User must already be logged)
 		//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
 		
