@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.controller.fetcher;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.android.gms.common.api.Result;
@@ -81,8 +82,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] CALENDAR_ID_OWNER_NAME_COLOUR = {Calendars._ID, Calendars.OWNER_ACCOUNT, Calendars.NAME, Calendars.CALENDAR_COLOR};
 		//Event related
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
-		public static String[] EVENT_INFOS = {Events.CALENDAR_ID, Events._ID, Events.DESCRIPTION, Events.DISPLAY_COLOR, 
-												Events.DURATION, Events.STATUS};
+		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR};
 		//...
 	}
 	public static class Results{
@@ -269,7 +269,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 		// Use the cursor to step through the returned records
 		while (cur.moveToNext()) {
-		   CalendarModel newCalendar = new CalendarModel(cur.getString(0),cur.getString(1),cur.getString(2), Integer.parseInt(cur.getString(3)));
+		   CalendarModel newCalendar = new CalendarModel(cur.getString(0), cur.getString(1), cur.getString(2), Integer.parseInt(cur.getString(3)));
 		   calendarList.add(newCalendar);
 		}
 		return calendarList;
@@ -284,7 +284,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		Cursor cur = null;
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;   
-		String[] projection = Projections.EVENT_ID_TITLE;
+		String[] projection = Projections.EVENT_INFOS;
 		//For Identifying as SyncAdapter, User must already be logged)
 		//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
 		
@@ -294,7 +294,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 		// Use the cursor to step through the returned records
 		while (cur.moveToNext()) {
-		   EventModel newEvent = new EventModel(cur.getString(0),cur.getString(1));
+		   EventModel newEvent = new EventModel(cur.getString(0), cur.getString(1), cur.getLong(2), cur.getLong(3), cur.getInt(4));
 		   eventList.add(newEvent);
 		}
 		return eventList;

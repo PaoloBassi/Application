@@ -25,4 +25,8 @@
 	<string name="event_list_text"></string>
 	<string name="refresh">Refresh</string>
 	<string name="new_event">Add New Event</string>
+	<string name="action_today">Go to today</string>
+    <string name="action_day_view">Day view</string>
+    <string name="action_three_day_view">3 day view</string>
+    <string name="action_week_view">Week view</string>
 </resources>

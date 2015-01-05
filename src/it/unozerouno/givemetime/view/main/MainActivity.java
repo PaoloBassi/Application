@@ -10,6 +10,7 @@ import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
 import it.unozerouno.givemetime.view.main.fragments.FragmentTwo;
 import it.unozerouno.givemetime.view.utilities.DrawerItem;
 import it.unozerouno.givemetime.view.utilities.DrawerListAdapter;
+import it.unozerouno.givemetime.view.utilities.WeekView;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
