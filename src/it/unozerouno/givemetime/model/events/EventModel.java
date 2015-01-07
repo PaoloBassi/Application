@@ -15,15 +15,16 @@ import android.graphics.Color;
 import android.text.format.Time;
 
 public class EventModel {
-	private String ID;
+	private String ID; //This is the id from Google calendar event
 	private String name; 
 	private Calendar startingDateTime;
 	private Calendar endingDateTime;
 	private int color;
-	private Set<Constraint> constraints;
+	private Set<Constraint> constraints; 
 	private PlaceModel place;
 	private Boolean doNotDisturb;
 	private EventCategory category;
+	private EventModelListener listener;
 	
 	public EventModel(String _id, String _name) {
 		ID = _id;
@@ -43,7 +44,7 @@ public class EventModel {
 	 * @param dateLong: date in milliseconds from epoch
 	 * @return calendar object representing the date
 	 */
-	private Calendar longToCalendar(long dateLong){
+	private static Calendar longToCalendar(long dateLong){
 		Date date = new Date(dateLong);
 		Calendar cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
 		cal.setTime(date);
@@ -104,6 +105,15 @@ public class EventModel {
 	public void setColor(int color) {
 		this.color = color;
 	}
-
+	
+	public void addListener(EventModelListener listener){
+		this.listener = listener;
+	}
+	/**
+	 * Notify all listeners associated with this Event that this event has been changed.
+	 */
+	public void setUpdated(){
+		listener.notifyChange(this);
+	}
 	
 }
