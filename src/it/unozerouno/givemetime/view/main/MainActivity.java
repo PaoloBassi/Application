@@ -7,7 +7,7 @@ import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
-import it.unozerouno.givemetime.view.main.fragments.FragmentTwo;
+import it.unozerouno.givemetime.view.main.fragments.DebugFragment;
 import it.unozerouno.givemetime.view.utilities.DrawerItem;
 import it.unozerouno.givemetime.view.utilities.DrawerListAdapter;
 import it.unozerouno.givemetime.view.utilities.WeekView;
@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
             
         	// both spinner and header are present
         	if(dataList.get(0).isSpinner() && dataList.get(1).getTitle() != null){
-        		selectItem(2);
+        		selectItem(3);
         	// spinner is missing
         	} else if (dataList.get(0).getTitle() != null) {
         		selectItem(1);
@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
         	case 2:	fragment = new EventListFragment();
         			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
-        	case 3: fragment = new FragmentTwo();
+        	case 3: fragment = new DebugFragment();
         			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 4: fragment = new FragmentThree();
