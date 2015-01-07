@@ -307,9 +307,8 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 		// Use the cursor to step through the returned records
 		while (eventCursor.moveToNext()) {
-			if (eventCursor.getString(1).equals("DIMA")){
 			EventModel newEvent = new EventModel(eventCursor.getString(0), eventCursor.getString(1), eventCursor.getLong(2), eventCursor.getLong(3), eventCursor.getInt(4));
-			eventList.add(newEvent);}
+			eventList.add(newEvent);
 			// if the event is recurrent
 			if (eventCursor.getString(5) != null){
 				// set the begin and the end of the event based on meaningful dates
