@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.google.android.gms.common.api.Result;
+import com.google.android.gms.wearable.NodeApi.GetConnectedNodesResult;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -13,6 +16,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
+import com.google.gson.InstanceCreator;
 
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
@@ -21,11 +25,14 @@ import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
 import it.unozerouno.givemetime.utils.TaskListener;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
+import android.provider.CalendarContract.Instances;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 /**
@@ -82,7 +89,8 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] CALENDAR_ID_OWNER_NAME_COLOUR = {Calendars._ID, Calendars.OWNER_ACCOUNT, Calendars.NAME, Calendars.CALENDAR_COLOR};
 		//Event related
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
-		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR};
+		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE};
+		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
 	}
 	public static class Results{
@@ -272,31 +280,70 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		   CalendarModel newCalendar = new CalendarModel(cur.getString(0), cur.getString(1), cur.getString(2), Integer.parseInt(cur.getString(3)));
 		   calendarList.add(newCalendar);
 		}
+		cur.close();
 		return calendarList;
 		}
 	
 	/**
 	 * This function fetches the events managing needed projections in order to provide a ready-to-use EventModel list.
+	 * If the events has instances that repeats through time, they will be added to the list and displayed in the view
 	 */
 	private List<EventModel> getEventModel(){
 		List<EventModel> eventList = new ArrayList<EventModel>();
-		// Run query
-		Cursor cur = null;
+		// Run query for events
+		Cursor eventCursor = null;
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;   
 		String[] projection = Projections.EVENT_INFOS;
 		//For Identifying as SyncAdapter, User must already be logged)
 		//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
 		
-		
 		// Submit the query and get a Cursor object back. 
-		cur = cr.query(uri, projection, null, null, null);
+		eventCursor = cr.query(uri, projection, null, null, null);
+		
+		
+		// run query for instances
+		String[] instancesProjection = Projections.INSTANCES_INFOS;
 		
 		// Use the cursor to step through the returned records
-		while (cur.moveToNext()) {
-		   EventModel newEvent = new EventModel(cur.getString(0), cur.getString(1), cur.getLong(2), cur.getLong(3), cur.getInt(4));
-		   eventList.add(newEvent);
+		while (eventCursor.moveToNext()) {
+			if (eventCursor.getString(1).equals("DIMA")){
+			EventModel newEvent = new EventModel(eventCursor.getString(0), eventCursor.getString(1), eventCursor.getLong(2), eventCursor.getLong(3), eventCursor.getInt(4));
+			eventList.add(newEvent);}
+			// if the event is recurrent
+			if (eventCursor.getString(5) != null){
+				// set the begin and the end of the event based on meaningful dates
+				java.util.Calendar beginTime = java.util.Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+				beginTime.set(2010, 1, 1);
+				long startMillis = beginTime.getTimeInMillis();
+				java.util.Calendar endTime = java.util.Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+				endTime.set(2020,12,31);
+				long endMillis = endTime.getTimeInMillis();
+					
+				// set the selection
+				String selection = Instances.EVENT_ID + " = ?";
+				// set the arguments (the id of the event)
+				String[] selectionArgs = new String[] {eventCursor.getString(0)};
+				// prepare the time slice in where the event has to take place
+				Uri.Builder instancesUri = Instances.CONTENT_URI.buildUpon();
+				ContentUris.appendId(instancesUri, startMillis);
+				ContentUris.appendId(instancesUri, endMillis);
+				// run the query on the Instances table an get the cursor with all the Instances related to the event
+				Cursor instanceCursor = null;
+				instanceCursor = cr.query(instancesUri.build(), instancesProjection, null, null, null);
+
+				while(instanceCursor.moveToNext()){
+					// TODO change the index in order to have unique IDs
+					if (instanceCursor.getString(0).equals(eventCursor.getString(0))){
+						EventModel newInstance = new EventModel(instanceCursor.getString(0), eventCursor.getString(1), instanceCursor.getLong(1), instanceCursor.getLong(2), eventCursor.getInt(4));
+						eventList.add(newInstance);
+					}
+				}
+				instanceCursor.close();
+			}
 		}
+		eventCursor.close();
+		
 		return eventList;
 		}
 	

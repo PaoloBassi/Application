@@ -9,6 +9,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -262,7 +265,7 @@ public class WeekView extends View{
     
     private void initialize(){
     	// Get the date today.
-        today = Calendar.getInstance();
+        today = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);
         today.set(Calendar.SECOND, 0);
@@ -1224,7 +1227,7 @@ public class WeekView extends View{
      * Show today on the week view.
      */
     public void goToToday() {
-        Calendar today = Calendar.getInstance();
+        Calendar today = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
         goToDate(today);
     }
 
@@ -1240,7 +1243,7 @@ public class WeekView extends View{
 
         refreshEvents = true;
 
-        Calendar today = Calendar.getInstance();
+        Calendar today = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
         today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);
         today.set(Calendar.SECOND, 0);
