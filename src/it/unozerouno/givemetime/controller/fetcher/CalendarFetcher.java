@@ -319,10 +319,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 				endTime.set(2020,12,31);
 				long endMillis = endTime.getTimeInMillis();
 					
-				// set the selection
-				String selection = Instances.EVENT_ID + " = ?";
-				// set the arguments (the id of the event)
-				String[] selectionArgs = new String[] {eventCursor.getString(0)};
 				// prepare the time slice in where the event has to take place
 				Uri.Builder instancesUri = Instances.CONTENT_URI.buildUpon();
 				ContentUris.appendId(instancesUri, startMillis);
