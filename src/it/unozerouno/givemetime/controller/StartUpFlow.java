@@ -1,10 +1,19 @@
 package it.unozerouno.givemetime.controller;
 
+import com.google.android.gms.internal.db;
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.widget.DialerFilter;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager.Results;
+import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
@@ -14,7 +23,7 @@ import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
  * @author Edoardo Giacomello
  *
  */
-public final class StartUpFlow extends AsyncTaskWithListener<Void, Void, Void>{
+public final class StartUpFlow extends FragmentActivity{
 	private static StartUpFlow instance;
 	private static Activity caller;
 	private StartUpFlow(Activity caller) {
@@ -25,59 +34,88 @@ public final class StartUpFlow extends AsyncTaskWithListener<Void, Void, Void>{
 	
 	
 	//TODO: Complete the startup flow.
-	private void run(int stage){
-		switch (stage) {
-		case 0:
-			//0: Done
-			GiveMeLogger.log("StartUp Flow Complete.");
-		case 1:
+	
+	public void runCompleteFlow() throws FlowErrorException {
+		//For some step it is mandatory to be executed synchronously
 			//1-Log the user
-			Intent loginIntent = new Intent(caller,ApiLoginInterface.class);
-	    	caller.startActivityForResult(loginIntent, ApiLoginInterface.RequestCode.LOGIN);
-			break;
-		case 2:
-			//2-Check if all crucial variables are set properly [UserKeyRing, DB, etc]
-			
-			break;
-		case 3:
-			//3-Db Synchronization (Fetch from Gcalendar)
-			
-			break;
-		case 4:
-			//4-Collect new data from service (questions, etc)
-			
-			break;
-		case 5:
-			//5-If not already running, start the service
-			
-			break;
-		case 6:
-			//6-Propose service collected questions
-			
-			break;
-		
-		default:
-			break;
+		try{
+		   login();
 		}
-		
+		  catch (Exception e) {
+			throw new FlowErrorException("Cannot Login");
+		}
 	}
 	
-	
-	private void error(int atStage){
-		GiveMeLogger.log("Error at startup flow on stage" + atStage);
+	/**
+	 * User Login. Flow continues at onActivityResult
+	 */
+	private void login(){
+		Intent loginIntent = new Intent(this,ApiLoginInterface.class);
+    	startActivityForResult(loginIntent, ApiLoginInterface.RequestCode.LOGIN);
 	}
 
 
 	@Override
-	protected Void doInBackground(Void... params) {
-		for (int i = 1; i < 7; i++) {
-			run(i);
-		}
-		return null;
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		
+	 	if (requestCode == ApiLoginInterface.RequestCode.LOGIN && resultCode == ApiLoginInterface.ResultCode.DONE){
+	 		//The user is successfully logged. Proceeding with next stage:
+	 		flow();
+       	}
 	}
-	@Override
-	protected void onPostExecute(Void result) {
-		super.onPostExecute(result);
-		run(0);
+	
+	
+	private void flow(){
+		//2-Check if all crucial variables are set properly [UserKeyRing, DB, etc]
+		if(!UserKeyRing.checkVariables(this)){
+			//If here, something went terribly wrong. Resetting application and showing tutorial again will restore crucial variables
+			UserKeyRing.setFirstLogin(this, true);
+			this.finish();
+		}    	
+	    
+		//These stages can be performed Asynchronously
+    	
+		//3-Db Synchronization (Fetch from Gcalendar)
+		GiveMeLogger.log("DB Synchronization Started");
+		AsyncTask<Void, Void, Boolean> synchronizer = new AsyncTask<Void, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(Void... params) {
+				return DatabaseManager.synchronize();
+			}
+			@Override
+			protected void onPostExecute(Boolean result) {
+				super.onPostExecute(result);
+				if (result) GiveMeLogger.log("DB Syncronization OK");
+				else GiveMeLogger.log("DB Syncronization FAILED");
+			}
+		}.execute();
+		
+    	
+    	
+		//4-Collect new data from service (questions, etc)
+		
+    	
+    	
+		//5-If not already running, start the service
+		
+    	
+    	
+		//6-Propose service collected questions
+    	
+    	
+    	
+    	//0: Done
+		GiveMeLogger.log("StartUp Flow Complete.");				
+	}
+	
+	
+	
+	
+	public class FlowErrorException extends RuntimeException {
+		private static final long serialVersionUID = 2617564239734342535L;
+		public FlowErrorException(String detail) {
+			GiveMeLogger.log("Startup Error: " + detail);
+			}
 	}
 }

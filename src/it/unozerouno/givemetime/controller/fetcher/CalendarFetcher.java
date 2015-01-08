@@ -1,28 +1,17 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import it.unozerouno.givemetime.model.CalendarModel;
+import it.unozerouno.givemetime.model.events.EventModel;
+import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
+import it.unozerouno.givemetime.utils.Results;
+import it.unozerouno.givemetime.utils.TaskListener;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.google.android.gms.common.api.Result;
-import com.google.android.gms.wearable.NodeApi.GetConnectedNodesResult;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.gson.InstanceCreator;
-
-import it.unozerouno.givemetime.model.CalendarModel;
-import it.unozerouno.givemetime.model.UserKeyRing;
-import it.unozerouno.givemetime.model.events.EventModel;
-import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
-import it.unozerouno.givemetime.utils.TaskListener;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -32,9 +21,12 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 /**
  * Fetcher for device stored calendars.
  * It supports both "external queries" [takes as input an Action and a projection and return each row in a specific TaskListener] and "internal" one [for fetching and Model creation, projections are managed
@@ -93,10 +85,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
 	}
-	public static class Results{
-		public static String[] RESULT_OK = {"OK"};
-		public static String[] RESULT_ERROR = {"ERROR"};
-	}
+
 	
 	
 	private static int task = Actions.NO_ACTION;
