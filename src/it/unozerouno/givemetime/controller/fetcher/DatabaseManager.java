@@ -10,7 +10,10 @@ import it.unozerouno.givemetime.model.events.EventModelListener;
  *
  */
 public class DatabaseManager {
-	
+	public static class Results{
+		public static String[] RESULT_OK = {"OK"};
+		public static String[] RESULT_ERROR = {"ERROR"};
+	}
 	/**
 	 * Example
 	 * @param date
@@ -43,7 +46,9 @@ public class DatabaseManager {
 	/**
 	 * Pulls all updates from Google Calendar
 	 */
-	public static void synchronize(){
+	public static boolean synchronize(){
+		//Return true if all is ok
+		return true;
 		//TODO: synchronization
 	}
 	

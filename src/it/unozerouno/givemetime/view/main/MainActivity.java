@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.StartUpFlow;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
@@ -53,10 +54,15 @@ public class MainActivity extends Activity {
         // load the main content
         setContentView(R.layout.main_drawer);
 
+       
+        
+        
         // set the default values of the settings as Shared Preferences
         // the last argument is for overriding values with the one written in preferences.xml
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
+        
+        
         // acquire the current title of the activity
         title = drawerTitle = getTitle();
 
@@ -137,7 +143,8 @@ public class MainActivity extends Activity {
         		selectItem(0);
         	}
         }
-
+      //StartUpFlow start
+       getFragmentManager().beginTransaction().add(new StartUpFlow(),"StartUpFlow").commit();
     }
 
     // listener of the drawer list menu

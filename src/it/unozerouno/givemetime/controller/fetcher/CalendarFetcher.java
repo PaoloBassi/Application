@@ -1,40 +1,35 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import com.google.android.gms.common.api.Result;
-import com.google.android.gms.wearable.NodeApi.GetConnectedNodesResult;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.CalendarListEntry;
-import com.google.gson.InstanceCreator;
-
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
+import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 /**
  * Fetcher for device stored calendars.
  * It supports both "external queries" [takes as input an Action and a projection and return each row in a specific TaskListener] and "internal" one [for fetching and Model creation, projections are managed
@@ -76,6 +71,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static final int LIST_EVENTS = 1;
 		public static final int CALENDARS_TO_MODEL = 2;
 		public static final int EVENTS_TO_MODEL = 3;
+		public static final int ADD_NEW_CALENDAR = 4;
 		//... here other actions
 	}
 	/**
@@ -93,10 +89,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
 	}
-	public static class Results{
-		public static String[] RESULT_OK = {"OK"};
-		public static String[] RESULT_ERROR = {"ERROR"};
-	}
+
 	
 	
 	private static int task = Actions.NO_ACTION;
@@ -158,6 +151,9 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			eventList = getEventModel();
 			setResult(Results.RESULT_OK);
 			break;
+		case Actions.ADD_NEW_CALENDAR:
+			createCalendar();
+			setResult(Results.RESULT_OK);
 
 		//Add here new actions
 		default:
@@ -187,18 +183,18 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	 * @param projection: Coloumn names 
 	 * @see Calendars
 	 */
-	private void getCalendars(String[] projection){
+ private void getCalendars(String[] projection){
 	// Run query
 	Cursor cur = null;
 	ContentResolver cr = caller.getContentResolver();
 	Uri uri = Calendars.CONTENT_URI;   
 	
 	//For Identifying as SyncAdapter, User must already be logged)
-	//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
+	uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.gmail");
 	
 	
 	// Submit the query and get a Cursor object back. 
-	cur = cr.query(uri, projection, null, null, null);
+	cur = cr.query(uri, projection, CalendarContract.Calendars.OWNER_ACCOUNT + " = '" + UserKeyRing.getUserEmail(caller) + "'",null, null);
 	
 	// Use the cursor to step through the returned records
 	while (cur.moveToNext()) {
@@ -209,6 +205,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	   //Provide result to TaskListener
 	   setResult(result);
 	}
+	cur.close();
 	}
 	
 	/**
@@ -234,28 +231,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		}
 	}
 	
-	/**
-	 * Fetches Calendar List from CalendarAPI instead of CalendarProvider
-	 */
-	private void calendarAPI(){
-		try {
-		Calendar client= ApiController.getCalendarClient();
-			String pageToken = null;
-		do {
-		  CalendarList calendarList;
-		  calendarList = client.calendarList().list().setPageToken(pageToken).execute();
-		  List<CalendarListEntry> items = calendarList.getItems();
-
-		  for (CalendarListEntry calendarListEntry : items) {
-		    System.out.println(calendarListEntry.getSummary());
-		  }
-		  pageToken = calendarList.getNextPageToken();
-		} while (pageToken != null);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
 	/**
 	 * This function fetches the calendars managing needed projections in order to provide a ready-to-use CalendarModel list.
@@ -269,11 +244,11 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		String[] projection = Projections.CALENDAR_ID_OWNER_NAME_COLOUR;
 		
 		//For Identifying as SyncAdapter, User must already be logged)
-		//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
+		uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
 		
 		
 		// Submit the query and get a Cursor object back. 
-		cur = cr.query(uri, projection, null, null, null);
+		cur = cr.query(uri, projection, CalendarContract.Calendars.OWNER_ACCOUNT + " = '" + UserKeyRing.getUserEmail(caller) + "'",null, null);
 		
 		// Use the cursor to step through the returned records
 		while (cur.moveToNext()) {
@@ -341,6 +316,33 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 		return eventList;
 		}
+	
+	/**
+	 * Insert a new calendar into CalendarProvider
+	 * @return id of the new calendar
+	 */
+	public void createCalendar(){
+		//Setting calendar data
+		ContentValues values = new ContentValues();
+		values.put(Calendars.ACCOUNT_NAME,UserKeyRing.getUserEmail(caller));
+		values.put(Calendars.ACCOUNT_TYPE, "com.google");
+		values.put(Calendars.NAME, "GiveMeTime Calendar");
+		values.put(Calendars.CALENDAR_DISPLAY_NAME, "GiveMeTime Calendar");
+		values.put(Calendars.CALENDAR_COLOR, Color.GREEN);
+		values.put(Calendars.CALENDAR_ACCESS_LEVEL, Calendars.CAL_ACCESS_OWNER);
+		values.put(Calendars.OWNER_ACCOUNT, UserKeyRing.getUserEmail(caller));
+		values.put(Calendars.SYNC_EVENTS, 1);
+		
+		//TODO: Set here the timezone
+		//values.put(Calendars.CALENDAR_TIME_ZONE, Locale.getDefault().t);
+		
+		ContentResolver cr = caller.getContentResolver();
+		Uri uri = Calendars.CONTENT_URI;
+		
+		//For Identifying as SyncAdapter, User must already be logged)
+				uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
+				cr.insert(uri, values);
+	}
 	
 	
 	public static List<CalendarModel> getCalendarList(){

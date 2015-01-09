@@ -7,6 +7,7 @@ import java.util.List;
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
 import it.unozerouno.givemetime.model.events.EventModel;
+import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.main.SettingsActivity;
@@ -158,7 +159,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
     	listFetcher.setListener(new TaskListener<String[]>(this.getActivity()) {
 			@Override
 			public void onTaskResult(String[]... results) {
-				if (results[0] == CalendarFetcher.Results.RESULT_OK){
+				if (results[0] == Results.RESULT_OK){
 					events.addAll(CalendarFetcher.getEventList());
 				}				
 			}

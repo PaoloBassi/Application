@@ -115,7 +115,7 @@ public final class UserKeyRing {
 	
 	public static String getCalendarId(Context context) {
 		setSharedPreferences(context);
-		return prefs.getString(selectedCalendarId, "0");
+		return prefs.getString(selectedCalendarId, null);
 	}
 	public static String getCalendarName(Context context) {
 		setSharedPreferences(context);
@@ -123,5 +123,20 @@ public final class UserKeyRing {
 	}
 	
 	
+	
+	/**
+	 * Checks whether all crucial user variables are set properly.  
+	 * @return False if at least one is missing
+	 */
+	public static boolean checkVariables(Context context){
+		if (getUserEmail(context) == null){
+			return false;
+		}
+		if (getCalendarId(context) == null){
+			return false;
+		}
+		
+		return true;
+	}
 	
 }

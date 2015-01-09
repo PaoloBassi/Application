@@ -4,27 +4,25 @@ import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.android.gms.common.api.Result;
-
-import android.app.Activity;
-import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -34,6 +32,8 @@ public class CalendarPickerFragment extends Fragment {
 	ListView calendarListView;
 	ArrayList<CalendarModel> calendars;
 	CalendarListAdapter listAdapter;
+	CalendarFetcher listFetcher;
+	  Button newCalendarButton;
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,12 +61,24 @@ public class CalendarPickerFragment extends Fragment {
         	
 		});
         
+            
         
         
-        
-        //TODO: SyncAdapter is currently disabled 
         //Log the user in
         login();
+        
+      //Setting new calendar button onClick
+        newCalendarButton = (Button) rootView.findViewById(R.id.calendar_list_new_btn);
+        newCalendarButton.setEnabled(false);
+        newCalendarButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				createNewCalendar();
+			}
+		});
+        
+        
+        
         
         return rootView;
         
@@ -93,6 +105,23 @@ public class CalendarPickerFragment extends Fragment {
     	startActivityForResult(loginIntent, ApiLoginInterface.RequestCode.LOGIN);
     }
     
+    public void createNewCalendar(){
+    	CalendarFetcher calendarFetcher = new CalendarFetcher(this.getActivity(),progressBar);
+    	calendarFetcher.setAction(CalendarFetcher.Actions.ADD_NEW_CALENDAR);
+    	calendarFetcher.setListener(new TaskListener<String[]>(this.getActivity()) {
+
+			@Override
+			public void onTaskResult(String[]... results) {
+				if (results[0] == Results.RESULT_OK){
+					calendars.clear();
+					getCalendarList();
+				}
+
+			}
+    		
+		});
+    	calendarFetcher.execute();
+    }
     
  
     /**
@@ -101,19 +130,20 @@ public class CalendarPickerFragment extends Fragment {
     public void getCalendarList(){
     	
     	//EXAMPLE: This is an example on how to use TaskListeners and CalendarFetcher in "Internal query mode" 
-    	CalendarFetcher listFetcher = new CalendarFetcher(this.getActivity(), progressBar);
+    	listFetcher = new CalendarFetcher(this.getActivity(), progressBar);
     	//Setting what the fetcher has to do (Fetch calendar list and build the model)
     	listFetcher.setAction(CalendarFetcher.Actions.CALENDARS_TO_MODEL);    	
     	//Adding TaskListener for getting results from AsyncTask
     	listFetcher.setListener(new TaskListener<String[]>(this.getActivity()) {
 			@Override
 			public void onTaskResult(String[]... results) {
-				if (results[0] == CalendarFetcher.Results.RESULT_OK){
+				if (results[0] == Results.RESULT_OK){
 				calendars.addAll(CalendarFetcher.getCalendarList());
 				//UI update MUST be run from UI Thread
 				CalendarPickerFragment.this.getActivity().runOnUiThread(new Runnable(){
 			        public void run(){
 			        	CalendarPickerFragment.this.listAdapter.notifyDataSetChanged();
+			        	CalendarPickerFragment.this.newCalendarButton.setEnabled(true);
 			        }
 			    });
 				}				
