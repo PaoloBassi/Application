@@ -2,6 +2,7 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -177,8 +178,11 @@ public class ApiController {
 		String email = UserKeyRing.getUserEmail(caller);
 		//Setting up credentials for non-PlayServices APIs
 		credential = GoogleAccountCredential.usingOAuth2(caller, Collections.singleton(CalendarScopes.CALENDAR)).setSelectedAccountName(email);
-//Building Clients
-calendarClient = new com.google.api.services.calendar.Calendar.Builder(transport, jsonFactory, credential).setApplicationName("UnoZeroUno-GiveMeTime/1.0").build();
+		for (android.accounts.Account currentAccount : credential.getGoogleAccountManager().getAccountManager().getAccounts()) {
+			GiveMeLogger.log("Name: " + currentAccount.name + " type: " + currentAccount.type);
+		}
+	//Building Clients
+	calendarClient = new com.google.api.services.calendar.Calendar.Builder(transport, jsonFactory, credential).setApplicationName("UnoZeroUno-GiveMeTime/1.0").build();
 	}
 	
 	public static Calendar getCalendarClient(){

@@ -71,11 +71,10 @@ public void onClick(View v) {
         }
 	}
 	
-	public static boolean log(String msg){
-		if (debugTextView == null) return false;
-		System.out.println("Log: " + debugTextView.getText());
+	public static void log(String msg){
+		if (debugTextView == null) return;
 		debugTextView.setText(msg);
-		return true;
+		return;
 	}
 	
 	

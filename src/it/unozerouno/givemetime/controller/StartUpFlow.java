@@ -10,6 +10,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.DialerFilter;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager.Results;
@@ -23,26 +26,27 @@ import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
  * @author Edoardo Giacomello
  *
  */
-public final class StartUpFlow extends FragmentActivity{
-	private static StartUpFlow instance;
-	private static Activity caller;
-	private StartUpFlow(Activity caller) {
-		if (instance==null){
-			instance = this;
-		}
-	}
+public final class StartUpFlow extends Fragment{
 	
+	@Override
+	public void onCreate(Bundle arg0) {
+		super.onCreate(arg0);
+		runCompleteFlow();
+	}
+
 	
 	//TODO: Complete the startup flow.
 	
-	public void runCompleteFlow() throws FlowErrorException {
+	public void runCompleteFlow() {
 		//For some step it is mandatory to be executed synchronously
 			//1-Log the user
 		try{
+			GiveMeLogger.log("Starting Startup Flow");
 		   login();
 		}
 		  catch (Exception e) {
-			throw new FlowErrorException("Cannot Login");
+			GiveMeLogger.log("Cannot Login: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -50,13 +54,13 @@ public final class StartUpFlow extends FragmentActivity{
 	 * User Login. Flow continues at onActivityResult
 	 */
 	private void login(){
-		Intent loginIntent = new Intent(this,ApiLoginInterface.class);
+		Intent loginIntent = new Intent(this.getActivity(),ApiLoginInterface.class);
     	startActivityForResult(loginIntent, ApiLoginInterface.RequestCode.LOGIN);
 	}
 
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
 		
 	 	if (requestCode == ApiLoginInterface.RequestCode.LOGIN && resultCode == ApiLoginInterface.ResultCode.DONE){
@@ -68,10 +72,12 @@ public final class StartUpFlow extends FragmentActivity{
 	
 	private void flow(){
 		//2-Check if all crucial variables are set properly [UserKeyRing, DB, etc]
-		if(!UserKeyRing.checkVariables(this)){
+		if(!UserKeyRing.checkVariables(getActivity())){
 			//If here, something went terribly wrong. Resetting application and showing tutorial again will restore crucial variables
-			UserKeyRing.setFirstLogin(this, true);
-			this.finish();
+			UserKeyRing.setFirstLogin(getActivity(), true);
+			GiveMeLogger.log("A variable is missing! Reloading app");
+			getActivity().finish();
+			
 		}    	
 	    
 		//These stages can be performed Asynchronously
@@ -106,7 +112,7 @@ public final class StartUpFlow extends FragmentActivity{
     	
     	
     	//0: Done
-		GiveMeLogger.log("StartUp Flow Complete.");				
+		GiveMeLogger.log("GiveMeTime Ready");				
 	}
 	
 	
