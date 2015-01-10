@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.model.events;
 
 import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.places.PlaceModel;
+import it.unozerouno.givemetime.utils.CalendarUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,36 +35,10 @@ public class EventModel {
 	public EventModel(String _id, String _name, long sTime, long eTime, int _color){
 		ID = _id;
 		name = _name;
-		startingDateTime = longToCalendar(sTime);
-		endingDateTime = longToCalendar(eTime);
+		startingDateTime = CalendarUtils.longToCalendar(sTime);
+		endingDateTime = CalendarUtils.longToCalendar(eTime);
 		color = _color;
-	}
-	
-	/**
-	 * Transform a long representation of a Date into a Calendar
-	 * @param dateLong: date in milliseconds from epoch
-	 * @return calendar object representing the date
-	 */
-	private static Calendar longToCalendar(long dateLong){
-		Date date = new Date(dateLong);
-		Calendar cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-		cal.setTime(date);
-		return cal;
-	}
-
-	/**
-	 * Parse the convetional format date into a calendar representation for EventModel
-	 * @param formatDate: date retrieved from repeated events in the format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
-	 * @return calendar object containing the formatDate information
-	 * @throws ParseException
-	 */
-	
-	private Calendar formatDateToCalendar(String formatDate) throws ParseException{
-		Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-		sdf.setCalendar(calendar);
-		calendar.setTime(sdf.parse(formatDate));
-		return calendar;
+		
 	}
 	
 	public Calendar getStartingDateTime() {
