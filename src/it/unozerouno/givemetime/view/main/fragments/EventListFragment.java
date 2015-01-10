@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.RectF;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -85,7 +86,8 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 	
 	@Override
     public List<EventModel> onMonthChange(int newYear, int newMonth) {
-		GiveMeLogger.log("Change month, new size: " + events.size());
+		// clear the list of events displayed, in order to avoid redundancy 
+		weekView.getEventRects().clear();
 		return events;	
 	}
 	

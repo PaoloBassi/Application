@@ -229,6 +229,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			// provide result to TaskListener
 			setResult(result);
 		}
+		cur.close();
 	}
 	
 	

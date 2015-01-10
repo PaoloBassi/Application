@@ -80,7 +80,7 @@ public class WeekView extends View{
     private Direction currentFlingDirection = Direction.NONE;
     
     private List<EventRect> eventRects;
-    
+
     private int fetchedMonths[] = new int[3];
     private boolean refreshEvents = false;
 	
@@ -970,6 +970,14 @@ public class WeekView extends View{
         this.firstDayOfWeek = firstDayOfWeek;
         invalidate();
     }
+    
+    /**
+     * this getter is fundamental in order to obtain the list of event to be displayed in the view inside EventListFragment
+     * @return
+     */
+    public List<EventRect> getEventRects() {
+		return eventRects;
+	}
 
     public int getTextSize() {
         return textSize;
