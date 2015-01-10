@@ -36,15 +36,14 @@ public class DatabaseManager {
 			@Override
 			public void onEventChange(EventModel changedEvent) {
 				// TODO: HERE PUSH TO GOOGLE CALENDAR
-				
 			}
 		});
 		return newEvent;
 	}
-	
+		
 	
 	/**
-	 * Pulls all updates from Google Calendar
+	 * Pulls all new events from Google Calendar
 	 */
 	public static boolean synchronize(){
 		//Return true if all is ok
@@ -53,4 +52,23 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	public 
+	
+	
+	/**
+	 * This class creates the GiveMeTime database
+	 * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com>
+	 *
+	 */
+	class DatabaseCreator {
+		
+		public void createDatabase(){
+			//TODO: here create all the tables
+		}
+		
+		
+		
+		
+	}
 }
