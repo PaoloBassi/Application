@@ -1,6 +1,8 @@
 package it.unozerouno.givemetime.model.constraints;
 
-import java.sql.Time;
+import android.text.format.Time;
+
+
 
 
 /**
