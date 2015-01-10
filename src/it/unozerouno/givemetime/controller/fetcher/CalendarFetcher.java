@@ -273,9 +273,8 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		//For Identifying as SyncAdapter, User must already be logged)
 		//uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), CalendarContract.ACCOUNT_TYPE_LOCAL);
 		
-		// Submit the query and get a Cursor object back. 
-		eventCursor = cr.query(uri, projection, null, null, null);
-		
+		// Submit the query on the selected calendar and get a Cursor object back. 
+		eventCursor = cr.query(uri, projection, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, null);
 		
 		// run query for instances
 		String[] instancesProjection = Projections.INSTANCES_INFOS;

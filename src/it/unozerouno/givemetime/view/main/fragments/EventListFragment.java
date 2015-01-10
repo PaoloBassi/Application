@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.google.android.gms.internal.co;
+
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
 import it.unozerouno.givemetime.model.events.EventModel;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
@@ -73,13 +76,17 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
         events = new ArrayList<EventModel>();
         
         getEventList();
+        
+        // TODO here size of list is 0, whyyyyyyyyyy?
+        GiveMeLogger.log("Size at beginning: " + events.size());
 		
 		return view;
 	}
 	
 	@Override
     public List<EventModel> onMonthChange(int newYear, int newMonth) {
-        return events;	
+		GiveMeLogger.log("Change month, new size: " + events.size());
+		return events;	
 	}
 	
 	/**
