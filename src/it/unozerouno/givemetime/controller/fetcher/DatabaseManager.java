@@ -94,7 +94,7 @@ public final class DatabaseManager {
 	
 	public void createEventRow(Context context, String eventId){
 		String calId = UserKeyRing.getCalendarId(context);
-		String CREATE_NEW_EMPTY_EVENT = "IF NOT EXISTS (SELECT * FROM "+ DatabaseCreator.EVENT_MODEL +" WHERE "+ DatabaseCreator.ID_CALENDAR + " = '"+ calId + "' AND "+ DatabaseCreator.ID_EVENT_PROVIDER +" = '"+ eventId +"') " +"INSERT INTO "+ DatabaseCreator.EVENT_MODEL + " (" + DatabaseCreator.ID_CALENDAR + ", " + DatabaseCreator.ID_EVENT_PROVIDER + ") VALUES ('"+ calId +"','"+ eventId +"'); ";
+		String CREATE_NEW_EMPTY_EVENT = "INSERT INTO " + DatabaseCreator.EVENT_MODEL + " (" + DatabaseCreator.ID_CALENDAR + ", " + DatabaseCreator.ID_EVENT_PROVIDER + ") " + "SELECT '" + calId + "', '" + eventId + "' " + "WHERE NOT EXISTS (" + "SELECT * FROM "+ DatabaseCreator.EVENT_MODEL +" WHERE "+ DatabaseCreator.ID_CALENDAR + " = '"+ calId + "' AND "+ DatabaseCreator.ID_EVENT_PROVIDER +" = '"+ eventId +"'); ";  
 		database.execSQL(CREATE_NEW_EMPTY_EVENT);
 		
 	}
