@@ -38,23 +38,23 @@ public class DebugFragment extends Fragment{
 		
 		
 		locationBtn.setOnClickListener(new OnClickListener() {
-						@Override
-			public void onClick(View v) {
-								
-			}
+				@Override
+				public void onClick(View v) {
+									
+				}
 		});
 		freetimeBtn.setOnClickListener(new OnClickListener() {
-			@Override
-public void onClick(View v) {
-			
-					
-}});
+				@Override
+				public void onClick(View v) {
+							
+									
+		}});
 		editCalendarBtn.setOnClickListener(new OnClickListener() {
-			@Override
-public void onClick(View v) {
-		Fragment calendarFragment = new EventListFragment();
-		openFragment(calendarFragment);
-}});
+				@Override
+				public void onClick(View v) {
+						Fragment calendarFragment = new EventListFragment();
+						openFragment(calendarFragment);
+		}});
 		
 		
 	}

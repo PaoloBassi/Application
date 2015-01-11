@@ -17,30 +17,32 @@ import it.unozerouno.givemetime.utils.GiveMeLogger;
  */
 public class DatabaseManager {
 	
-	private SQLiteDatabase database;
-	private DatabaseCreator dbCreator;
+	private static SQLiteDatabase database = null;
+	private static DatabaseCreator dbCreator;
 	
 	/**
-	 * call this to initialize the helper class
+	 * returns the database instance as singleton
 	 * @param context
 	 */
-	public DatabaseManager(Context context) {
-		dbCreator = new DatabaseCreator(context);
+	public static SQLiteDatabase getDatabaseInstance(Context context) {
+		if (database == null){
+			dbCreator = DatabaseCreator.createHelper(context);
+			database = dbCreator.getWritableDatabase();
+		}
+		return database;
 	}
 	
 	/**
-	 * create the db by obtaining a writable instance
-	 * @throws SQLException
+	 * close all instances of DB and DBHelper
 	 */
-	public void open() throws SQLException{
-		database = dbCreator.getWritableDatabase();
-	}
 	
-	/**
-	 * close the db
-	 */
-	public void close(){
-		dbCreator.close();
+	public static void closeDB(){
+		if(database != null){
+			database.close();
+		}
+		if(dbCreator != null){
+			dbCreator.close();
+		}
 	}
 	
 	public static class Results{
@@ -95,7 +97,7 @@ public class DatabaseManager {
 	 * 		   Paolo Bassi
 	 *
 	 */
-	public class DatabaseCreator extends SQLiteOpenHelper{
+	private static class DatabaseCreator extends SQLiteOpenHelper{
 		
 		// Database Name
 		private static final String DATABASE_NAME = "givemetime.db";
@@ -235,6 +237,10 @@ public class DatabaseManager {
 				+ WT_ID_CONSTRAINT + " VARCHAR(5) PRIMARY KEY, "
 				+ " FOREIGN KEY (" + WT_ACCOUNT + ") REFERENCES " + USER_PREFERENCE + " (" + ACCOUNT + ")"
 				+ " FOREIGN KEY (" + WT_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
+		
+		public static DatabaseCreator createHelper(Context context){
+			return new DatabaseCreator(context);
+		}
 		
 		public DatabaseCreator(Context context){
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

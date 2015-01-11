@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.view.intro.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.Results;
@@ -13,6 +14,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -33,7 +36,8 @@ public class CalendarPickerFragment extends Fragment {
 	ArrayList<CalendarModel> calendars;
 	CalendarListAdapter listAdapter;
 	CalendarFetcher listFetcher;
-	  Button newCalendarButton;
+	Button newCalendarButton, confirmCalendarButton;
+	SQLiteDatabase db;
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,6 +56,13 @@ public class CalendarPickerFragment extends Fragment {
 
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+				// reset color of all elements
+				for (int i = 0; i < adapter.getChildCount(); i++) {
+					adapter.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
+				}
+				// change the background color of the selected element
+				view.setBackgroundColor(Color.LTGRAY);
+				// save the element selected
 				CalendarModel calendarSelected = (CalendarModel) adapter.getItemAtPosition(position);
 				CalendarPickerFragment.this.calendarListView.setSelection(position);
 				//Saving selected calendar ID
@@ -67,7 +78,7 @@ public class CalendarPickerFragment extends Fragment {
         //Log the user in
         login();
         
-      //Setting new calendar button onClick
+        //Setting new calendar button onClick
         newCalendarButton = (Button) rootView.findViewById(R.id.calendar_list_new_btn);
         newCalendarButton.setEnabled(false);
         newCalendarButton.setOnClickListener(new OnClickListener() {
@@ -77,7 +88,18 @@ public class CalendarPickerFragment extends Fragment {
 			}
 		});
         
-        
+        // set the button confirming the selection of the db
+        confirmCalendarButton = (Button) rootView.findViewById(R.id.continueButton);
+        confirmCalendarButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO get all events from google and put them inside the db
+				db = DatabaseManager.getDatabaseInstance(getActivity());
+				
+				
+			}
+		});
         
         
         return rootView;

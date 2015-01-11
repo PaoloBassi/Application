@@ -19,6 +19,9 @@ public class LastTutorialPage extends Fragment{
 
         ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.last_tutorial_page, container, false);
         
+        
+        
+        
         Button btn = (Button) rootView.findViewById(R.id.continueButton);
         
         btn.setOnClickListener(new OnClickListener() {
