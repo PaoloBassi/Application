@@ -363,6 +363,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 				cr.insert(uri, values);
 	}
 	
+	Activity getCaller(){return caller;}
 	
 	public static List<CalendarModel> getCalendarList(){
 		return calendarList;
