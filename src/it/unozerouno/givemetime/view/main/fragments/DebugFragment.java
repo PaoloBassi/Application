@@ -1,9 +1,9 @@
 package it.unozerouno.givemetime.view.main.fragments;
 
 import it.unozerouno.givemetime.R;
-import android.os.Bundle;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,6 +46,7 @@ public class DebugFragment extends Fragment{
 		freetimeBtn.setOnClickListener(new OnClickListener() {
 			@Override
 public void onClick(View v) {
+			
 					
 }});
 		editCalendarBtn.setOnClickListener(new OnClickListener() {
