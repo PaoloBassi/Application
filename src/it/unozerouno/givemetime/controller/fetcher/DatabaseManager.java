@@ -1,12 +1,13 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.utils.TaskListener;
+import android.app.Activity;
 import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import it.unozerouno.givemetime.model.events.EventModel;
-import it.unozerouno.givemetime.model.events.EventModelListener;
-import it.unozerouno.givemetime.utils.GiveMeLogger;
+import android.provider.ContactsContract.Contacts.Data;
 
 /**
  * This is the entry Point for the model. It fetches all stored app data from DB and generates Model.
@@ -15,23 +16,29 @@ import it.unozerouno.givemetime.utils.GiveMeLogger;
  * @author Paolo Bassi
  *
  */
-public class DatabaseManager {
+public final class DatabaseManager {
 	
 	private static SQLiteDatabase database = null;
 	private static DatabaseCreator dbCreator;
+	private static DatabaseManager dbManagerInstance;
 	
-	/**
-	 * returns the database instance as singleton
-	 * @param context
-	 */
-	public static SQLiteDatabase getDatabaseInstance(Context context) {
-		if (database == null){
-			dbCreator = DatabaseCreator.createHelper(context);
-			database = dbCreator.getWritableDatabase();
+
+
+	private DatabaseManager(Context context) {
+		if (database == null || dbCreator == null){
+			dbCreator=DatabaseCreator.createHelper(context);
+			database = dbCreator.getReadableDatabase();
 		}
-		return database;
 	}
 	
+	public static synchronized DatabaseManager getInstance(Context context) {
+		if(dbManagerInstance == null){
+			dbManagerInstance = new DatabaseManager(context);
+		}
+		return dbManagerInstance;
+	}
+	
+		
 	/**
 	 * close all instances of DB and DBHelper
 	 */
@@ -51,45 +58,46 @@ public class DatabaseManager {
 	}
 	
 	
-	/**
-	 * Example
-	 * @param date
-	 * @return
-	 */
-	public static EventModel getEvents(){
-		//TODO: Complete this function
-		//Here fetch from DB
-		String id = "fixme";
-		String name = "fixme";
-		Long time = (long) 1;
-		int color = 0;
-		
-		//Creating model
-		
-		EventModel newEvent = new EventModel(id,name,time,time,color);
-		//Adding listener for updating Google Calendar
-		newEvent.addListener(new EventModelListener() {
-			
-			@Override
-			public void onEventChange(EventModel changedEvent) {
-				// TODO: HERE PUSH TO GOOGLE CALENDAR
-			}
-		});
-		return newEvent;
-	}
+	
 		
 	
 	/**
 	 * Pulls all new events from Google Calendar
 	 */
-	public static boolean synchronize(){
-		//Return true if all is ok
+	public static synchronized boolean synchronize(Activity caller){
+		
+		//Fetching Events ID from CalendarProvider
+		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
+		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_EVENTS_ID_ONLY);
+		calendarFetcher.setListener(new TaskListener<String[]>(caller) {
+			@Override
+			public void onTaskResult(String[]... results) {
+				for (String[] strings : results) {
+					for (String eventId : strings) {
+						System.out.println("Created event with id: " + eventId);
+						DatabaseManager.getInstance(calendarFetcher.getCaller()).createEventRow( calendarFetcher.getCaller(), eventId);
+					}
+				}
+				
+			}
+		});
+		calendarFetcher.execute();
+		
+		
+		//TODO: create events in db using eventId		
+		
+		
 		return true;
 		//TODO: synchronization
 	}
 	
 	
-	
+	public void createEventRow(Context context, String eventId){
+		String calId = UserKeyRing.getCalendarId(context);
+		String CREATE_NEW_EMPTY_EVENT = "IF NOT EXISTS (SELECT * FROM "+ DatabaseCreator.EVENT_MODEL +" WHERE "+ DatabaseCreator.ID_CALENDAR + " = '"+ calId + "' AND "+ DatabaseCreator.ID_EVENT_PROVIDER +" = '"+ eventId +"') " +"INSERT INTO "+ DatabaseCreator.EVENT_MODEL + " (" + DatabaseCreator.ID_CALENDAR + ", " + DatabaseCreator.ID_EVENT_PROVIDER + ") VALUES ('"+ calId +"','"+ eventId +"'); ";
+		database.execSQL(CREATE_NEW_EMPTY_EVENT);
+		
+	}
 	
 	/**
 	 * This helper class creates the GiveMeTime database
@@ -104,17 +112,17 @@ public class DatabaseManager {
 		// Database Version
 		private static final int DATABASE_VERSION = 1;
 		// Database Tables
-		private static final String EVENT_MODEL = "event_model";
-		private static final String PLACE_MODEL = "place_model";
-		private static final String QUESTION_MODEL = "question_model";
-		private static final String OPENING_TIMES = "opening_times";
-		private static final String OPENING_DAYS = "opening_days";
-		private static final String EVENT_CATEGORY = "event_category";
-		private static final String EVENT_CONSTRAINTS = "event_constraints";
-		private static final String CONSTRAINTS = "constraints";
-		private static final String USER_PREFERENCE = "user_preference";
-		private static final String VACATION_DAYS = "vacation_days";
-		private static final String WORK_TIMETABLE = "work_timetable";
+		 static final String EVENT_MODEL = "event_model";
+		 static final String PLACE_MODEL = "place_model";
+		 static final String QUESTION_MODEL = "question_model";
+		 static final String OPENING_TIMES = "opening_times";
+		 static final String OPENING_DAYS = "opening_days";
+		 static final String EVENT_CATEGORY = "event_category";
+		 static final String EVENT_CONSTRAINTS = "event_constraints";
+		 static final String CONSTRAINTS = "constraints";
+		 static final String USER_PREFERENCE = "user_preference";
+		 static final String VACATION_DAYS = "vacation_days";
+		 static final String WORK_TIMETABLE = "work_timetable";
 		
 		// Database Column Names
 		// EVENT_MODEL
@@ -165,13 +173,14 @@ public class DatabaseManager {
 		// Table Create Statements
 		// EVENT_MODEL
 		private static final String CREATE_TABLE_EVENT_MODEL = "CREATE TABLE "
-				+ EVENT_MODEL + "(" + ID_CALENDAR + " VARCHAR(5) PRIMARY KEY, "
-				+ ID_EVENT_PROVIDER + " VARCHAR(5) PRIMARY KEY, "
+				+ EVENT_MODEL + "(" + ID_CALENDAR + " VARCHAR(5), "
+				+ ID_EVENT_PROVIDER + " VARCHAR(5), "
 				+ ID_EVENT_CATEGORY + " VARCHAR(30), "
 				+ ID_PLACE + " VARCHAR(50), "
 				+ FLAG_DO_NOT_DISTURB + " BOOLEAN, "
 				+ FLAG_DEADLINE + " BOOLEAN, "
 				+ FLAG_MOVABLE + " BOOLEAN, "
+				+ " PRIMARY KEY (" + ID_CALENDAR + ", " + ID_EVENT_PROVIDER + "),"
 				+ " FOREIGN KEY (" + ID_EVENT_CATEGORY + ") REFERENCES " + EVENT_CATEGORY + " (" + ECA_NAME + ")" 
 				+ " FOREIGN KEY (" + ID_PLACE + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")" + ");";
 		// PLACE_MODEL
@@ -190,14 +199,16 @@ public class DatabaseManager {
 				+ " FOREIGN KEY (" + USER_LOCATION + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION	 + ")" + ");";
 		// OPENING_TIMES 
 		private static final String CREATE_TABLE_OPENING_TIMES = "CREATE TABLE "
-				+ OPENING_TIMES + "(" + OT_ID_LOCATION + " VARCHAR(5) PRIMARY KEY, "
-				+ OT_ID_CONSTRAINT + " VARCHAR(5) PRIMARY KEY, "
+				+ OPENING_TIMES + "(" + OT_ID_LOCATION + " VARCHAR(5), "
+				+ OT_ID_CONSTRAINT + " VARCHAR(5), "
+				+ " PRIMARY KEY (" + OT_ID_LOCATION + ", " + OT_ID_CONSTRAINT + "),"
 				+ " FOREIGN KEY (" + OT_ID_LOCATION + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")"
 				+ " FOREIGN KEY (" + OT_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// OPENING_DAYS 
 		private static final String CREATE_TABLE_OPENING_DAYS = "CREATE TABLE "
-				+ OPENING_DAYS + "(" + OD_ID_LOCATION + " VARCHAR(5) PRIMARY KEY, "
-				+ OD_ID_CONSTRAINT + " VARCHAR(5) PRIMARY KEY, "
+				+ OPENING_DAYS + "(" + OD_ID_LOCATION + " VARCHAR(5), "
+				+ OD_ID_CONSTRAINT + " VARCHAR(5), "
+				+ " PRIMARY KEY (" + OD_ID_LOCATION + ", " + OD_ID_CONSTRAINT + "),"
 				+ " FOREIGN KEY (" + OD_ID_LOCATION + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")"
 				+ " FOREIGN KEY (" + OD_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// EVENT_CATEGORY 
@@ -207,8 +218,9 @@ public class DatabaseManager {
 				+  ");";
 		// EVENT_CONSTRAINTS 
 		private static final String CREATE_TABLE_EVENT_CONSTRAINTS = "CREATE TABLE "
-				+ EVENT_CONSTRAINTS + "(" + ECO_ID_CONSTRAINT + " VARCHAR(5) PRIMARY KEY, "
-				+ ECO_ID_EVENT + " VARCHAR(5) PRIMARY KEY, "
+				+ EVENT_CONSTRAINTS + "(" + ECO_ID_CONSTRAINT + " VARCHAR(5), "
+				+ ECO_ID_EVENT + " VARCHAR(5), "
+				+ " PRIMARY KEY (" + ECO_ID_CONSTRAINT + ", " + ECO_ID_EVENT + "),"
 				+ " FOREIGN KEY (" + ECO_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")"
 				+ " FOREIGN KEY (" + ECO_ID_EVENT + ") REFERENCES " + EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")" + ");";
 		// CONSTRAINTS 
@@ -216,7 +228,7 @@ public class DatabaseManager {
 				+ CONSTRAINTS + "(" + C_ID_CONSTRAINT + " VARCHAR(5) PRIMARY KEY, "
 				+ CONSTRAINT_TYPE + " VARCHAR(30), "
 				+ C_START + " VARCHAR(30), "
-				+ C_END + " VARCHAR(30), " + ");";
+				+ C_END + " VARCHAR(30)" + ");";
 		// USER_PREFERENCE
 		private static final String CREATE_TABLE_USER_PREFERENCE = "CREATE TABLE "
 				+ USER_PREFERENCE + "(" + ACCOUNT + " VARCHAR(30) PRIMARY KEY, "
@@ -227,14 +239,16 @@ public class DatabaseManager {
 				+ " FOREIGN KEY (" + ID_SLEEP_TIME + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// VACATION_DAYS 
 		private static final String CREATE_TABLE_VACATION_DAYS = "CREATE TABLE "
-				+ VACATION_DAYS + "(" + VD_ACCOUNT + " VARCHAR(30) PRIMARY KEY, "
-				+ VD_ID_CONSTRAINT + " VARCHAR(5) PRIMARY KEY, "
+				+ VACATION_DAYS + "(" + VD_ACCOUNT + " VARCHAR(30), "
+				+ VD_ID_CONSTRAINT + " VARCHAR(5), "
+				+ " PRIMARY KEY (" + VD_ACCOUNT + ", " + VD_ID_CONSTRAINT + "),"
 				+ " FOREIGN KEY (" + VD_ACCOUNT + ") REFERENCES " + USER_PREFERENCE + " (" + ACCOUNT + ")"
 				+ " FOREIGN KEY (" + VD_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// WORK_TIMETABLE
 		private static final String CREATE_TABLE_WORK_TIMETABLE = "CREATE TABLE "
-				+ WORK_TIMETABLE + "(" + WT_ACCOUNT + " VARCHAR(30) PRIMARY KEY, "
-				+ WT_ID_CONSTRAINT + " VARCHAR(5) PRIMARY KEY, "
+				+ WORK_TIMETABLE + "(" + WT_ACCOUNT + " VARCHAR(30), "
+				+ WT_ID_CONSTRAINT + " VARCHAR(5), "
+				+ " PRIMARY KEY (" + WT_ACCOUNT + ", " + WT_ID_CONSTRAINT + "),"
 				+ " FOREIGN KEY (" + WT_ACCOUNT + ") REFERENCES " + USER_PREFERENCE + " (" + ACCOUNT + ")"
 				+ " FOREIGN KEY (" + WT_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		

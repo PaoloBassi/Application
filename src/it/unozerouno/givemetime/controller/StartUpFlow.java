@@ -87,7 +87,7 @@ public final class StartUpFlow extends Fragment{
 		AsyncTask<Void, Void, Boolean> synchronizer = new AsyncTask<Void, Void, Boolean>() {
 			@Override
 			protected Boolean doInBackground(Void... params) {
-				return DatabaseManager.synchronize();
+				return DatabaseManager.synchronize(getActivity());
 			}
 			@Override
 			protected void onPostExecute(Boolean result) {

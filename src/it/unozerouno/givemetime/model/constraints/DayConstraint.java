@@ -1,9 +1,9 @@
 package it.unozerouno.givemetime.model.constraints;
 
-import java.util.Calendar;
+import android.text.format.Time;
 
 /**
- * Represents an intervall between two week days (ex "From Monday to Friday")
+ * Represents an interval between two week days (ex "From Monday to Friday")
  * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com>
  *
  */
@@ -11,17 +11,28 @@ public class DayConstraint extends Constraint {
 	private int startingDay;
 	private int endingDay;
 	
-	
+	/**
+	 * Create a new interval between two weekdays, starting from startingDay (included) and ending at endingDay (included)
+	 * Days are represented by integers where SUNDAY is 0 and SATURDAY is 6.  
+	 * (Please refer to android.text.Time constants)
+	 * @param startingDay
+	 * @param endingDay
+	 * 
+	 */
 	public DayConstraint(int startingDay, int endingDay) {
 		this.startingDay=startingDay;
 		this.endingDay = endingDay;
 	}
 	
-
-
-
 	@Override
 	public Boolean isActive() {
-		// TODO Auto-generated method stub
-		return null;
-	}}
+		Time now = new Time();
+		now.setToNow();
+		int today =now.weekDay;
+		return isActive(today);
+	}
+	public Boolean isActive(int when){
+		return ((when >= startingDay) && (when <= endingDay));
+	}
+	
+}
