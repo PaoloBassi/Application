@@ -37,7 +37,7 @@ public class CalendarPickerFragment extends Fragment {
 	CalendarListAdapter listAdapter;
 	CalendarFetcher listFetcher;
 	Button newCalendarButton, confirmCalendarButton;
-	SQLiteDatabase db;
+	DatabaseManager dbManager;
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -95,7 +95,8 @@ public class CalendarPickerFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				// TODO get all events from google and put them inside the db
-				db = DatabaseManager.getDatabaseInstance(getActivity());
+				dbManager = DatabaseManager.getInstance(getActivity());
+				
 				
 				
 			}

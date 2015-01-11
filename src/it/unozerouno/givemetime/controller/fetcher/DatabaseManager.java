@@ -1,12 +1,15 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.model.events.EventModelListener;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.utils.TaskListener;
 
 /**
  * This is the entry Point for the model. It fetches all stored app data from DB and generates Model.
@@ -15,23 +18,28 @@ import it.unozerouno.givemetime.utils.GiveMeLogger;
  * @author Paolo Bassi
  *
  */
-public class DatabaseManager {
+public final class DatabaseManager {
 	
 	private static SQLiteDatabase database = null;
 	private static DatabaseCreator dbCreator;
+	private static DatabaseManager dbManagerInstance;
 	
-	/**
-	 * returns the database instance as singleton
-	 * @param context
-	 */
-	public static SQLiteDatabase getDatabaseInstance(Context context) {
-		if (database == null){
-			dbCreator = DatabaseCreator.createHelper(context);
-			database = dbCreator.getWritableDatabase();
+
+	private DatabaseManager(Context context) {
+		if (database == null || dbCreator == null){
+			dbCreator=DatabaseCreator.createHelper(context);
+			database = dbCreator.getReadableDatabase();
 		}
-		return database;
 	}
 	
+	public static synchronized DatabaseManager getInstance(Context context) {
+		if(dbManagerInstance == null){
+			dbManagerInstance = new DatabaseManager(context);
+		}
+		return dbManagerInstance;
+	}
+	
+		
 	/**
 	 * close all instances of DB and DBHelper
 	 */
@@ -51,39 +59,35 @@ public class DatabaseManager {
 	}
 	
 	
-	/**
-	 * Example
-	 * @param date
-	 * @return
-	 */
-	public static EventModel getEvents(){
-		//TODO: Complete this function
-		//Here fetch from DB
-		String id = "fixme";
-		String name = "fixme";
-		Long time = (long) 1;
-		int color = 0;
-		
-		//Creating model
-		
-		EventModel newEvent = new EventModel(id,name,time,time,color);
-		//Adding listener for updating Google Calendar
-		newEvent.addListener(new EventModelListener() {
-			
-			@Override
-			public void onEventChange(EventModel changedEvent) {
-				// TODO: HERE PUSH TO GOOGLE CALENDAR
-			}
-		});
-		return newEvent;
-	}
+	
 		
 	
 	/**
 	 * Pulls all new events from Google Calendar
 	 */
-	public static boolean synchronize(){
-		//Return true if all is ok
+	public static synchronized boolean synchronize(Activity caller){
+		
+		//Fetching Events ID from CalendarProvider
+		CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
+		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_EVENTS_ID_ONLY);
+		calendarFetcher.setListener(new TaskListener<String[]>(caller) {
+			@Override
+			public void onTaskResult(String[]... results) {
+				for (String[] strings : results) {
+					for (String eventId : strings) {
+						
+						System.out.println("Found event with ID: " + eventId);
+					}
+				}
+				
+			}
+		});
+		calendarFetcher.execute();
+		
+		
+		//TODO: create events in db using eventId		
+		
+		
 		return true;
 		//TODO: synchronization
 	}
