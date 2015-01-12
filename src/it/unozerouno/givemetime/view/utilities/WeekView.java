@@ -27,6 +27,7 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -48,8 +49,8 @@ public class WeekView extends View{
     public static final int LENGTH_SHORT = 1;
     public static final int LENGTH_LONG = 2;
     private final Context context;
-    private Calendar today;
-    private Calendar startDate;
+    private Time today;
+    private Time startDate;
     // Paint variables
     private Paint timeTextPaint;
     private Paint headerTextPaint;
@@ -108,8 +109,8 @@ public class WeekView extends View{
     private int dayNameLength = LENGTH_LONG;
     private int overlappingEventGap = 0;
     private int eventMarginVertical = 0;
-    private Calendar firstVisibleDay;
-    private Calendar lastVisibleDay;
+    private Time firstVisibleDay;
+    private Time lastVisibleDay;
     
     
     ////////////////////////////////////////////////////////////
@@ -265,10 +266,10 @@ public class WeekView extends View{
     
     private void initialize(){
     	// Get the date today.
-        today = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
+    	today = new Time();
+    	today.hour = 0;
+    	today.minute = 0;
+    	today.second = 0;
 
         // Scrolling initialization.
         gestureDetector = new GestureDetectorCompat(context, gestureListener);
@@ -333,7 +334,7 @@ public class WeekView extends View{
         eventTextPaint.setStyle(Paint.Style.FILL);
         eventTextPaint.setColor(eventTextColor);
         eventTextPaint.setTextSize(eventTextSize);
-        startDate = (Calendar) today.clone();
+        startDate = new Time(today);
 
         // Set default event color.
         defaultEventColor = Color.parseColor("#9fc6e7");
@@ -389,8 +390,8 @@ public class WeekView extends View{
 
         // If the week view is being drawn for the first time, then consider the first day of week.
         if (isFirstDraw && numberOfVisibleDays >= 7) {
-            if (today.get(Calendar.DAY_OF_WEEK) != firstDayOfWeek) {
-                int difference = 7 + (today.get(Calendar.DAY_OF_WEEK) - firstDayOfWeek);
+            if ((today.weekDay + 1) != firstDayOfWeek) {
+                int difference = 7 + ((today.weekDay + 1) - firstDayOfWeek);
                 currentOrigin.x += (widthPerDay + columnGap) * difference;
             }
             isFirstDraw = false;
@@ -404,8 +405,8 @@ public class WeekView extends View{
         float startPixel = startFromPixel;
 
         // Prepare to iterate for each day.
-        Calendar day = (Calendar) today.clone();
-        day.add(Calendar.HOUR, 6);
+        Time day = new Time(today);
+        day.hour = 6;
 
         // Prepare to iterate for each hour to draw the hour lines.
         int lineCount = (int) ((getHeight() - headerTextHeight - headerRowPadding * 2 -
@@ -421,22 +422,22 @@ public class WeekView extends View{
         }
 
         // Iterate through each day.
-        firstVisibleDay = (Calendar) today.clone();
-        firstVisibleDay.add(Calendar.DATE, leftDaysWithGaps);
+        firstVisibleDay = new Time(today);
+        firstVisibleDay.monthDay = leftDaysWithGaps;
         for (int dayNumber = leftDaysWithGaps + 1;
              dayNumber <= leftDaysWithGaps + numberOfVisibleDays + 1;
              dayNumber++) {
 
             // Check if the day is today.
-            day = (Calendar) today.clone();
-            lastVisibleDay = (Calendar) day.clone();
-            day.add(Calendar.DATE, dayNumber - 1);
-            lastVisibleDay.add(Calendar.DATE, dayNumber - 2);
+            day = new Time(today);
+            lastVisibleDay = new Time(day);
+            day.monthDay = dayNumber - 1;
+            lastVisibleDay.monthDay = dayNumber - 2;
             boolean sameDay = isSameDay(day, today);
 
             // Get more events if necessary. We want to store the events 3 months beforehand. Get
             // events only when it is the first iteration of the loop.
-            if (eventRects == null || refreshEvents || (dayNumber == leftDaysWithGaps + 1 && fetchedMonths[1] != day.get(Calendar.MONTH)+1 && day.get(Calendar.DAY_OF_MONTH) == 15)) {
+            if (eventRects == null || refreshEvents || (dayNumber == leftDaysWithGaps + 1 && fetchedMonths[1] != day.month+1 && day.monthDay == 15)) {
                 getMoreEvents(day);
                 refreshEvents = false;
             }
@@ -476,12 +477,12 @@ public class WeekView extends View{
         startPixel = startFromPixel;
         for (int dayNumber=leftDaysWithGaps+1; dayNumber <= leftDaysWithGaps + numberOfVisibleDays + 1; dayNumber++) {
             // Check if the day is today.
-            day = (Calendar) today.clone();
-            day.add(Calendar.DATE, dayNumber - 1);
+            day = new Time(today);
+            day.monthDay = dayNumber - 1;
             boolean sameDay = isSameDay(day, today);
 
             // Draw the day labels.
-            String dayLabel = String.format("%s %d/%02d", getDayName(day), day.get(Calendar.MONTH) + 1, day.get(Calendar.DAY_OF_MONTH));
+            String dayLabel = String.format("%s %d/%02d", getDayName(day), day.month + 1, day.monthDay);
             canvas.drawText(dayLabel, startPixel + widthPerDay / 2, headerTextHeight + headerRowPadding, sameDay ? todayHeaderTextPaint : headerTextPaint);
             startPixel += widthPerDay + columnGap;
         }
@@ -490,14 +491,14 @@ public class WeekView extends View{
     
     /**
      * Draw all the events of a particular day.
-     * @param date The day.
+     * @param day The day.
      * @param startFromPixel The left position of the day area. The events will never go any left from this value.
      * @param canvas The canvas to draw upon.
      */
-    private void drawEvents(Calendar date, float startFromPixel, Canvas canvas) {
+    private void drawEvents(Time day, float startFromPixel, Canvas canvas) {
         if (eventRects != null && eventRects.size() > 0) {
             for (int i = 0; i < eventRects.size(); i++) {
-                if (isSameDay(eventRects.get(i).event.getStartingDateTime(), date)) {
+                if (isSameDay(eventRects.get(i).event.getStartingDateTime(), day)) {
 
                     // Calculate top.
                     float top = hourHeight * 24 * eventRects.get(i).top / 1440 + currentOrigin.y + headerTextHeight + headerRowPadding * 2 + headerMarginBottom + timeTextHeight/2 + eventMarginVertical;
@@ -625,7 +626,7 @@ public class WeekView extends View{
      * the previous month, the next month.
      * @param day The day where the user is currently is.
      */
-    private void getMoreEvents(Calendar day) {
+    private void getMoreEvents(Time day) {
 
         // Delete all events if its not current month +- 1.
         deleteFarMonths(day);
@@ -643,12 +644,12 @@ public class WeekView extends View{
         }
 
         // Get events of previous month.
-        int previousMonth = (day.get(Calendar.MONTH) == 0?12:day.get(Calendar.MONTH));
-        int nextMonth = (day.get(Calendar.MONTH)+2 == 13 ?1:day.get(Calendar.MONTH)+2);
+        int previousMonth = (day.month == 0?12:day.month);
+        int nextMonth = (day.month+2 == 13 ?1:day.month+2);
         int[] lastFetchedMonth = fetchedMonths.clone();
         if (fetchedMonths[0] < 1 || fetchedMonths[0] != previousMonth || refreshEvents) {
             if (!containsValue(lastFetchedMonth, previousMonth) && !isInEditMode()){
-                List<EventModel> events = monthChangeListener.onMonthChange((previousMonth==12)?day.get(Calendar.YEAR)-1:day.get(Calendar.YEAR), previousMonth);
+                List<EventModel> events = monthChangeListener.onMonthChange((previousMonth==12)?day.year-1:day.year, previousMonth);
                 sortEvents(events);
                 for (EventModel event: events) {
                     cacheEvent(event);
@@ -658,21 +659,21 @@ public class WeekView extends View{
         }
 
         // Get events of this month.
-        if (fetchedMonths[1] < 1 || fetchedMonths[1] != day.get(Calendar.MONTH)+1 || refreshEvents) {
-            if (!containsValue(lastFetchedMonth, day.get(Calendar.MONTH)+1) && !isInEditMode()) {
-                List<EventModel> events = monthChangeListener.onMonthChange(day.get(Calendar.YEAR), day.get(Calendar.MONTH) + 1);
+        if (fetchedMonths[1] < 1 || fetchedMonths[1] != day.month+1 || refreshEvents) {
+            if (!containsValue(lastFetchedMonth, day.month+1) && !isInEditMode()) {
+                List<EventModel> events = monthChangeListener.onMonthChange(day.year, day.month + 1);
                 sortEvents(events);
                 for (EventModel event : events) {
                     cacheEvent(event);
                 }
             }
-            fetchedMonths[1] = day.get(Calendar.MONTH)+1;
+            fetchedMonths[1] = day.month+1;
         }
 
         // Get events of next month.
         if (fetchedMonths[2] < 1 || fetchedMonths[2] != nextMonth || refreshEvents) {
             if (!containsValue(lastFetchedMonth, nextMonth) && !isInEditMode()) {
-                List<EventModel> events = monthChangeListener.onMonthChange(nextMonth == 1 ? day.get(Calendar.YEAR) + 1 : day.get(Calendar.YEAR), nextMonth);
+                List<EventModel> events = monthChangeListener.onMonthChange(nextMonth == 1 ? day.year + 1 : day.year, nextMonth);
                 sortEvents(events);
                 for (EventModel event : events) {
                     cacheEvent(event);
@@ -684,15 +685,15 @@ public class WeekView extends View{
         // Prepare to calculate positions of each events.
         ArrayList<EventRect> tempEvents = new ArrayList<EventRect>(eventRects);
         eventRects = new ArrayList<EventRect>();
-        Calendar dayCounter = (Calendar) day.clone();
-        dayCounter.add(Calendar.MONTH, -1);
-        dayCounter.set(Calendar.DAY_OF_MONTH, 1);
-        Calendar maxDay = (Calendar) day.clone();
-        maxDay.add(Calendar.MONTH, 1);
-        maxDay.set(Calendar.DAY_OF_MONTH, maxDay.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Time dayCounter = new Time(day);
+        dayCounter.month -= 1;
+        dayCounter.monthDay = 1;
+        Time maxDay = new Time(day);
+        maxDay.month += 1;
+        maxDay.monthDay = maxDay.getActualMaximum(Time.MONTH_DAY);
 
         // Iterate through each day to calculate the position of the events.
-        while (dayCounter.getTimeInMillis() <= maxDay.getTimeInMillis()) {
+        while (dayCounter.toMillis(true) <= maxDay.toMillis(true)) {
             ArrayList<EventRect> eventRects = new ArrayList<EventRect>();
             for (EventRect eventRect : tempEvents) {
                 if (isSameDay(eventRect.event.getStartingDateTime(), dayCounter))
@@ -700,7 +701,7 @@ public class WeekView extends View{
             }
 
             computePositionOfEvents(eventRects);
-            dayCounter.add(Calendar.DATE, 1);
+            dayCounter.monthDay += 1;
         }
     }
     
@@ -711,14 +712,14 @@ public class WeekView extends View{
     
     private void cacheEvent(EventModel event) {
         if (!isSameDay(event.getStartingDateTime(), event.getEndingDateTime())) {
-            Calendar endTime = (Calendar) event.getStartingDateTime().clone();
-            endTime.set(Calendar.HOUR_OF_DAY, 23);
-            endTime.set(Calendar.MINUTE, 59);
-            Calendar startTime = (Calendar) event.getEndingDateTime().clone();
-            startTime.set(Calendar.HOUR_OF_DAY, 00);
-            startTime.set(Calendar.MINUTE, 0);
-            EventModel event1 = new EventModel(event.getID(), event.getName(), event.getStartingDateTime().getTimeInMillis(), endTime.getTimeInMillis(), event.getColor());
-            EventModel event2 = new EventModel(event.getID(), event.getName(), startTime.getTimeInMillis(), event.getEndingDateTime().getTimeInMillis(), event.getColor());
+            Time endTime = new Time(event.getStartingDateTime());
+            endTime.hour = 23;
+            endTime.minute = 59;
+            Time startTime = new Time(event.getEndingDateTime());
+            startTime.hour = 00;
+            startTime.minute = 0;
+            EventModel event1 = new EventModel(event.getID(), event.getName(), event.getStartingDateTime().toMillis(true), endTime.toMillis(true));
+            EventModel event2 = new EventModel(event.getID(), event.getName(), startTime.toMillis(true), event.getEndingDateTime().toMillis(true));
             eventRects.add(new EventRect(event1, event, null));
             eventRects.add(new EventRect(event2, event, null));
         }
@@ -734,12 +735,12 @@ public class WeekView extends View{
         Collections.sort(events, new Comparator<EventModel>() {
             @Override
             public int compare(EventModel event1, EventModel event2) {
-                long start1 = event1.getStartingDateTime().getTimeInMillis();
-                long start2 = event2.getStartingDateTime().getTimeInMillis();
+                long start1 = event1.getStartingDateTime().toMillis(true);
+                long start2 = event2.getStartingDateTime().toMillis(true);
                 int comparator = start1 > start2 ? 1 : (start1 < start2 ? -1 : 0);
                 if (comparator == 0) {
-                    long end1 = event1.getEndingDateTime().getTimeInMillis();
-                    long end2 = event2.getEndingDateTime().getTimeInMillis();
+                    long end1 = event1.getEndingDateTime().toMillis(true);
+                    long end2 = event2.getEndingDateTime().toMillis(true);
                     comparator = end1 > end2 ? 1 : (end1 < end2 ? -1 : 0);
                 }
                 return comparator;
@@ -819,8 +820,8 @@ public class WeekView extends View{
                     EventRect eventRect = column.get(i);
                     eventRect.width = 1f / columns.size();
                     eventRect.left = j / columns.size();
-                    eventRect.top = eventRect.event.getStartingDateTime().get(Calendar.HOUR_OF_DAY) * 60 + eventRect.event.getStartingDateTime().get(Calendar.MINUTE);
-                    eventRect.bottom = eventRect.event.getEndingDateTime().get(Calendar.HOUR_OF_DAY) * 60 + eventRect.event.getEndingDateTime().get(Calendar.MINUTE);
+                    eventRect.top = eventRect.event.getStartingDateTime().hour * 60 + eventRect.event.getStartingDateTime().minute;
+                    eventRect.bottom = eventRect.event.getEndingDateTime().hour * 60 + eventRect.event.getEndingDateTime().minute;
                     eventRects.add(eventRect);
                 }
                 j++;
@@ -835,10 +836,10 @@ public class WeekView extends View{
      * @return true if the events overlap.
      */
     private boolean isEventsCollide(EventModel event1, EventModel event2) {
-        long start1 = event1.getStartingDateTime().getTimeInMillis();
-        long end1 = event1.getEndingDateTime().getTimeInMillis();
-        long start2 = event2.getStartingDateTime().getTimeInMillis();
-        long end2 = event2.getEndingDateTime().getTimeInMillis();
+        long start1 = event1.getStartingDateTime().toMillis(true);
+        long end1 = event1.getEndingDateTime().toMillis(true);
+        long start2 = event2.getStartingDateTime().toMillis(true);
+        long end2 = event2.getEndingDateTime().toMillis(true);
         return !((start1 >= end2) || (end1 <= start2));
     }
     
@@ -854,29 +855,29 @@ public class WeekView extends View{
     
     /**
      * Deletes the events of the months that are too far away from the current month.
-     * @param currentDay The current day.
+     * @param day The current day.
      */
-    private void deleteFarMonths(Calendar currentDay) {
+    private void deleteFarMonths(Time day) {
 
         if (eventRects == null) return;
 
-        Calendar nextMonth = (Calendar) currentDay.clone();
-        nextMonth.add(Calendar.MONTH, 1);
-        nextMonth.set(Calendar.DAY_OF_MONTH, nextMonth.getActualMaximum(Calendar.DAY_OF_MONTH));
-        nextMonth.set(Calendar.HOUR_OF_DAY, 12);
-        nextMonth.set(Calendar.MINUTE, 59);
-        nextMonth.set(Calendar.SECOND, 59);
+        Time nextMonth = new Time(day);
+        nextMonth.month += 1;
+        nextMonth.monthDay = nextMonth.getActualMaximum(Time.MONTH_DAY);
+        nextMonth.hour = 12;
+        nextMonth.minute = 59;
+        nextMonth.second = 59;
 
-        Calendar prevMonth = (Calendar) currentDay.clone();
-        prevMonth.add(Calendar.MONTH, -1);
-        prevMonth.set(Calendar.DAY_OF_MONTH, 1);
-        prevMonth.set(Calendar.HOUR_OF_DAY, 0);
-        prevMonth.set(Calendar.MINUTE, 0);
-        prevMonth.set(Calendar.SECOND, 0);
+        Time prevMonth = new Time(day);
+        prevMonth.month -= 1;
+        prevMonth.monthDay = 1;
+        prevMonth.hour = 0;
+        prevMonth.minute = 0;
+        prevMonth.second = 0;
 
         List<EventRect> newEvents = new ArrayList<EventRect>();
         for (EventRect eventRect : eventRects) {
-            boolean isFarMonth = eventRect.event.getStartingDateTime().getTimeInMillis() > nextMonth.getTimeInMillis() || eventRect.event.getEndingDateTime().getTimeInMillis() < prevMonth.getTimeInMillis();
+            boolean isFarMonth = eventRect.event.getStartingDateTime().toMillis(true) > nextMonth.toMillis(true) || eventRect.event.getEndingDateTime().toMillis(true) < prevMonth.toMillis(true);
             if (!isFarMonth) newEvents.add(eventRect);
         }
         eventRects.clear();
@@ -1166,7 +1167,7 @@ public class WeekView extends View{
      * Returns the first visible day in the week view.
      * @return The first visible day in the week view.
      */
-    public Calendar getFirstVisibleDay() {
+    public Time getFirstVisibleDay() {
         return firstVisibleDay;
     }
 
@@ -1174,7 +1175,7 @@ public class WeekView extends View{
      * Returns the last visible day in the week view.
      * @return The last visible day in the week view.
      */
-    public Calendar getLastVisibleDay() {
+    public Time getLastVisibleDay() {
         return lastVisibleDay;
     }
     
@@ -1341,18 +1342,18 @@ public class WeekView extends View{
      * @param dayTwo The second day.
      * @return Whether the times are on the same day.
      */
-    private boolean isSameDay(Calendar dayOne, Calendar dayTwo) {
-        return dayOne.get(Calendar.YEAR) == dayTwo.get(Calendar.YEAR) && dayOne.get(Calendar.DAY_OF_YEAR) == dayTwo.get(Calendar.DAY_OF_YEAR);
+    private boolean isSameDay(Time dayOne, Time dayTwo) {
+        return dayOne.year == dayTwo.year && dayOne.yearDay == dayTwo.yearDay;
     }
 
 
     /**
      * Get the day name of a given date.
-     * @param date The date.
+     * @param day The date.
      * @return The first the characters of the day name.
      */
-    private String getDayName(Calendar date) {
-        int dayOfWeek = date.get(Calendar.DAY_OF_WEEK);
+    private String getDayName(Time day) {
+        int dayOfWeek = day.weekDay + 1;
         if (Calendar.MONDAY == dayOfWeek) return (dayNameLength == LENGTH_SHORT ? "M" : "MON");
         else if (Calendar.TUESDAY == dayOfWeek) return (dayNameLength == LENGTH_SHORT ? "T" : "TUE");
         else if (Calendar.WEDNESDAY == dayOfWeek) return (dayNameLength == LENGTH_SHORT ? "W" : "WED");

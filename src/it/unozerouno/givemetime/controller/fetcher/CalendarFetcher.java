@@ -63,11 +63,10 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	public static class Actions{
 		public static final int NO_ACTION = -1;
 		public static final int LIST_CALENDARS = 0;
-		public static final int LIST_EVENTS = 1;
-		public static final int CALENDARS_TO_MODEL = 2;
-		public static final int EVENTS_TO_MODEL = 3;
-		public static final int ADD_NEW_CALENDAR = 4;
-		public static final int LIST_EVENTS_ID_ONLY = 5;
+		public static final int CALENDARS_TO_MODEL = 1;
+		public static final int LIST_OF_EVENTS = 2;
+		public static final int ADD_NEW_CALENDAR = 3;
+		public static final int LIST_EVENTS_ID_ONLY = 4;
 		//... here other actions
 	}
 	/**
@@ -137,15 +136,12 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		case Actions.LIST_CALENDARS:
 			getCalendars(projection);
 			break;
-		case Actions.LIST_EVENTS:
-			getEvents(projection);
-			break;
 		case Actions.CALENDARS_TO_MODEL:
 			calendarList = getCalendarModel();
 			setResult(Results.RESULT_OK);
 			break;
-		case Actions.EVENTS_TO_MODEL:
-			eventList = getEventModel();
+		case Actions.LIST_OF_EVENTS:
+			getEvents();
 			setResult(Results.RESULT_OK);
 			break;
 		case Actions.ADD_NEW_CALENDAR:
@@ -211,24 +207,28 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher
 	 * @param projection: Columns Names
 	 */
-	private void getEvents(String[] projection){
-		Cursor cur = null;
+	private void getEvents(){
+		Cursor eventCursor = null;
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;
+		String[] projection = Projections.EVENT_INFOS;
+		
+		//For Identifying as SyncAdapter, User must already be logged)
+		uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
 		
 		// execute the query, get a Cursor back
-		cur = cr.query(uri, projection, null, null, null);
+		eventCursor = cr.query(uri, projection, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, null);
 		
 		// step through the records
-		while(cur.moveToNext()){
+		while(eventCursor.moveToNext()){
 			String[] result = new String[projection.length];
 			for (int i = 0; i < result.length; i++) {
-				result[i] = cur.getString(i);
+				result[i] = eventCursor.getString(i);
 			}
 			// provide result to TaskListener
 			setResult(result);
 		}
-		cur.close();
+		eventCursor.close();
 	}
 	
 	private void fetchEventList(){
@@ -301,7 +301,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 		// Use the cursor to step through the returned records
 		while (eventCursor.moveToNext()) {
-			EventModel newEvent = new EventModel(eventCursor.getString(0), eventCursor.getString(1), eventCursor.getLong(2), eventCursor.getLong(3), eventCursor.getInt(4));
+			EventModel newEvent = new EventModel(eventCursor.getString(0), eventCursor.getString(1), eventCursor.getLong(2), eventCursor.getLong(3));
 			eventList.add(newEvent);
 			// if the event is recurrent
 			if (eventCursor.getString(5) != null){
@@ -324,7 +324,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 				while(instanceCursor.moveToNext()){
 					// TODO change the index in order to have unique IDs
 					if (instanceCursor.getString(0).equals(eventCursor.getString(0))){
-						EventModel newInstance = new EventModel(instanceCursor.getString(0), eventCursor.getString(1), instanceCursor.getLong(1), instanceCursor.getLong(2), eventCursor.getInt(4));
+						EventModel newInstance = new EventModel(instanceCursor.getString(0), eventCursor.getString(1), instanceCursor.getLong(1), instanceCursor.getLong(2));
 						eventList.add(newInstance);
 					}
 				}

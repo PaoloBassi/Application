@@ -1,6 +1,10 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.TaskListener;
 import android.app.Activity;
@@ -8,6 +12,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.ContactsContract.Contacts.Data;
+import android.text.format.Time;
 
 /**
  * This is the entry Point for the model. It fetches all stored app data from DB and generates Model.
@@ -22,12 +27,14 @@ public final class DatabaseManager {
 	private static DatabaseCreator dbCreator;
 	private static DatabaseManager dbManagerInstance;
 	
+	// eventList is the list of EventModel used by the view to represent the events
+	private List<EventModel> eventList = new ArrayList<EventModel>();
 
 
 	private DatabaseManager(Context context) {
 		if (database == null || dbCreator == null){
 			dbCreator=DatabaseCreator.createHelper(context);
-			database = dbCreator.getReadableDatabase();
+			database = dbCreator.getWritableDatabase();
 		}
 	}
 	
@@ -57,8 +64,44 @@ public final class DatabaseManager {
 		public static String[] RESULT_ERROR = {"ERROR"};
 	}
 	
-	
-	
+	/**
+	 * return a list of EventModel to be used by the calendar view inside two time constraints
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public List<EventModel> getEvents(Time start, Time end, Activity caller){
+		
+		// fetch the event from the calendar provider
+		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
+		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_OF_EVENTS);
+		calendarFetcher.setListener(new TaskListener<String[]>(caller) {
+
+			@Override
+			public void onTaskResult(String[]... results) {
+				for(String[] event : results){
+					// put each event inside a EventModel 
+					System.out.println(event[0] + " " + event[1] + " " + event[2] + " " + event[3] + " " + event[4] + " " + event[5]);
+					// prepare the model
+					EventModel eventModel = new EventModel(event[0], event[1], Long.parseLong(event[2]), Long.parseLong(event[3]));
+					eventModel.setColor(Integer.parseInt(event[4]));
+					// check for recursive events
+					if (event[5] != null){
+						DatabaseManager.getInstance(calendarFetcher.getCaller()).addRecursiveEvents(calendarFetcher.getCaller(), event);
+					}
+					eventList.add(eventModel);
+					
+				}
+				
+			}
+			
+		});
+		
+		calendarFetcher.execute();
+		
+		return eventList;
+		
+	}
 		
 	
 	/**
@@ -103,6 +146,10 @@ public final class DatabaseManager {
 										+ DatabaseCreator.ID_EVENT_PROVIDER +" = '"+ eventId +"'); ";  
 		database.execSQL(CREATE_NEW_EMPTY_EVENT);
 		
+	}
+	
+	public void addRecursiveEvents(Context context, String[] event){
+		// TODO add all the recursive events to the event table
 	}
 	
 	/**
@@ -191,12 +238,12 @@ public final class DatabaseManager {
 				+ " FOREIGN KEY (" + ID_PLACE + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")" + ");";
 		// PLACE_MODEL
 		private static final String CREATE_TABLE_PLACE_MODEL = "CREATE TABLE "
-				+ PLACE_MODEL + "(" + ID_LOCATION + " INT PRIMARY KEY NOT NULL AUTOINCREMENT, "
+				+ PLACE_MODEL + "(" + ID_LOCATION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ PM_NAME + " VARCHAR(50), "
 				+ " FOREIGN KEY (" + ID_LOCATION + ") REFERENCES " + OPENING_TIMES + " (" + OT_ID_LOCATION + ")" + ");";
 		// QUESTION_MODEL
 		private static final String CREATE_TABLE_QUESTION_MODEL = "CREATE TABLE "
-				+ QUESTION_MODEL + "(" + ID_QUESTION + " INT PRIMARY KEY NOT NULL AUTOINCREMENT, "
+				+ QUESTION_MODEL + "(" + ID_QUESTION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ DATE_TIME + " DATE, "
 				+ TYPE_QUESTION + " VARCHAR(30), "
 				+ EVENT_ID + " INT, "
@@ -231,7 +278,7 @@ public final class DatabaseManager {
 				+ " FOREIGN KEY (" + ECO_ID_EVENT + ") REFERENCES " + EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")" + ");";
 		// CONSTRAINTS 
 		private static final String CREATE_TABLE_CONSTRAINTS = "CREATE TABLE "
-				+ CONSTRAINTS + "(" + C_ID_CONSTRAINT + " INT PRIMARY KEY NOT NULL AUTOINCREMENT, "
+				+ CONSTRAINTS + "(" + C_ID_CONSTRAINT + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ CONSTRAINT_TYPE + " VARCHAR(30), "
 				+ C_START + " VARCHAR(30), "
 				+ C_END + " VARCHAR(30)" + ");";

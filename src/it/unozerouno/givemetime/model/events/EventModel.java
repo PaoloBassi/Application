@@ -18,8 +18,8 @@ import android.text.format.Time;
 public class EventModel {
 	private String ID; //This is the id from Google calendar event
 	private String name; 
-	private Calendar startingDateTime;
-	private Calendar endingDateTime;
+	private Time startingDateTime;
+	private Time endingDateTime;
 	private int color;
 	private Set<Constraint> recursions;
 	private Set<Constraint> constraints; 
@@ -33,28 +33,27 @@ public class EventModel {
 		name = _name;
 	}
 	
-	public EventModel(String _id, String _name, long sTime, long eTime, int _color){
+	public EventModel(String _id, String _name, long sTime, long eTime){
 		ID = _id;
 		name = _name;
-		startingDateTime = CalendarUtils.longToCalendar(sTime);
-		endingDateTime = CalendarUtils.longToCalendar(eTime);
-		color = _color;
+		startingDateTime = CalendarUtils.longToTime(sTime);
+		endingDateTime = CalendarUtils.longToTime(eTime);
 		
 	}
 	
-	public Calendar getStartingDateTime() {
+	public Time getStartingDateTime() {
 		return startingDateTime;
 	}
 
-	public void setStartingDateTime(Calendar startingDateTime) {
+	public void setStartingDateTime(Time startingDateTime) {
 		this.startingDateTime = startingDateTime;
 	}
 
-	public Calendar getEndingDateTime() {
+	public Time getEndingDateTime() {
 		return endingDateTime;
 	}
 
-	public void setEndingDateTime(Calendar endingDateTime) {
+	public void setEndingDateTime(Time endingDateTime) {
 		this.endingDateTime = endingDateTime;
 	}
 

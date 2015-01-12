@@ -8,6 +8,7 @@ import com.google.android.gms.internal.co;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
@@ -25,6 +26,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.support.v4.app.FragmentActivity;
+import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -76,7 +78,12 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 		// intialize event list
         events = new ArrayList<EventModel>();
         
-        getEventList();
+        Time start = new Time();
+        start.set(1, 1, 1970);
+        Time end = new Time();
+        end.set(31, 12, 2030);
+        events = (ArrayList<EventModel>) DatabaseManager.getInstance(getActivity()).getEvents(start, end, getActivity());
+        //getEventList();
         
         // TODO here size of list is 0, whyyyyyyyyyy?
         GiveMeLogger.log("Size at beginning: " + events.size());
@@ -163,7 +170,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
     	//EXAMPLE: This is an example on how to use TaskListeners and CalendarFetcher in "Internal query mode" 
     	CalendarFetcher listFetcher = new CalendarFetcher(this.getActivity());
     	//Setting what the fetcher has to do (Fetch calendar list and build the model)
-    	listFetcher.setAction(CalendarFetcher.Actions.EVENTS_TO_MODEL);    	
+    	listFetcher.setAction(CalendarFetcher.Actions.LIST_OF_EVENTS);    	
     	//Adding TaskListener for getting results from AsyncTask
     	listFetcher.setListener(new TaskListener<String[]>(this.getActivity()) {
 			@Override

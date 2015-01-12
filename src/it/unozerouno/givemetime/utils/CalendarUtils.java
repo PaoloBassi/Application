@@ -7,17 +7,18 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import android.text.format.Time;
+
 public class CalendarUtils {
 	/**
-	 * Transform a long representation of a Date into a Calendar
+	 * Transform a long representation of a Date into Time 
 	 * @param dateLong: date in milliseconds from epoch
-	 * @return calendar object representing the date
+	 * @return time representing the date
 	 */
-	public static Calendar longToCalendar(long dateLong){
-		Date date = new Date(dateLong);
-		Calendar cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-		cal.setTime(date);
-		return cal;
+	public static Time longToTime(long dateLong){
+		Time time = new Time();
+		time.set(dateLong);
+		return time;
 	}
 
 	/**
