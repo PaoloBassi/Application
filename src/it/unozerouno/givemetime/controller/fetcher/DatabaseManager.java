@@ -1,9 +1,14 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.ical.iter.RecurrenceIteratorFactory;
+import com.google.ical.values.RRule;
+
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.TaskListener;
@@ -119,19 +124,20 @@ public final class DatabaseManager {
 		
 		//Fetching Events ID from CalendarProvider
 		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
-		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_EVENTS_ID_ONLY);
+		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_EVENTS_ID_RRULE);
 		calendarFetcher.setListener(new TaskListener<String[]>(caller) {
 			@Override
 			public void onTaskResult(String[]... results) {
-				for (String[] strings : results) {
-					for (String eventId : strings) {
-						System.out.println("Created event with id: " + eventId);
+				for (String[] event : results) {
+					String eventId=event[0];
+					String eventRRULE = event[1];
+					String eventRDATE = event[2];
 						DatabaseManager.getInstance(calendarFetcher.getCaller()).createEventRow( calendarFetcher.getCaller(), eventId);
-					}
+						System.out.println("Created event with id: " + eventId + " RRULE: " + eventRRULE + " RDATE: " + eventRDATE);
+				}
 				}
 				
-			}
-		});
+			});
 		calendarFetcher.execute();
 		
 		
@@ -141,6 +147,19 @@ public final class DatabaseManager {
 		return true;
 		//TODO: synchronization
 	}
+	
+	private void parseRecurrencies(String RRULEstring){
+		//TODO: Implement parse
+		try {
+			RRule rRule = new RRule(RRULEstring);
+			
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 	
 	
 	public void createEventRow(Context context, String eventId){
