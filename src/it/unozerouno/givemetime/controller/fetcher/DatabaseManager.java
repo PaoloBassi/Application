@@ -27,7 +27,7 @@ public final class DatabaseManager {
 	private DatabaseManager(Context context) {
 		if (database == null || dbCreator == null){
 			dbCreator=DatabaseCreator.createHelper(context);
-			database = dbCreator.getReadableDatabase();
+			database = dbCreator.getWritableDatabase();
 		}
 	}
 	
@@ -191,12 +191,12 @@ public final class DatabaseManager {
 				+ " FOREIGN KEY (" + ID_PLACE + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")" + ");";
 		// PLACE_MODEL
 		private static final String CREATE_TABLE_PLACE_MODEL = "CREATE TABLE "
-				+ PLACE_MODEL + "(" + ID_LOCATION + " INT PRIMARY KEY NOT NULL AUTOINCREMENT, "
+				+ PLACE_MODEL + "(" + ID_LOCATION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ PM_NAME + " VARCHAR(50), "
 				+ " FOREIGN KEY (" + ID_LOCATION + ") REFERENCES " + OPENING_TIMES + " (" + OT_ID_LOCATION + ")" + ");";
 		// QUESTION_MODEL
 		private static final String CREATE_TABLE_QUESTION_MODEL = "CREATE TABLE "
-				+ QUESTION_MODEL + "(" + ID_QUESTION + " INT PRIMARY KEY NOT NULL AUTOINCREMENT, "
+				+ QUESTION_MODEL + "(" + ID_QUESTION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ DATE_TIME + " DATE, "
 				+ TYPE_QUESTION + " VARCHAR(30), "
 				+ EVENT_ID + " INT, "
@@ -231,7 +231,7 @@ public final class DatabaseManager {
 				+ " FOREIGN KEY (" + ECO_ID_EVENT + ") REFERENCES " + EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")" + ");";
 		// CONSTRAINTS 
 		private static final String CREATE_TABLE_CONSTRAINTS = "CREATE TABLE "
-				+ CONSTRAINTS + "(" + C_ID_CONSTRAINT + " INT PRIMARY KEY NOT NULL AUTOINCREMENT, "
+				+ CONSTRAINTS + "(" + C_ID_CONSTRAINT + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ CONSTRAINT_TYPE + " VARCHAR(30), "
 				+ C_START + " VARCHAR(30), "
 				+ C_END + " VARCHAR(30)" + ");";
