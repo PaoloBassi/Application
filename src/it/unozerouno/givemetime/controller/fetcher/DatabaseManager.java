@@ -83,8 +83,16 @@ public final class DatabaseManager {
 					// put each event inside a EventModel 
 					System.out.println(event[0] + " " + event[1] + " " + event[2] + " " + event[3] + " " + event[4] + " " + event[5]);
 					// prepare the model
-					EventModel eventModel = new EventModel(event[0], event[1], Long.parseLong(event[2]), Long.parseLong(event[3]));
-					eventModel.setColor(Integer.parseInt(event[4]));
+					EventModel eventModel = null;
+					if (event[2] != null && event[3] != null){
+						eventModel = new EventModel(event[0], event[1], Long.parseLong(event[2]), Long.parseLong(event[3]));
+					}
+					else {
+						System.out.println("start Time is " + event[2] + ", end time is " + event[3]);
+					}
+					if (event[4] != null){
+						eventModel.setColor(Integer.parseInt(event[4]));
+					}
 					// check for recursive events
 					if (event[5] != null){
 						DatabaseManager.getInstance(calendarFetcher.getCaller()).addRecursiveEvents(calendarFetcher.getCaller(), event);

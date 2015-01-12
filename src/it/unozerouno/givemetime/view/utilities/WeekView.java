@@ -406,7 +406,7 @@ public class WeekView extends View{
 
         // Prepare to iterate for each day.
         Time day = new Time(today);
-        day.hour = 6;
+        day.hour += 6;
 
         // Prepare to iterate for each hour to draw the hour lines.
         int lineCount = (int) ((getHeight() - headerTextHeight - headerRowPadding * 2 -
@@ -423,7 +423,7 @@ public class WeekView extends View{
 
         // Iterate through each day.
         firstVisibleDay = new Time(today);
-        firstVisibleDay.monthDay = leftDaysWithGaps;
+        firstVisibleDay.monthDay += leftDaysWithGaps;
         for (int dayNumber = leftDaysWithGaps + 1;
              dayNumber <= leftDaysWithGaps + numberOfVisibleDays + 1;
              dayNumber++) {
@@ -431,8 +431,8 @@ public class WeekView extends View{
             // Check if the day is today.
             day = new Time(today);
             lastVisibleDay = new Time(day);
-            day.monthDay = dayNumber - 1;
-            lastVisibleDay.monthDay = dayNumber - 2;
+            day.monthDay += dayNumber - 1;
+            lastVisibleDay.monthDay += dayNumber - 2;
             boolean sameDay = isSameDay(day, today);
 
             // Get more events if necessary. We want to store the events 3 months beforehand. Get
@@ -478,7 +478,7 @@ public class WeekView extends View{
         for (int dayNumber=leftDaysWithGaps+1; dayNumber <= leftDaysWithGaps + numberOfVisibleDays + 1; dayNumber++) {
             // Check if the day is today.
             day = new Time(today);
-            day.monthDay = dayNumber - 1;
+            day.monthDay += dayNumber - 1;
             boolean sameDay = isSameDay(day, today);
 
             // Draw the day labels.
@@ -686,7 +686,7 @@ public class WeekView extends View{
         ArrayList<EventRect> tempEvents = new ArrayList<EventRect>(eventRects);
         eventRects = new ArrayList<EventRect>();
         Time dayCounter = new Time(day);
-        dayCounter.month -= 1;
+        dayCounter.month += -1;
         dayCounter.monthDay = 1;
         Time maxDay = new Time(day);
         maxDay.month += 1;
@@ -869,7 +869,7 @@ public class WeekView extends View{
         nextMonth.second = 59;
 
         Time prevMonth = new Time(day);
-        prevMonth.month -= 1;
+        prevMonth.month += -1;
         prevMonth.monthDay = 1;
         prevMonth.hour = 0;
         prevMonth.minute = 0;

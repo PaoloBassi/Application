@@ -142,7 +142,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			break;
 		case Actions.LIST_OF_EVENTS:
 			getEvents();
-			setResult(Results.RESULT_OK);
 			break;
 		case Actions.ADD_NEW_CALENDAR:
 			createCalendar();
