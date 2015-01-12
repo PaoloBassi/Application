@@ -21,6 +21,7 @@ public class EventModel {
 	private Calendar startingDateTime;
 	private Calendar endingDateTime;
 	private int color;
+	private Set<Constraint> recursions;
 	private Set<Constraint> constraints; 
 	private PlaceModel place;
 	private Boolean doNotDisturb;
