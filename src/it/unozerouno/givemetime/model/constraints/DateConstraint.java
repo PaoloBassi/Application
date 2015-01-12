@@ -46,7 +46,12 @@ public class DateConstraint extends Constraint{
 		else {
 			return false;
 		}
-		
+	}
+	
+	public Boolean isActive(Time when) {
+		Time mWhen = new Time(when);
+		mWhen.set(mWhen.monthDay, mWhen.month, mWhen.year);
+		return (startingDate.before(mWhen)&&endingDate.after(mWhen));
 	}
 	
 }
