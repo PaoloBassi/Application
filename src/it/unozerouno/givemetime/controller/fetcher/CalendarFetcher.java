@@ -80,7 +80,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		//Event related
 		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE};
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
-		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE};
+		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE};
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
 	}
@@ -251,6 +251,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	 * This function fetches the events managing needed projections in order to provide a ready-to-use EventModel list.
 	 * If the events has instances that repeats through time, they will be added to the list and displayed in the view
 	 */
+	@Deprecated
 	private List<EventModel> getEventModel(){
 		List<EventModel> eventList = new ArrayList<EventModel>();
 		// Run query for events
