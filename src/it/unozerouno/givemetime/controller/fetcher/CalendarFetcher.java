@@ -66,6 +66,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static final int LIST_OF_EVENTS = 2;
 		public static final int ADD_NEW_CALENDAR = 3;
 		public static final int LIST_EVENTS_ID_RRULE = 4;
+		public static final int UPDATE_EVENT = 5;
 		//... here other actions
 	}
 	/**
@@ -80,7 +81,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		//Event related
 		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE};
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
-		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE};
+		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE}; //When changing this remember to update both fetching and updating
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
 	}
@@ -96,6 +97,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		this.caller = caller;
 	}
 	
+	
 	public CalendarFetcher(Activity caller, ProgressBar progressBar){
 		this(caller);
 		this.progressBar =progressBar;
@@ -107,7 +109,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	 * @see CalendarFetcher
 	 */
 	public void setAction(int action){
-		task = action;
+		task = (int) action;
 	}
 	
 	@Override
@@ -144,7 +146,8 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			setResult(Results.RESULT_OK);
 		case Actions.LIST_EVENTS_ID_RRULE:
 			fetchEventList();
-			
+		case Actions.UPDATE_EVENT:
+			updateEvent();
 		//Add here new actions
 		default:
 			break;
@@ -216,6 +219,47 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		}
 		cur.close();
 	}
+	
+	private EventModel eventUpdate;
+	
+	public void setEventToUpdate(EventModel eventToUpdate){
+		eventUpdate = eventToUpdate;
+	}
+	
+	private void updateEvent(){
+		if(eventUpdate == null){
+			System.err.println("Event to update has not been set.");
+			return;
+		}
+		
+		Cursor eventCursor = null;
+		ContentResolver cr = caller.getContentResolver();
+		Uri uri = Events.CONTENT_URI;
+				
+		ContentValues values = new ContentValues();
+		
+		values.put(Events._ID, eventUpdate.getID());
+		values.put(Events.TITLE, eventUpdate.getName());
+		values.put(Events.DTSTART, eventUpdate.getStartingDateTime().toMillis(false));
+		values.put(Events.DTEND, eventUpdate.getEndingDateTime().toMillis(false));
+		values.put(Events.EVENT_COLOR, eventUpdate.getColor());
+		//values.put(Events.EVENT_LOCATION, eventUpdate.getLocation());
+		
+		
+		
+		//For Identifying as SyncAdapter, User must already be logged)
+		uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
+		
+		// execute the query, get a Cursor back
+		int nUpdates = cr.update(uri, values, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller) + " AND " + Events._ID + " = " + eventUpdate.getID(), null);
+		if( nUpdates > 0) {
+			System.out.println("Updated " + nUpdates + " Rows");
+			setResult(Results.RESULT_OK);
+		}else{
+			setResult(Results.RESULT_ERROR);
+		}
+	}
+	
 	
 	
 	/**

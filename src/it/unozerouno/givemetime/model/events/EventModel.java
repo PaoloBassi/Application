@@ -4,17 +4,11 @@ import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.TimeZone;
 
-import android.graphics.Color;
+import android.location.Location;
 import android.text.format.Time;
 
 public class EventModel {
@@ -35,6 +29,7 @@ public class EventModel {
 		ID = _id;
 		name = _name;
 		listeners = new ArrayList<EventModelListener>();
+		place = new PlaceModel();
 	}
 	
 	public EventModel(String _id, String _name, long sTime, long eTime){
@@ -43,6 +38,7 @@ public class EventModel {
 		startingDateTime = CalendarUtils.longToTime(sTime);
 		endingDateTime = CalendarUtils.longToTime(eTime);
 		listeners = new ArrayList<EventModelListener>();
+		place = new PlaceModel();
 		
 		
 	}
@@ -175,7 +171,9 @@ public class EventModel {
 		return (RDATE!=null || RRULE!=null);
 	}
 	
-	
+	public Location getLocation(){
+		return place.getLocation();
+	}
 	
 	@Override
 	public String toString() {

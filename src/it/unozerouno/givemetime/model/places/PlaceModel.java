@@ -15,5 +15,12 @@ public class PlaceModel{
 	private Set<TimeConstraint> openingTime;
 	private Set<DayConstraint> openingDays;
 	
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+	public Location getLocation() {
+		return location;
+	}
+	
 
 }

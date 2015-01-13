@@ -1,5 +1,6 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.model.events.EventModelListener;
@@ -121,8 +122,6 @@ public final class DatabaseManager {
 		});
 		
 		calendarFetcher.execute();
-		
-		
 	}
 		
 	
@@ -159,7 +158,29 @@ public final class DatabaseManager {
 	}
 	
 
-	
+	public static void updateEvent(Activity caller, EventModel eventToUpdate){
+		//Updating CalendarDB
+		CalendarFetcher updater = new CalendarFetcher(caller);
+		updater.setEventToUpdate(eventToUpdate);
+		updater.setAction(Actions.UPDATE_EVENT);
+		updater.setListener(new TaskListener<String[]>(caller) {
+			@Override
+			public void onTaskResult(String[]... results) {
+				if (results[0]==Results.RESULT_OK){
+					System.out.println("Event Update complete");
+				}else{
+					System.out.println("Error during event update");
+				}
+				
+			}
+		});
+		
+		
+		//Here update to internal DB
+		
+		
+		
+	}
 	
 	
 	public void createEventRow(Context context, String eventId){
