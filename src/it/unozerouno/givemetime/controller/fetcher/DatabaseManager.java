@@ -98,7 +98,6 @@ public final class DatabaseManager {
 						DatabaseManager.getInstance(calendarFetcher.getCaller()).addRecursiveEvents(calendarFetcher.getCaller(), event);
 					}
 					eventList.add(eventModel);
-					
 				}
 				
 			}

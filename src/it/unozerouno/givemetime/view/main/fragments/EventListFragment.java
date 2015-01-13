@@ -157,6 +157,12 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
                 weekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
 			}
 			return true;
+		} else if (itemId == R.id.action_settings) {
+				// create the intent
+				Intent settings = new Intent(getActivity(), SettingsActivity.class);
+				// launch it
+				startActivity(settings);
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
