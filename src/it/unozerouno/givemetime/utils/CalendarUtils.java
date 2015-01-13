@@ -35,4 +35,16 @@ public class CalendarUtils {
 		calendar.setTime(sdf.parse(formatDate));
 		return calendar;
 	}
+	
+	/**
+	 * transform a Time object into an equivalent Calendar (used in display events)
+	 * @param time
+	 * @return
+	 */
+	public static Calendar timeToCalendar(Time time){
+		long millis = time.toMillis(false);
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(millis);
+		return cal;
+	}
 }
