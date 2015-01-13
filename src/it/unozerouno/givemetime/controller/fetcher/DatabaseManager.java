@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.provider.ContactsContract.Contacts.Data;
 import android.text.format.Time;
 
@@ -97,7 +98,9 @@ public final class DatabaseManager {
 					if (event[5] != null){
 						DatabaseManager.getInstance(calendarFetcher.getCaller()).addRecursiveEvents(calendarFetcher.getCaller(), event);
 					}
-					eventList.add(eventModel);
+					if (eventModel != null){
+						eventList.add(eventModel);
+					}
 				}
 				
 			}
@@ -105,6 +108,11 @@ public final class DatabaseManager {
 		});
 		
 		calendarFetcher.execute();
+		
+		while(eventList.size() != 212){ 
+			System.out.println("elementi nella lista: " + eventList.size());
+			// wait
+		}
 		
 		return eventList;
 		
