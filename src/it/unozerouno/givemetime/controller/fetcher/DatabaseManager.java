@@ -148,17 +148,7 @@ public final class DatabaseManager {
 		//TODO: synchronization
 	}
 	
-	private void parseRecurrencies(String RRULEstring){
-		//TODO: Implement parse
-		try {
-			RRule rRule = new RRule(RRULEstring);
-			
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+
 	
 	
 	
