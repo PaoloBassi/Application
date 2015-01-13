@@ -62,11 +62,10 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	 */
 	public static class Actions{
 		public static final int NO_ACTION = -1;
-		public static final int LIST_CALENDARS = 0;
 		public static final int CALENDARS_TO_MODEL = 1;
 		public static final int LIST_OF_EVENTS = 2;
 		public static final int ADD_NEW_CALENDAR = 3;
-		public static final int LIST_EVENTS_ID_ONLY = 4;
+		public static final int LIST_EVENTS_ID_RRULE = 4;
 		//... here other actions
 	}
 	/**
@@ -79,9 +78,9 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] CALENDAR_ID_NAME_PROJ = {Calendars._ID, Calendars.NAME};
 		public static String[] CALENDAR_ID_OWNER_NAME_COLOUR = {Calendars._ID, Calendars.OWNER_ACCOUNT, Calendars.NAME, Calendars.CALENDAR_COLOR};
 		//Event related
-		public static String[] EVENT_ID = {Events._ID};
+		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE};
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
-		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE};
+		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE};
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
 	}
@@ -133,9 +132,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		switch (task) {
 		case Actions.NO_ACTION:
 			break;
-		case Actions.LIST_CALENDARS:
-			getCalendars(projection);
-			break;
 		case Actions.CALENDARS_TO_MODEL:
 			calendarList = getCalendarModel();
 			setResult(Results.RESULT_OK);
@@ -146,7 +142,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		case Actions.ADD_NEW_CALENDAR:
 			createCalendar();
 			setResult(Results.RESULT_OK);
-		case Actions.LIST_EVENTS_ID_ONLY:
+		case Actions.LIST_EVENTS_ID_RRULE:
 			fetchEventList();
 			
 		//Add here new actions
@@ -171,37 +167,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	        .appendQueryParameter(Calendars.ACCOUNT_TYPE, accountType).build();
 	 }
 	
-	
-	/**
-	 * Fetch calendar list and returns each result to the TaskListener attached to CalendarFetcher
-	 * @param projection: Coloumn names 
-	 * @see Calendars
-	 */
- private void getCalendars(String[] projection){
-	// Run query
-	Cursor cur = null;
-	ContentResolver cr = caller.getContentResolver();
-	Uri uri = Calendars.CONTENT_URI;   
-	
-	//For Identifying as SyncAdapter, User must already be logged)
-	uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.gmail");
-	
-	
-	// Submit the query and get a Cursor object back. 
-	cur = cr.query(uri, projection, CalendarContract.Calendars.OWNER_ACCOUNT + " = '" + UserKeyRing.getUserEmail(caller) + "'",null, null);
-	
-	// Use the cursor to step through the returned records
-	while (cur.moveToNext()) {
-	   String[] result = new String[projection.length];
-	   for (int i = 0; i < result.length; i++) {
-		result[i] = cur.getString(i);
-	}
-	   //Provide result to TaskListener
-	   setResult(result);
-	}
-	cur.close();
-	}
-	
+		
 	/**
 	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher
 	 * @param projection: Columns Names
@@ -235,12 +201,13 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;
 		
+		String WHERE_CLAUSE = Events.CALENDAR_ID +" = " + UserKeyRing.getCalendarId(caller);
 		// execute the query, get a Cursor back
-		cur = cr.query(uri, Projections.EVENT_ID, null, null, null);
+		cur = cr.query(uri, Projections.EVENT_ID_RRULE_RDATE, WHERE_CLAUSE, null, null);
 		
 		// step through the records
 		while(cur.moveToNext()){
-			String[] result = new String[Projections.EVENT_ID.length];
+			String[] result = new String[Projections.EVENT_ID_RRULE_RDATE.length];
 			for (int i = 0; i < result.length; i++) {
 				result[i] = cur.getString(i);
 			}
@@ -265,9 +232,11 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		//For Identifying as SyncAdapter, User must already be logged)
 		uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
 		
+		String WHERE_CLAUSE = CalendarContract.Calendars.OWNER_ACCOUNT + " = '" + UserKeyRing.getUserEmail(caller) + 
+				"' OR " + CalendarContract.Calendars.OWNER_ACCOUNT + " LIKE '%group.calendar.google.com%'";
 		
 		// Submit the query and get a Cursor object back. 
-		cur = cr.query(uri, projection, CalendarContract.Calendars.OWNER_ACCOUNT + " = '" + UserKeyRing.getUserEmail(caller) + "'",null, null);
+		cur = cr.query(uri, projection, WHERE_CLAUSE ,null, null);
 		
 		// Use the cursor to step through the returned records
 		while (cur.moveToNext()) {
@@ -282,6 +251,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	 * This function fetches the events managing needed projections in order to provide a ready-to-use EventModel list.
 	 * If the events has instances that repeats through time, they will be added to the list and displayed in the view
 	 */
+	@Deprecated
 	private List<EventModel> getEventModel(){
 		List<EventModel> eventList = new ArrayList<EventModel>();
 		// Run query for events

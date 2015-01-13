@@ -10,6 +10,7 @@ import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.events.EventModel;
+import it.unozerouno.givemetime.model.events.EventModelListener;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
@@ -76,13 +77,37 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 		weekView.setEventLongPressListener(this);
 		
 		// intialize event list
-        events = new ArrayList<EventModel>();
+		//TODO: Potentially remove this
+       events = new ArrayList<EventModel>();
         
         Time start = new Time();
         start.set(1, 1, 1970);
         Time end = new Time();
         end.set(31, 12, 2030);
-        events = (ArrayList<EventModel>) DatabaseManager.getInstance(getActivity()).getEvents(start, end, getActivity());
+        
+        EventModelListener eventListener = new EventModelListener() {
+			
+			@Override
+			public void onEventCreation(final EventModel newEvent) {
+				EventListFragment.this.events.add(newEvent);
+				//This is called from the Fetcher thread, so we had to swap to the UI thread
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						GiveMeLogger.log("New event arrived to View - " + newEvent.toString());
+						
+					}
+				});				
+			}
+			
+			@Override
+			public void onEventChange(EventModel newEvent) {
+				// TODO: It's very unlikely that the event changes while watched, but this is the place for updates.
+				
+			}
+		};
+        
+        DatabaseManager.getInstance(getActivity()).getEvents(start, end, getActivity(), eventListener);
         //getEventList();
         
         // TODO here size of list is 0, whyyyyyyyyyy?
