@@ -90,8 +90,9 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 						}else{
 							EventListFragment.this.recursiveEvents.add(newEvent);
 						}
+						EventListFragment.this.weekView.notifyDatasetChanged();
 					}
-				});				
+				});			
 			}
 			
 			@Override
@@ -110,6 +111,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 	@Override
     public List<EventModel> onMonthChange(int newYear, int newMonth) {
 		//TODO: At the time only single events are shown
+		weekView.getEventRects().clear();
 		return singleEvents;	
 	}
 	
