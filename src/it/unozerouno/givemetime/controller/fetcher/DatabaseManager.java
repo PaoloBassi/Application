@@ -73,6 +73,7 @@ public final class DatabaseManager {
 		// fetch the event from the calendar provider
 		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
 		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_OF_EVENTS);
+		calendarFetcher.setEventInstanceTimeQuery(start.toMillis(false), end.toMillis(false));
 		calendarFetcher.setListener(new TaskListener<String[]>(caller) {
 
 			@Override

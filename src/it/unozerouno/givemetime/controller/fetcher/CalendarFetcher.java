@@ -170,26 +170,56 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	        .appendQueryParameter(Calendars.ACCOUNT_TYPE, accountType).build();
 	 }
 	
+	Long instanceStart;
+	Long instanceEnd;
+	public void setEventInstanceTimeQuery(Long start, Long end){
+		instanceStart = start;
+		instanceEnd = end;
+	}
 		
 	/**
 	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher
 	 * @param projection: Columns Names
 	 */
 	private void getEvents(){
-		Cursor eventCursor = null;
 		ContentResolver cr = caller.getContentResolver();
-		Uri uri = Events.CONTENT_URI;
-		String[] projection = Projections.EVENT_INFOS;
+		Uri eventURI = Events.CONTENT_URI;
+		
+		String[] eventInfoProjection = Projections.EVENT_INFOS;
+		String[] eventInstancesProjection = Projections.INSTANCES_INFOS;
 		
 		//For Identifying as SyncAdapter, User must already be logged)
-		uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
+		eventURI = asSyncAdapter(eventURI, UserKeyRing.getUserEmail(caller), "com.google");
+		
+		//Fetching events Instancies
+		
+		// Construct the query with the desired date range.
+		Uri.Builder instancesUriBuilder = Instances.CONTENT_URI.buildUpon();
+		ContentUris.appendId(instancesUriBuilder, instanceStart);
+		ContentUris.appendId(instancesUriBuilder, instanceEnd);
+		
+		
+		Cursor instanceCursor = cr.query(instancesUriBuilder.build(), eventInstancesProjection, null, null, Instances.EVENT_ID);
+		ArrayList<String[]> eventInstances = new ArrayList<String[]>();
+		while (instanceCursor.moveToNext()){
+			String[] eventInstance = new String[eventInstancesProjection.length];
+			for (int i = 0; i < eventInstance.length; i++) {
+				eventInstance[i] = instanceCursor.getString(i);
+			}
+			System.out.println("Got instance- Id: " + eventInstance[0]+ " Begin: " + eventInstance[1]+ " End: " + eventInstance[2]);
+			eventInstances.add(eventInstance);
+		}
+		instanceCursor.close();
+		//TODO: Here we have a list with all the instance. We have to match every instance with the corresponding Event
+		
+		
 		
 		// execute the query, get a Cursor back
-		eventCursor = cr.query(uri, projection, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, null);
+		Cursor eventCursor = cr.query(eventURI, eventInfoProjection, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, Events._ID);
 		
 		// step through the records
 		while(eventCursor.moveToNext()){
-			String[] result = new String[projection.length];
+			String[] result = new String[eventInfoProjection.length];
 			for (int i = 0; i < result.length; i++) {
 				result[i] = eventCursor.getString(i);
 			}
@@ -291,63 +321,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		return calendarList;
 		}
 	
-	/**
-	 * This function fetches the events managing needed projections in order to provide a ready-to-use EventModel list.
-	 * If the events has instances that repeats through time, they will be added to the list and displayed in the view
-	 */
-	@Deprecated
-	private List<EventModel> getEventModel(){
-		List<EventModel> eventList = new ArrayList<EventModel>();
-		// Run query for events
-		Cursor eventCursor = null;
-		ContentResolver cr = caller.getContentResolver();
-		Uri uri = Events.CONTENT_URI;   
-		String[] projection = Projections.EVENT_INFOS;
-		//For Identifying as SyncAdapter, User must already be logged)
-		uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
-		
-		// Submit the query on the selected calendar and get a Cursor object back. 
-		eventCursor = cr.query(uri, projection, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, null);
-		
-		// run query for instances
-		String[] instancesProjection = Projections.INSTANCES_INFOS;
-		
-		// Use the cursor to step through the returned records
-		while (eventCursor.moveToNext()) {
-			EventModel newEvent = new EventModel(eventCursor.getString(0), eventCursor.getString(1), eventCursor.getLong(2), eventCursor.getLong(3));
-			eventList.add(newEvent);
-			// if the event is recurrent
-			if (eventCursor.getString(5) != null){
-				// set the begin and the end of the event based on meaningful dates
-				java.util.Calendar beginTime = java.util.Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-				beginTime.set(2010, 1, 1);
-				long startMillis = beginTime.getTimeInMillis();
-				java.util.Calendar endTime = java.util.Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-				endTime.set(2020,12,31);
-				long endMillis = endTime.getTimeInMillis();
-					
-				// prepare the time slice in where the event has to take place
-				Uri.Builder instancesUri = Instances.CONTENT_URI.buildUpon();
-				ContentUris.appendId(instancesUri, startMillis);
-				ContentUris.appendId(instancesUri, endMillis);
-				// run the query on the Instances table an get the cursor with all the Instances related to the event
-				Cursor instanceCursor = null;
-				instanceCursor = cr.query(instancesUri.build(), instancesProjection, null, null, null);
 
-				while(instanceCursor.moveToNext()){
-					// TODO change the index in order to have unique IDs
-					if (instanceCursor.getString(0).equals(eventCursor.getString(0))){
-						EventModel newInstance = new EventModel(instanceCursor.getString(0), eventCursor.getString(1), instanceCursor.getLong(1), instanceCursor.getLong(2));
-						eventList.add(newInstance);
-					}
-				}
-				instanceCursor.close();
-			}
-		}
-		eventCursor.close();
-		
-		return eventList;
-		}
 	
 	/**
 	 * Insert a new calendar into CalendarProvider
