@@ -4,17 +4,10 @@ import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.TimeZone;
 
-import android.graphics.Color;
 import android.text.format.Time;
 
 public class EventModel {
