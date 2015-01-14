@@ -67,9 +67,9 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
        eventList = new ArrayList<EventInstanceModel>();
        
         Time start = new Time();
-        start.set(1, 1, 1970);
+        start.set(1, 1, 2014);
         Time end = new Time();
-        end.set(31, 12, 2030);
+        end.set(31, 12, 2016);
         
         EventListener<EventInstanceModel> eventListener = new EventListener<EventInstanceModel>() {
 			

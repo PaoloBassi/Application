@@ -27,6 +27,8 @@ public class EventInstanceModel extends EventModel{
 	public EventInstanceModel(EventDescriptionModel parentEvent, Time start, Time end) {
 		event = parentEvent;
 		listeners = new ArrayList<EventListener<EventInstanceModel>>();
+		startingTime = start;
+		endingTime=end;
 			}
 		
 	public EventDescriptionModel getEvent() {
