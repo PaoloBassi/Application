@@ -1,7 +1,7 @@
 package it.unozerouno.givemetime.view.utilities;
 
 import it.unozerouno.givemetime.R;
-import it.unozerouno.givemetime.model.events.EventModel;
+import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.Direction;
 
@@ -28,6 +28,7 @@ import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -498,7 +499,7 @@ public class WeekView extends View{
     private void drawEvents(Calendar date, float startFromPixel, Canvas canvas) {
         if (eventRects != null && eventRects.size() > 0) {
             for (int i = 0; i < eventRects.size(); i++) {
-                if (isSameDay(CalendarUtils.timeToCalendar(eventRects.get(i).event.getStartingDateTime()), date)) {
+                if (isSameDay(CalendarUtils.timeToCalendar(eventRects.get(i).event.getStartingTime()), date)) {
 
                     // Calculate top.
                     float top = hourHeight * 24 * eventRects.get(i).top / 1440 + currentOrigin.y + headerTextHeight + headerRowPadding * 2 + headerMarginBottom + timeTextHeight/2 + eventMarginVertical;
@@ -530,9 +531,9 @@ public class WeekView extends View{
                             left < right
                             ) {
                         eventRects.get(i).rectF = eventRectF;
-                        eventBackgroundPaint.setColor(eventRects.get(i).event.getColor() == 0 ? defaultEventColor : eventRects.get(i).event.getColor());
+                        eventBackgroundPaint.setColor(eventRects.get(i).event.getEvent().getColor() == 0 ? defaultEventColor : eventRects.get(i).event.getEvent().getColor());
                         canvas.drawRect(eventRects.get(i).rectF, eventBackgroundPaint);
-                        drawText(eventRects.get(i).event.getName(), eventRects.get(i).rectF, canvas, originalTop, originalLeft);
+                        drawText(eventRects.get(i).event.getEvent().getName(), eventRects.get(i).rectF, canvas, originalTop, originalLeft);
                     }
                     else
                         eventRects.get(i).rectF = null;
@@ -594,8 +595,8 @@ public class WeekView extends View{
      * instance will be stored in "event".
      */
     private class EventRect {
-        public EventModel event;
-        public EventModel originalEvent;
+        public EventInstanceModel event;
+        public EventInstanceModel originalEvent;
         public RectF rectF;
         public float left;
         public float width;
@@ -613,7 +614,7 @@ public class WeekView extends View{
          * @param originalEvent The original event that was passed by the user.
          * @param rectF The rectangle.
          */
-        public EventRect(EventModel event, EventModel originalEvent, RectF rectF) {
+        public EventRect(EventInstanceModel event, EventInstanceModel originalEvent, RectF rectF) {
             this.event = event;
             this.rectF = rectF;
             this.originalEvent = originalEvent;
@@ -649,9 +650,9 @@ public class WeekView extends View{
         int[] lastFetchedMonth = fetchedMonths.clone();
         if (fetchedMonths[0] < 1 || fetchedMonths[0] != previousMonth || refreshEvents) {
             if (!containsValue(lastFetchedMonth, previousMonth) && !isInEditMode()){
-                List<EventModel> events = monthChangeListener.onMonthChange((previousMonth==12)?day.get(Calendar.YEAR)-1:day.get(Calendar.YEAR), previousMonth);
+                List<EventInstanceModel> events = monthChangeListener.onMonthChange((previousMonth==12)?day.get(Calendar.YEAR)-1:day.get(Calendar.YEAR), previousMonth);
                 sortEvents(events);
-                for (EventModel event: events) {
+                for (EventInstanceModel event: events) {
                     cacheEvent(event);
                 }
             }
@@ -661,9 +662,9 @@ public class WeekView extends View{
         // Get events of this month.
         if (fetchedMonths[1] < 1 || fetchedMonths[1] != day.get(Calendar.MONTH)+1 || refreshEvents) {
             if (!containsValue(lastFetchedMonth, day.get(Calendar.MONTH)+1) && !isInEditMode()) {
-                List<EventModel> events = monthChangeListener.onMonthChange(day.get(Calendar.YEAR), day.get(Calendar.MONTH) + 1);
+                List<EventInstanceModel> events = monthChangeListener.onMonthChange(day.get(Calendar.YEAR), day.get(Calendar.MONTH) + 1);
                 sortEvents(events);
-                for (EventModel event : events) {
+                for (EventInstanceModel event : events) {
                     cacheEvent(event);
                 }
             }
@@ -673,9 +674,9 @@ public class WeekView extends View{
         // Get events of next month.
         if (fetchedMonths[2] < 1 || fetchedMonths[2] != nextMonth || refreshEvents) {
             if (!containsValue(lastFetchedMonth, nextMonth) && !isInEditMode()) {
-                List<EventModel> events = monthChangeListener.onMonthChange(nextMonth == 1 ? day.get(Calendar.YEAR) + 1 : day.get(Calendar.YEAR), nextMonth);
+                List<EventInstanceModel> events = monthChangeListener.onMonthChange(nextMonth == 1 ? day.get(Calendar.YEAR) + 1 : day.get(Calendar.YEAR), nextMonth);
                 sortEvents(events);
-                for (EventModel event : events) {
+                for (EventInstanceModel event : events) {
                     cacheEvent(event);
                 }
             }
@@ -696,7 +697,7 @@ public class WeekView extends View{
         while (dayCounter.getTimeInMillis() <= maxDay.getTimeInMillis()) {
             ArrayList<EventRect> eventRects = new ArrayList<EventRect>();
             for (EventRect eventRect : tempEvents) {
-                if (isSameDay(CalendarUtils.timeToCalendar(eventRect.event.getStartingDateTime()), dayCounter))
+                if (isSameDay(CalendarUtils.timeToCalendar(eventRect.event.getStartingTime()), dayCounter))
                     eventRects.add(eventRect);
             }
 
@@ -710,16 +711,25 @@ public class WeekView extends View{
      * @param event
      */
     
-    private void cacheEvent(EventModel event) {
-        if (!isSameDay(CalendarUtils.timeToCalendar(event.getStartingDateTime()), CalendarUtils.timeToCalendar(event.getEndingDateTime()))) {
-            Calendar endTime = (Calendar) CalendarUtils.timeToCalendar(event.getStartingDateTime()).clone();
-            endTime.set(Calendar.HOUR_OF_DAY, 23);
-            endTime.set(Calendar.MINUTE, 59);
-            Calendar startTime = (Calendar) CalendarUtils.timeToCalendar(event.getEndingDateTime()).clone();
-            startTime.set(Calendar.HOUR_OF_DAY, 00);
-            startTime.set(Calendar.MINUTE, 0);
-            EventModel event1 = new EventModel(event.getID(), event.getName(), CalendarUtils.timeToCalendar(event.getStartingDateTime()).getTimeInMillis(), endTime.getTimeInMillis());
-            EventModel event2 = new EventModel(event.getID(), event.getName(), startTime.getTimeInMillis(), CalendarUtils.timeToCalendar(event.getEndingDateTime()).getTimeInMillis());
+    private void cacheEvent(EventInstanceModel event) {
+        if (!isSameDay(CalendarUtils.timeToCalendar(event.getStartingTime()), CalendarUtils.timeToCalendar(event.getEndingTime()))) {
+        	//TODO: If working, remove me.
+//            Calendar endTime = (Calendar) CalendarUtils.timeToCalendar(event.getStartingTime()).clone();
+//            endTime.set(Calendar.HOUR_OF_DAY, 23);
+//            endTime.set(Calendar.MINUTE, 59);
+        	Time endTime = new Time(event.getStartingTime());
+        	endTime.hour = 23;
+        	endTime.minute=59;
+        	endTime.second=59;
+//            Calendar startTime = (Calendar) CalendarUtils.timeToCalendar(event.getEndingTime()).clone();
+//            startTime.set(Calendar.HOUR_OF_DAY, 00);
+//            startTime.set(Calendar.MINUTE, 0);
+        	Time startTime = new Time(event.getEndingTime());
+        	startTime.hour = 0;
+        	startTime.minute=0;
+        	startTime.second=0;
+            EventInstanceModel event1 = new EventInstanceModel(event.getEvent(), event.getStartingTime(), endTime);
+            EventInstanceModel event2 = new EventInstanceModel(event.getEvent(), startTime, event.getEndingTime());
             eventRects.add(new EventRect(event1, event, null));
             eventRects.add(new EventRect(event2, event, null));
         }
@@ -731,16 +741,16 @@ public class WeekView extends View{
      * Sorts the events in ascending order.
      * @param events The events to be sorted.
      */
-    private void sortEvents(List<EventModel> events) {
-        Collections.sort(events, new Comparator<EventModel>() {
+    private void sortEvents(List<EventInstanceModel> events) {
+        Collections.sort(events, new Comparator<EventInstanceModel>() {
             @Override
-            public int compare(EventModel event1, EventModel event2) {
-                long start1 = CalendarUtils.timeToCalendar(event1.getStartingDateTime()).getTimeInMillis();
-                long start2 = CalendarUtils.timeToCalendar(event2.getStartingDateTime()).getTimeInMillis();
+            public int compare(EventInstanceModel event1, EventInstanceModel event2) {
+                long start1 = CalendarUtils.timeToCalendar(event1.getStartingTime()).getTimeInMillis();
+                long start2 = CalendarUtils.timeToCalendar(event2.getStartingTime()).getTimeInMillis();
                 int comparator = start1 > start2 ? 1 : (start1 < start2 ? -1 : 0);
                 if (comparator == 0) {
-                    long end1 = CalendarUtils.timeToCalendar(event1.getEndingDateTime()).getTimeInMillis();
-                    long end2 = CalendarUtils.timeToCalendar(event2.getEndingDateTime()).getTimeInMillis();
+                    long end1 = CalendarUtils.timeToCalendar(event1.getEndingTime()).getTimeInMillis();
+                    long end2 = CalendarUtils.timeToCalendar(event2.getEndingTime()).getTimeInMillis();
                     comparator = end1 > end2 ? 1 : (end1 < end2 ? -1 : 0);
                 }
                 return comparator;
@@ -820,8 +830,8 @@ public class WeekView extends View{
                     EventRect eventRect = column.get(i);
                     eventRect.width = 1f / columns.size();
                     eventRect.left = j / columns.size();
-                    eventRect.top = CalendarUtils.timeToCalendar(eventRect.event.getStartingDateTime()).get(Calendar.HOUR_OF_DAY) * 60 + CalendarUtils.timeToCalendar(eventRect.event.getStartingDateTime()).get(Calendar.MINUTE);
-                    eventRect.bottom = CalendarUtils.timeToCalendar(eventRect.event.getEndingDateTime()).get(Calendar.HOUR_OF_DAY) * 60 + CalendarUtils.timeToCalendar(eventRect.event.getEndingDateTime()).get(Calendar.MINUTE);
+                    eventRect.top = CalendarUtils.timeToCalendar(eventRect.event.getStartingTime()).get(Calendar.HOUR_OF_DAY) * 60 + CalendarUtils.timeToCalendar(eventRect.event.getStartingTime()).get(Calendar.MINUTE);
+                    eventRect.bottom = CalendarUtils.timeToCalendar(eventRect.event.getEndingTime()).get(Calendar.HOUR_OF_DAY) * 60 + CalendarUtils.timeToCalendar(eventRect.event.getEndingTime()).get(Calendar.MINUTE);
                     eventRects.add(eventRect);
                 }
                 j++;
@@ -835,11 +845,11 @@ public class WeekView extends View{
      * @param event2 The second event.
      * @return true if the events overlap.
      */
-    private boolean isEventsCollide(EventModel event1, EventModel event2) {
-        long start1 = CalendarUtils.timeToCalendar(event1.getStartingDateTime()).getTimeInMillis();
-        long end1 = CalendarUtils.timeToCalendar(event1.getEndingDateTime()).getTimeInMillis();
-        long start2 = CalendarUtils.timeToCalendar(event2.getStartingDateTime()).getTimeInMillis();
-        long end2 = CalendarUtils.timeToCalendar(event2.getEndingDateTime()).getTimeInMillis();
+    private boolean isEventsCollide(EventInstanceModel event1, EventInstanceModel event2) {
+        long start1 = CalendarUtils.timeToCalendar(event1.getStartingTime()).getTimeInMillis();
+        long end1 = CalendarUtils.timeToCalendar(event1.getEndingTime()).getTimeInMillis();
+        long start2 = CalendarUtils.timeToCalendar(event2.getStartingTime()).getTimeInMillis();
+        long end2 = CalendarUtils.timeToCalendar(event2.getEndingTime()).getTimeInMillis();
         return !((start1 >= end2) || (end1 <= start2));
     }
     
@@ -877,7 +887,7 @@ public class WeekView extends View{
 
         List<EventRect> newEvents = new ArrayList<EventRect>();
         for (EventRect eventRect : eventRects) {
-            boolean isFarMonth = CalendarUtils.timeToCalendar(eventRect.event.getStartingDateTime()).getTimeInMillis() > nextMonth.getTimeInMillis() || CalendarUtils.timeToCalendar(eventRect.event.getEndingDateTime()).getTimeInMillis() < prevMonth.getTimeInMillis();
+            boolean isFarMonth = CalendarUtils.timeToCalendar(eventRect.event.getStartingTime()).getTimeInMillis() > nextMonth.getTimeInMillis() || CalendarUtils.timeToCalendar(eventRect.event.getEndingTime()).getTimeInMillis() < prevMonth.getTimeInMillis();
             if (!isFarMonth) newEvents.add(eventRect);
         }
         eventRects.clear();
@@ -1295,15 +1305,15 @@ public class WeekView extends View{
     ////////////////////////////////////////////////////////////
     
     public interface EventClickListener {
-        public void onEventClick(EventModel event, RectF eventRect);
+        public void onEventClick(EventInstanceModel event, RectF eventRect);
     }
 
     public interface MonthChangeListener {
-        public List<EventModel> onMonthChange(int newYear, int newMonth);
+        public List<EventInstanceModel> onMonthChange(int newYear, int newMonth);
     }
 
     public interface EventLongPressListener {
-        public void onEventLongPress(EventModel event, RectF eventRect);
+        public void onEventLongPress(EventInstanceModel event, RectF eventRect);
     }
     
     ////////////////////////////////////////////////////////////

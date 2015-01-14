@@ -1,5 +1,7 @@
 package it.unozerouno.givemetime.utils;
 
+import java.util.ArrayList;
+
 import android.database.CursorJoiner.Result;
 import android.os.AsyncTask;
 /**
@@ -13,11 +15,14 @@ import android.os.AsyncTask;
  * @see AsyncTask, {@link AsyncTaskWithListener}
  */
 public abstract class AsyncTaskWithListener <Params, Progress, Result>  extends AsyncTask<Params, Progress, Result>{
-	TaskListener<Result> taskListener;
+	ArrayList<TaskListener<Result>> taskListeners = new ArrayList<TaskListener<Result>>();
 	public void setListener(TaskListener<Result> listener){
-		taskListener = listener;
+		taskListeners.add(listener);
 	}
 	public void setResult(Result... results){
-		taskListener.onTaskResult(results);
+		for (TaskListener<Result> listener : taskListeners) {
+			listener.onTaskResult(results);
+		}
+		
 	}
 }

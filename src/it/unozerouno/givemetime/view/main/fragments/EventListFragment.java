@@ -2,8 +2,8 @@ package it.unozerouno.givemetime.view.main.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
-import it.unozerouno.givemetime.model.events.EventModel;
-import it.unozerouno.givemetime.model.events.EventModelListener;
+import it.unozerouno.givemetime.model.events.EventInstanceModel;
+import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.main.SettingsActivity;
 import it.unozerouno.givemetime.view.utilities.WeekView;
@@ -32,8 +32,7 @@ import android.widget.Toast;
 public class EventListFragment extends Fragment implements MonthChangeListener, EventClickListener, EventLongPressListener{
 	
 	ListView eventListView;
-	ArrayList<EventModel> singleEvents;
-	ArrayList<EventModel> recursiveEvents;
+	ArrayList<EventInstanceModel> eventList;
 	
 	private static final int TYPE_DAY_VIEW = 1;
     private static final int TYPE_THREE_DAY_VIEW = 2;
@@ -65,54 +64,45 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 		weekView.setEventLongPressListener(this);
 		
 		// intialize event list
-       singleEvents = new ArrayList<EventModel>();
-       recursiveEvents = new ArrayList<EventModel>();
+       eventList = new ArrayList<EventInstanceModel>();
        
         Time start = new Time();
         start.set(1, 1, 1970);
         Time end = new Time();
         end.set(31, 12, 2030);
         
-        EventModelListener eventListener = new EventModelListener() {
+        EventListener<EventInstanceModel> eventListener = new EventListener<EventInstanceModel>() {
 			
 			@Override
-			public void onEventCreation(final EventModel newEvent) {
-				
-				
-				
+			public void onEventCreation(final EventInstanceModel newEvent) {
 				//This is called from the Fetcher thread, so we had to swap to the UI thread
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						GiveMeLogger.log("New event arrived to View - " + newEvent.toString());
-						if (!newEvent.isRecursive()){
-							EventListFragment.this.singleEvents.add(newEvent);
-						}else{
-							EventListFragment.this.recursiveEvents.add(newEvent);
-						}
+							EventListFragment.this.eventList.add(newEvent);
 						EventListFragment.this.weekView.notifyDatasetChanged();
 					}
 				});			
 			}
 			
 			@Override
-			public void onEventChange(EventModel newEvent) {
+			public void onEventChange(EventInstanceModel newEvent) {
 				// TODO: It's very unlikely that the event changes while watched, but this is the place for updates.
-				
 			}
 		};
         
 		//Getting events from Db
-        DatabaseManager.getInstance(getActivity()).getEvents(start, end, getActivity(), eventListener);
+        DatabaseManager.getInstance(getActivity()).getEventsInstances(start, end, getActivity(), eventListener);
         
   		return view;
 	}
 	
 	@Override
-    public List<EventModel> onMonthChange(int newYear, int newMonth) {
+    public List<EventInstanceModel> onMonthChange(int newYear, int newMonth) {
 		//TODO: At the time only single events are shown
 		weekView.getEventRects().clear();
-		return singleEvents;	
+		return eventList;	
 	}
 	
 	/**
@@ -185,13 +175,13 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 	}
 
     @Override
-    public void onEventClick(EventModel event, RectF eventRect) {
-        Toast.makeText(this.getActivity(), "Clicked " + event.getName(), Toast.LENGTH_SHORT).show();
+    public void onEventClick(EventInstanceModel event, RectF eventRect) {
+        Toast.makeText(this.getActivity(), "Clicked " + event.getEvent().getName(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onEventLongPress(EventModel event, RectF eventRect) {
-        Toast.makeText(this.getActivity(), "Long pressed event: " + event.getName(), Toast.LENGTH_SHORT).show();
+    public void onEventLongPress(EventInstanceModel event, RectF eventRect) {
+        Toast.makeText(this.getActivity(), "Long pressed event: " + event.getEvent().getName(), Toast.LENGTH_SHORT).show();
     }
 	
 }
