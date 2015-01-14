@@ -1,25 +1,13 @@
 package it.unozerouno.givemetime.controller;
 
-import com.google.android.gms.internal.db;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.DialerFilter;
-import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
-import it.unozerouno.givemetime.controller.fetcher.DatabaseManager.Results;
-import it.unozerouno.givemetime.model.UserKeyRing;
-import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
-import it.unozerouno.givemetime.utils.GiveMeLogger;
-import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
 
 /**
  * This class contains the startUp flow the application follow everytime it startsup

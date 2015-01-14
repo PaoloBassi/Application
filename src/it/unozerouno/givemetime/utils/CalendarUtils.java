@@ -22,7 +22,7 @@ public class CalendarUtils {
 	}
 
 	/**
-	 * Parse the convetional format date into a calendar representation for EventModel
+	 * Parse the convetional format date into a calendar representation for EventInstanceModel
 	 * @param formatDate: date retrieved from repeated events in the format yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
 	 * @return calendar object containing the formatDate information
 	 * @throws ParseException

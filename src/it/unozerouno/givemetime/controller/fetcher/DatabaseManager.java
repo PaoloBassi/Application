@@ -1,11 +1,16 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import java.util.HashMap;
+
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.model.events.EventDescriptionModel;
+import it.unozerouno.givemetime.model.events.EventInstanceModel;
+import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.events.EventModel;
-import it.unozerouno.givemetime.model.events.EventModelListener;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import android.app.Activity;
 import android.content.Context;
@@ -57,66 +62,35 @@ public final class DatabaseManager {
 		}
 	}
 	
-	public static class Results{
-		public static String[] RESULT_OK = {"OK"};
-		public static String[] RESULT_ERROR = {"ERROR"};
-	}
 	
 	/**
-	 * return a list of EventModel to be used by the calendar view inside two time constraints
+	 * return a list of EventInstanceModel to be used by the calendar view inside two time constraints
 	 * @param start
 	 * @param end
 	 * @return
 	 */
-	public void getEvents(Time start, Time end, Activity caller, final EventModelListener eventListener){
+	public void getEventsInstances(Time start, Time end, Activity caller, final EventListener<EventInstanceModel> eventListener){
 		
 		// fetch the event from the calendar provider
 		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
 		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_OF_EVENTS);
 		calendarFetcher.setEventInstanceTimeQuery(start.toMillis(false), end.toMillis(false));
 		calendarFetcher.setListener(new TaskListener<String[]>(caller) {
-
+			HashMap<Integer,EventDescriptionModel> eventDescriptionMap = new HashMap<Integer, EventDescriptionModel>();
 			@Override
 			public void onTaskResult(String[]... results) {
-				for(String[] event : results){
-					//Returned Values: 0:Events._ID, 1:Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE
-					// put each event inside a EventModel 
-					System.out.println("Fetched event: id - " + event[0] + " Title - " + event[1] + "  Start: " + event[2] + " End: " + event[3] + " Color:" + event[4] + " RRULE:" + event[5] + " RDATE: " + event[6]);
-					// prepare the model
-					String id = event[0];
-					String title = event[1];
-					String start = event[2];
-					String end = event[3];
-					String color = event[4];
-					String RRULE = event[5];
-					String RDATE = event[6];
-					
-					Long startLong = null;
-					Long endLong =null;
-					EventModel eventModel = new EventModel(id, title);
-					if (start != null){  startLong =  Long.parseLong(start); 
-					eventModel.setStartingDateTime(CalendarUtils.longToTime(startLong));}
-					if (end != null){  endLong =  Long.parseLong(end);
-					eventModel.setEndingDateTime(CalendarUtils.longToTime(endLong));
-					}
-					
-					
-					if (color != null){
-						eventModel.setColor(Integer.parseInt(event[4]));
-					}
-					// check for recursive events
-					if (RRULE != null){
-						eventModel.setRRULE(RRULE);
-					}
-					if(RDATE != null){
-						eventModel.setRDATE(RDATE);
-					}
-					if (eventModel != null){
-						eventModel.addListener(eventListener);
-						//Notify the listener that the event is ready to be used
-						eventModel.setCreated();
-					}
-				}
+			if(results[0]==Results.RESULT_TYPE_EVENT){
+				EventDescriptionModel newEvent = eventDescriptionToModel(results[1]);
+				eventDescriptionMap.put(Integer.parseInt(newEvent.getID()), newEvent);
+			} else if (results[0]==Results.RESULT_TYPE_INSTANCE) {
+				EventInstanceModel newInstance = eventInstanceToModel(results[1], eventDescriptionMap);
+				newInstance.addListener(eventListener);
+				newInstance.setCreated();
+			} else{
+				//Unexpected result
+				System.out.println("Got unexpected result from calendarFetcher");
+			}
+				
 				
 			}
 			
@@ -125,7 +99,70 @@ public final class DatabaseManager {
 		calendarFetcher.execute();
 	}
 		
+
+	/**
+	 * Converts a CalendarFetcher string into an EventDescriptionModel
+	 * @param eventResult
+	 * @return
+	 */
+	private EventDescriptionModel eventDescriptionToModel(String[] eventResult){
+			//Returned Values: 0:Events._ID, 1:Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE
+			// put each event inside a EventDescriptionModel 
+			System.out.println("Fetched event: id - " + eventResult[0] + " Title - " + eventResult[1] + "  Start: " + eventResult[2] + " End: " + eventResult[3] + " Color:" + eventResult[4] + " RRULE:" + eventResult[5] + " RDATE: " + eventResult[6]);
+			// prepare the model
+			String id = eventResult[0];
+			String title = eventResult[1];
+			String start = eventResult[2];
+			String end = eventResult[3];
+			String color = eventResult[4];
+			String RRULE = eventResult[5];
+			String RDATE = eventResult[6];
+			
+			EventDescriptionModel eventDescriptionModel = new EventDescriptionModel(id, title);
+			Long startLong = null;
+			Long endLong =null;
+			
+			if (start != null){  startLong =  Long.parseLong(start); 
+			eventDescriptionModel.setSeriesStartingDateTime(CalendarUtils.longToTime(startLong));}
+			if (end != null){  endLong =  Long.parseLong(end);
+			eventDescriptionModel.setSeriesEndingDateTime(CalendarUtils.longToTime(endLong));
+			}
+			
+			if (color != null){
+				eventDescriptionModel.setColor(Integer.parseInt(eventResult[4]));
+			}
+			// check for recursive events
+			if (RRULE != null){
+				eventDescriptionModel.setRRULE(RRULE);
+			}
+			if(RDATE != null){
+				eventDescriptionModel.setRDATE(RDATE);
+			}
+			return eventDescriptionModel;
+	}
 	
+	/**
+	 * Converts a CalendarFetcher string into an EventInstanceModel
+	 * @param instanceResult the CalendarFetcher result
+	 * @param eventLookupTable an HashMap containing known events from which select the one to associate to the instance
+	 * @return
+	 */
+	private EventInstanceModel eventInstanceToModel(String[] instanceResult, HashMap<Integer, EventDescriptionModel> eventLookupTable){
+		int eventId = Integer.parseInt(instanceResult[0]);
+		Time startTime = new Time();
+		Time endTime = new Time();
+		Long startLong = Long.parseLong(instanceResult[1]);
+		Long endLong = Long.parseLong(instanceResult[2]);
+		startTime.set(startLong);
+		endTime.set(endLong);
+		EventInstanceModel eventInstance = new EventInstanceModel(eventLookupTable.get(eventId), startTime, endTime);
+		if (eventInstance.getEvent()==null){
+			System.err.println("Found an orphan instance without no event, looking for event id " + eventId);
+		}
+		
+		return eventInstance;
+		
+	}
 	/**
 	 * Pulls all new events from Google Calendar
 	 */
@@ -142,7 +179,7 @@ public final class DatabaseManager {
 					String eventRRULE = event[1];
 					String eventRDATE = event[2];
 						DatabaseManager.getInstance(calendarFetcher.getCaller()).createEventRow( calendarFetcher.getCaller(), eventId);
-						System.out.println("Created event with id: " + eventId + " RRULE: " + eventRRULE + " RDATE: " + eventRDATE);
+						System.out.println("Created in DB event with id: " + eventId + " RRULE: " + eventRRULE + " RDATE: " + eventRDATE);
 				}
 				}
 				
@@ -159,7 +196,7 @@ public final class DatabaseManager {
 	}
 	
 
-	public static void updateEvent(Activity caller, EventModel eventToUpdate){
+	public static void updateEvent(Activity caller, EventInstanceModel eventToUpdate){
 		//Updating CalendarDB
 		CalendarFetcher updater = new CalendarFetcher(caller);
 		updater.setEventToUpdate(eventToUpdate);

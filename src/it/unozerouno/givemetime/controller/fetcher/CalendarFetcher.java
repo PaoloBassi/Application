@@ -2,15 +2,13 @@ package it.unozerouno.givemetime.controller.fetcher;
 
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
-import it.unozerouno.givemetime.model.events.EventModel;
+import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -51,7 +49,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	
 	//Results
 	private static List<CalendarModel> calendarList;
-	private static List<EventModel> eventList;
+	private static List<EventInstanceModel> eventList;
 	
 	
 	
@@ -140,14 +138,18 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			break;
 		case Actions.LIST_OF_EVENTS:
 			getEvents();
+			getInstances();
 			break;
 		case Actions.ADD_NEW_CALENDAR:
 			createCalendar();
 			setResult(Results.RESULT_OK);
+			break;
 		case Actions.LIST_EVENTS_ID_RRULE:
 			fetchEventList();
+			break;
 		case Actions.UPDATE_EVENT:
 			updateEvent();
+			break;
 		//Add here new actions
 		default:
 			break;
@@ -170,11 +172,11 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	        .appendQueryParameter(Calendars.ACCOUNT_TYPE, accountType).build();
 	 }
 	
-	Long instanceStart;
-	Long instanceEnd;
+	Long queryStartTime;
+	Long queryEndTime;
 	public void setEventInstanceTimeQuery(Long start, Long end){
-		instanceStart = start;
-		instanceEnd = end;
+		queryStartTime = start;
+		queryEndTime = end;
 	}
 		
 	/**
@@ -186,32 +188,10 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		Uri eventURI = Events.CONTENT_URI;
 		
 		String[] eventInfoProjection = Projections.EVENT_INFOS;
-		String[] eventInstancesProjection = Projections.INSTANCES_INFOS;
+	
 		
 		//For Identifying as SyncAdapter, User must already be logged)
 		eventURI = asSyncAdapter(eventURI, UserKeyRing.getUserEmail(caller), "com.google");
-		
-		//Fetching events Instancies
-		
-		// Construct the query with the desired date range.
-		Uri.Builder instancesUriBuilder = Instances.CONTENT_URI.buildUpon();
-		ContentUris.appendId(instancesUriBuilder, instanceStart);
-		ContentUris.appendId(instancesUriBuilder, instanceEnd);
-		
-		
-		Cursor instanceCursor = cr.query(instancesUriBuilder.build(), eventInstancesProjection, null, null, Instances.EVENT_ID);
-		ArrayList<String[]> eventInstances = new ArrayList<String[]>();
-		while (instanceCursor.moveToNext()){
-			String[] eventInstance = new String[eventInstancesProjection.length];
-			for (int i = 0; i < eventInstance.length; i++) {
-				eventInstance[i] = instanceCursor.getString(i);
-			}
-			System.out.println("Got instance- Id: " + eventInstance[0]+ " Begin: " + eventInstance[1]+ " End: " + eventInstance[2]);
-			eventInstances.add(eventInstance);
-		}
-		instanceCursor.close();
-		//TODO: Here we have a list with all the instance. We have to match every instance with the corresponding Event
-		
 		
 		
 		// execute the query, get a Cursor back
@@ -224,9 +204,33 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 				result[i] = eventCursor.getString(i);
 			}
 			// provide result to TaskListener
-			setResult(result);
+			setResult(Results.RESULT_TYPE_EVENT,result);
 		}
 		eventCursor.close();
+		
+	}
+
+	private void getInstances(){
+		//Fetching events Instances
+				ContentResolver cr = caller.getContentResolver();
+				String[] eventInstancesProjection = Projections.INSTANCES_INFOS;
+				
+						// Construct the query with the desired date range.
+						Uri.Builder instancesUriBuilder = Instances.CONTENT_URI.buildUpon();
+						ContentUris.appendId(instancesUriBuilder, queryStartTime);
+						ContentUris.appendId(instancesUriBuilder, queryEndTime);
+						
+						
+						Cursor instanceCursor = cr.query(instancesUriBuilder.build(), eventInstancesProjection, Instances.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, Instances.EVENT_ID);
+						while (instanceCursor.moveToNext()){
+							String[] eventInstance = new String[eventInstancesProjection.length];
+							for (int i = 0; i < eventInstance.length; i++) {
+								eventInstance[i] = instanceCursor.getString(i);
+							}
+							System.out.println("Got instance- Id: " + eventInstance[0]+ " Begin: " + eventInstance[1]+ " End: " + eventInstance[2]);
+							setResult(Results.RESULT_TYPE_INSTANCE,eventInstance);
+						}
+						instanceCursor.close();
 	}
 	
 	private void fetchEventList(){
@@ -250,29 +254,31 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		cur.close();
 	}
 	
-	private EventModel eventUpdate;
+	private EventInstanceModel eventInstanceToUpdate;
 	
-	public void setEventToUpdate(EventModel eventToUpdate){
-		eventUpdate = eventToUpdate;
+	public void setEventToUpdate(EventInstanceModel eventToUpdate){
+		eventInstanceToUpdate = eventToUpdate;
 	}
 	
+	//TODO: Fix this in the case of recurring events! They will need to edit RRULE instead of starting Time!
 	private void updateEvent(){
-		if(eventUpdate == null){
+		if(eventInstanceToUpdate == null){
 			System.err.println("Event to update has not been set.");
 			return;
 		}
-		
+		System.out.println("Warning: FIXME: Event update working only on non repeating events!");
+		if(!eventInstanceToUpdate.getEvent().isRecursive()){
 		Cursor eventCursor = null;
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;
 				
 		ContentValues values = new ContentValues();
 		
-		values.put(Events._ID, eventUpdate.getID());
-		values.put(Events.TITLE, eventUpdate.getName());
-		values.put(Events.DTSTART, eventUpdate.getStartingDateTime().toMillis(false));
-		values.put(Events.DTEND, eventUpdate.getEndingDateTime().toMillis(false));
-		values.put(Events.EVENT_COLOR, eventUpdate.getColor());
+		values.put(Events._ID, eventInstanceToUpdate.getEvent().getID());
+		values.put(Events.TITLE, eventInstanceToUpdate.getEvent().getName());
+		values.put(Events.DTSTART, eventInstanceToUpdate.getStartingTime().toMillis(false));
+		values.put(Events.DTEND, eventInstanceToUpdate.getEndingTime().toMillis(false));
+		values.put(Events.EVENT_COLOR, eventInstanceToUpdate.getEvent().getColor());
 		//values.put(Events.EVENT_LOCATION, eventUpdate.getLocation());
 		
 		
@@ -281,12 +287,13 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		uri = asSyncAdapter(uri, UserKeyRing.getUserEmail(caller), "com.google");
 		
 		// execute the query, get a Cursor back
-		int nUpdates = cr.update(uri, values, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller) + " AND " + Events._ID + " = " + eventUpdate.getID(), null);
+		int nUpdates = cr.update(uri, values, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller) + " AND " + Events._ID + " = " + eventInstanceToUpdate.getEvent().getID(), null);
 		if( nUpdates > 0) {
 			System.out.println("Updated " + nUpdates + " Rows");
 			setResult(Results.RESULT_OK);
 		}else{
 			setResult(Results.RESULT_ERROR);
+		}
 		}
 	}
 	
@@ -356,7 +363,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		return calendarList;
 	}
 	
-	public static List<EventModel> getEventList(){
+	public static List<EventInstanceModel> getEventList(){
 		return eventList;
 	}
 	}
