@@ -179,4 +179,12 @@ public class EventModel {
 	public String toString() {
 		return "Id: " + this.ID + " Name: " + this.name  + " Start: " + startingDateTime  + " End: " + endingDateTime  + " RRULE: " + RRULE  + " RDATE: " + RDATE  + " Color: " + color  + " DND: " +doNotDisturb  + " Category: " + category  + " Recursive: " + isRecursive();
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof EventModel)) return false;
+		EventModel other = (EventModel) o;
+		if (this.ID == null || other.getID() == null) return false;
+		return (this.ID == other.ID);
+	}
 }
