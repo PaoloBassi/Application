@@ -653,6 +653,7 @@ public class WeekView extends View{
                 List<EventInstanceModel> events = monthChangeListener.onMonthChange((previousMonth==12)?day.get(Calendar.YEAR)-1:day.get(Calendar.YEAR), previousMonth);
                 sortEvents(events);
                 for (EventInstanceModel event: events) {
+                	System.out.println("Caching events on getMoreEvents");
                     cacheEvent(event);
                 }
             }
@@ -713,17 +714,10 @@ public class WeekView extends View{
     
     private void cacheEvent(EventInstanceModel event) {
         if (!isSameDay(CalendarUtils.timeToCalendar(event.getStartingTime()), CalendarUtils.timeToCalendar(event.getEndingTime()))) {
-        	//TODO: If working, remove me.
-//            Calendar endTime = (Calendar) CalendarUtils.timeToCalendar(event.getStartingTime()).clone();
-//            endTime.set(Calendar.HOUR_OF_DAY, 23);
-//            endTime.set(Calendar.MINUTE, 59);
         	Time endTime = new Time(event.getStartingTime());
         	endTime.hour = 23;
         	endTime.minute=59;
         	endTime.second=59;
-//            Calendar startTime = (Calendar) CalendarUtils.timeToCalendar(event.getEndingTime()).clone();
-//            startTime.set(Calendar.HOUR_OF_DAY, 00);
-//            startTime.set(Calendar.MINUTE, 0);
         	Time startTime = new Time(event.getEndingTime());
         	startTime.hour = 0;
         	startTime.minute=0;
@@ -742,15 +736,16 @@ public class WeekView extends View{
      * @param events The events to be sorted.
      */
     private void sortEvents(List<EventInstanceModel> events) {
+    	System.out.println("Sorting events");
         Collections.sort(events, new Comparator<EventInstanceModel>() {
             @Override
             public int compare(EventInstanceModel event1, EventInstanceModel event2) {
-                long start1 = CalendarUtils.timeToCalendar(event1.getStartingTime()).getTimeInMillis();
-                long start2 = CalendarUtils.timeToCalendar(event2.getStartingTime()).getTimeInMillis();
+                long start1 = event1.getStartingTime().toMillis(false);
+                long start2 = event2.getStartingTime().toMillis(false);
                 int comparator = start1 > start2 ? 1 : (start1 < start2 ? -1 : 0);
                 if (comparator == 0) {
-                    long end1 = CalendarUtils.timeToCalendar(event1.getEndingTime()).getTimeInMillis();
-                    long end2 = CalendarUtils.timeToCalendar(event2.getEndingTime()).getTimeInMillis();
+                    long end1 = event1.getEndingTime().toMillis(false);
+                    long end2 = event2.getEndingTime().toMillis(false);
                     comparator = end1 > end2 ? 1 : (end1 < end2 ? -1 : 0);
                 }
                 return comparator;

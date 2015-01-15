@@ -1,21 +1,21 @@
 package it.unozerouno.givemetime.view.main;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.StartUpFlow;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
+import it.unozerouno.givemetime.view.main.fragments.DebugFragment;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
-import it.unozerouno.givemetime.view.main.fragments.DebugFragment;
 import it.unozerouno.givemetime.view.utilities.DrawerItem;
 import it.unozerouno.givemetime.view.utilities.DrawerListAdapter;
-import it.unozerouno.givemetime.view.utilities.WeekView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.R.bool;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -41,7 +41,8 @@ public class MainActivity extends Activity {
     private DrawerListAdapter adapter;
     
     private List<DrawerItem> dataList; 
-
+    
+    private static final String STARTUP_COMPLETE = "STARTUP_COMPLETE";
     // manage the interaction between the action bar and the drawer
     // Moreover, it implements the drawer listener, useful for managing the drawer actions
     @SuppressWarnings("deprecation")
@@ -144,9 +145,13 @@ public class MainActivity extends Activity {
         	}
         }
       //StartUpFlow start
-       getFragmentManager().beginTransaction().add(new StartUpFlow(),"StartUpFlow").commit();
+        if (savedInstanceState == null) {
+        	  getFragmentManager().beginTransaction().add(new StartUpFlow(),"StartUpFlow").commit();
+		} 
+     
     }
-
+    
+  
     // listener of the drawer list menu
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
 

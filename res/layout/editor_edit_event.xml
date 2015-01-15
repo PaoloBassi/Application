@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:id="@+id/editor_edit_event_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/editor_edit_event_text_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Title" >
+
+                <requestFocus />
+            </EditText>
+			 <EditText
+			     android:id="@+id/editor_edit_text_location"
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content"
+			     android:ems="10"
+			     android:hint="Location" >
+
+                <requestFocus />
+            </EditText>
+
+			 <fragment
+			     android:id="@+id/editor_edit_event_fragment_locations_container"
+			     android:name="it.unozerouno.givemetime.view.editor.CommonLocationFragment"
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content" />
+
+			 <Switch
+			     android:id="@+id/editor_edit_event_switch_deadline"
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content"
+			     android:text="Has Deadline" />
+
+			 <TextView
+			     android:id="@+id/editor_edit_event_text_deadline"
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content"
+			     android:text="Deadline Description"
+			     android:textAppearance="?android:attr/textAppearanceSmall" />
+
+			<Switch
+			    android:id="@+id/editor_edit_event_switch_allday"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:text="All Day Event" />
+
+			 <LinearLayout
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content" >
+
+			     <Spinner
+			         android:id="@+id/editor_edit_event_spinner_start_day"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1" />
+
+			     <Spinner
+			         android:id="@+id/editor_edit_event_spinner_end_day"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1" />
+			 </LinearLayout>
+				<LinearLayout
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content" >
+
+			     <Spinner
+			         android:id="@+id/editor_edit_event_spinner_start_time"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1" />
+
+			     <Spinner
+			         android:id="@+id/editor_edit_event_spinner_end_time"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1" />
+			 </LinearLayout>
+			 <Spinner
+			         android:id="@+id/editor_edit_event_spinner_repetition"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1" />
+			 <Switch
+			    android:id="@+id/editor_edit_event_switch_ismovable"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:text="Can move this event?" />
+			 <fragment
+			     android:id="@+id/editor_edit_event_fragment_constraints_container"
+			     android:name="it.unozerouno.givemetime.view.editor.ConstraintsFragment"
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content" />
+            <Spinner
+			         android:id="@+id/editor_edit_event_spinner_category"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1" />
+            <Switch
+			    android:id="@+id/editor_edit_event_switch_donotdisturb"
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:text="Do not disturb during this event" />
+
+        </LinearLayout>
+    </ScrollView>
+  <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="bottom"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/editor_edit_event_btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/centerPoint"
+                android:text="Cancel" />
+
+            <TextView
+                android:id="@+id/centerPoint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="" />
+
+            <Button
+                android:id="@+id/editor_edit_event_btn_save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_toRightOf="@+id/centerPoint"
+                android:text="Save" />
+        </RelativeLayout>
+</LinearLayout>
