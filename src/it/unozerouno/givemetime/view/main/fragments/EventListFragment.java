@@ -5,6 +5,7 @@ import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.editor.EventEditorActivity;
 import it.unozerouno.givemetime.view.main.SettingsActivity;
 import it.unozerouno.givemetime.view.utilities.WeekView;
 import it.unozerouno.givemetime.view.utilities.WeekView.EventClickListener;
@@ -182,6 +183,9 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
     @Override
     public void onEventLongPress(EventInstanceModel event, RectF eventRect) {
         Toast.makeText(this.getActivity(), "Long pressed event: " + event.getEvent().getName(), Toast.LENGTH_SHORT).show();
+        Intent editIntent = new Intent(this.getActivity(), EventEditorActivity.class);
+        //TODO: Update this
+        startActivityForResult(editIntent, 0);
     }
 	
 }

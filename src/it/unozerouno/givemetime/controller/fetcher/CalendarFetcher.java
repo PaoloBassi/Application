@@ -248,7 +248,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			String[] result = new String[Projections.EVENT_ID_RRULE_RDATE.length];
 			for (int i = 0; i < result.length; i++) {
 				result[i] = cur.getString(i);
-				System.out.println(result[i]);
 			}
 			// provide result to TaskListener
 			setResult(result);
