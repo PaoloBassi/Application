@@ -22,6 +22,7 @@ public class EventDescriptionModel extends EventModel{
 	private String name; 
 	private Time startingDateTime;
 	private Time endingDateTime;
+	private String duration;
 	private String RRULE;
 	private String RDATE;
 	private int color;
@@ -80,6 +81,14 @@ public class EventDescriptionModel extends EventModel{
 		this.endingDateTime = endingDateTime;
 	}
 
+	public String getDuration(){
+		return duration;
+	}
+	
+	public void setDuration(String duration) {
+		this.duration = duration;
+	}
+	
 	public String getRRULE() {
 		return RRULE;
 	}

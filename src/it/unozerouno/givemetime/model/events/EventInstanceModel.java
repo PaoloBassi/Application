@@ -43,8 +43,21 @@ public class EventInstanceModel extends EventModel{
 		return startingTime;
 	}
 
-	public void setStartingTime(Time startingTime) {
-		this.startingTime = startingTime;
+	/**
+	 * compute the duration of recursive events and set the duration
+	 */
+	public void setStartingTime() {
+		if (event.isRecursive()){
+			Time difference = new Time();
+			difference.setJulianDay(Time.EPOCH_JULIAN_DAY);
+			difference.hour = endingTime.hour - startingTime.hour;
+			difference.minute = endingTime.minute - startingTime.minute;
+			difference.second = endingTime.second - startingTime.second;
+			String durationRFC = "P"  + (difference.hour * 3600 + difference.minute * 60 + difference.second) + "S"; 
+			event.setDuration(durationRFC);
+		} else {
+			event.setDuration("");
+		}
 	}
 
 	public Time getEndingTime() {
