@@ -3,6 +3,7 @@ package it.unozerouno.givemetime.controller.fetcher;
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
+import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
@@ -77,7 +78,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] CALENDAR_ID_NAME_PROJ = {Calendars._ID, Calendars.NAME};
 		public static String[] CALENDAR_ID_OWNER_NAME_COLOUR = {Calendars._ID, Calendars.OWNER_ACCOUNT, Calendars.NAME, Calendars.CALENDAR_COLOR};
 		//Event related
-		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE};
+		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE, Events.DURATION};
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
 		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE}; //When changing this remember to update both fetching and updating
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
@@ -247,6 +248,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			String[] result = new String[Projections.EVENT_ID_RRULE_RDATE.length];
 			for (int i = 0; i < result.length; i++) {
 				result[i] = cur.getString(i);
+				System.out.println(result[i]);
 			}
 			// provide result to TaskListener
 			setResult(result);
@@ -267,8 +269,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			return;
 		}
 		System.out.println("Warning: FIXME: Event update working only on non repeating events!");
-		if(!eventInstanceToUpdate.getEvent().isRecursive()){
-		Cursor eventCursor = null;
+		
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;
 				
@@ -276,8 +277,15 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 		values.put(Events._ID, eventInstanceToUpdate.getEvent().getID());
 		values.put(Events.TITLE, eventInstanceToUpdate.getEvent().getName());
-		values.put(Events.DTSTART, eventInstanceToUpdate.getStartingTime().toMillis(false));
-		values.put(Events.DTEND, eventInstanceToUpdate.getEndingTime().toMillis(false));
+		if (!eventInstanceToUpdate.getEvent().isRecursive()){
+			values.put(Events.DTSTART, eventInstanceToUpdate.getStartingTime().toMillis(false));
+			values.put(Events.DTEND, eventInstanceToUpdate.getEndingTime().toMillis(false));
+		} else {
+			values.put(Events.DTSTART, eventInstanceToUpdate.getEvent().getSeriesStartingDateTime().toMillis(false));
+			// dtend è sicuramente null se ricorsivo 
+			// setStartingTime viene settato all'update di un evento
+			values.put(Events.DURATION, eventInstanceToUpdate.getEvent().getDuration());
+		}
 		values.put(Events.EVENT_COLOR, eventInstanceToUpdate.getEvent().getColor());
 		//values.put(Events.EVENT_LOCATION, eventUpdate.getLocation());
 		
@@ -294,7 +302,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		}else{
 			setResult(Results.RESULT_ERROR);
 		}
-		}
+
 	}
 	
 	
