@@ -3,6 +3,7 @@ package it.unozerouno.givemetime.controller;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.utilities.ApiKeys;
 import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
 import android.app.Fragment;
 import android.content.Intent;
@@ -38,6 +39,7 @@ public final class StartUpFlow extends Fragment{
 		}
 	}
 	
+		
 	/**
 	 * User Login. Flow continues at onActivityResult
 	 */

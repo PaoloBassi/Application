@@ -23,6 +23,7 @@ public final class UserKeyRing {
 	private static final String userTokenPref = "token_user";
 	private static final String userNamePref = "user_name";
 	private static final String userSurnamePref = "user_surname";
+	private static final String apiKeyPref ="api_key";
 	
 	//Calendar Selection preferences
 	private static final String selectedCalendarId = "calendar_selected_id";
@@ -86,6 +87,13 @@ public final class UserKeyRing {
 		editor.commit();
 	}
 	
+	public static void setApiKey(Context context, String apiKey){
+		setSharedPreferences(context);
+		editor.putString(apiKeyPref,apiKey);
+		editor.commit();
+	}
+	
+	
 	
 	
 	
@@ -122,6 +130,10 @@ public final class UserKeyRing {
 		return prefs.getString(selectedCalendarName, "");
 	}
 	
+	public static String getApiKey(Context context){
+		setSharedPreferences(context);
+		return prefs.getString(apiKeyPref, "");
+	}
 	
 	
 	/**
