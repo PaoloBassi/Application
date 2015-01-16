@@ -3,6 +3,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
 
+    <ListView
+        android:id="@+id/editor_edit_event_location_listview_locations"
+        android:layout_width="match_parent"
+        android:layout_height="398dp" >
+    </ListView>
+ <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="bottom"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/editor_edit_event_location_btn_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/centerPoint"
+                android:text="Edit Locations" />
+
+            <TextView
+                android:id="@+id/centerPoint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="" />
+
+            <Button
+                android:id="@+id/editor_edit_event_location_btn_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_toRightOf="@+id/centerPoint"
+                android:text="Add Location" />
+        </RelativeLayout>
 </LinearLayout>

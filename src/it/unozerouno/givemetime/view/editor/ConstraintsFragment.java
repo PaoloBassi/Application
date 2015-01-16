@@ -11,7 +11,7 @@ public class ConstraintsFragment extends Fragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		inflater.inflate(R.layout.fragment_event_editor_constraints, container);
-		return super.onCreateView(inflater, container, savedInstanceState);
+		View view = inflater.inflate(R.layout.fragment_event_editor_constraints, container);
+		return view;
 	}
 }

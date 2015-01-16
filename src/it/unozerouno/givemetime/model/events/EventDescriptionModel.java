@@ -40,13 +40,11 @@ public class EventDescriptionModel extends EventModel{
 		startingDateTime = CalendarUtils.longToTime(sTime);
 		endingDateTime = CalendarUtils.longToTime(eTime);
 		listeners = new ArrayList<EventListener<EventDescriptionModel>>();
-		place = new PlaceModel();
 	}
 	public EventDescriptionModel(String _id, String _name) {
 		ID = _id;
 		name = _name;
 		listeners = new ArrayList<EventListener<EventDescriptionModel>>();
-		place = new PlaceModel();
 	}
 	
 	public String getID() {
