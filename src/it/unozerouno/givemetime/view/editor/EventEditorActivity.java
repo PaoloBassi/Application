@@ -1,5 +1,7 @@
 package it.unozerouno.givemetime.view.editor;
 
+import com.google.android.gms.games.event.Events.LoadEventsResult;
+
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
@@ -51,6 +53,7 @@ public class EventEditorActivity extends Activity{
 		setUiListeners();
 		hideFragment(fragmentLocations);
 		hideFragment(fragmentConstraints);
+		getEvent();
 	}
 	private void getUiContent(){
 		 scrollView = (ScrollView) findViewById(R.id.editor_edit_event_scroll);
@@ -90,10 +93,26 @@ public class EventEditorActivity extends Activity{
 				showFragment(fragmentLocations);
 			}
 		});
+		
+		//Setting button actions
+		buttonCancel.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				EventEditorActivity.this.finish();
+			}
+		});
+		buttonSave.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				saveEvent();
+			}
+		});
 	}
-	
-	private EventInstanceModel loadEvent(){
+
+	private void getEvent(){
 		//TODO: Here get the event passed by the calendarView.
+		if(eventToEdit==null){
 		//If it is not present, this activity is used as "new event activity"
 		
 		//Using editor as "newEventActivity"
@@ -105,13 +124,24 @@ public class EventEditorActivity extends Activity{
 			//Have to find a clever way to set default times
 		} 
 		EventDescriptionModel newEvent = new EventDescriptionModel("", editEventTitle.getText().toString(), defaultStart.toMillis(false), defaultEnd.toMillis(false));
-		return new EventInstanceModel(newEvent, defaultStart, defaultEnd);
+		eventToEdit = new EventInstanceModel(newEvent, defaultStart, defaultEnd);
+		}
 	}
 	
 	private void saveEvent(){
 		//TODO: Complete this function
-		if(eventToEdit==null){
-			//Then we are creating a new event, so we have to ask the CalendarFetcher to create the new event 
+		//Here update all data on the EventDescriptionModel and EventInstanceModel
+		//TODO: Update data on model (Don't change ID)
+		if(eventToEdit.getEvent().getID() == ""){
+			//Here we are creating a new event on Calendar, so we have to ask the CalendarFetcher to create the new event 
+			//DatabaseManager.createEvent(eventToedit);
+		} else {
+			//Here we are updating an existing event
+			//Updating data about event description
+			//eventToEdit.getEvent().setUpdated();
+			//Updating data about instance?
+			//eventToEdit.setUpdated();
+			//DatabaseManager.update(eventToEdit);
 		}
 	}
 	

@@ -31,7 +31,6 @@
 			     android:ems="10"
 			     android:hint="Location" >
 
-                <requestFocus />
             </EditText>
 
 			 <fragment

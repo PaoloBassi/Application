@@ -37,7 +37,6 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 		Bundle savedInstanceState) {
 	View view = inflater.inflate(R.layout.fragment_event_editor_locations, container);
 	locationView = (ListView) view.findViewById(R.id.editor_edit_event_location_listview_locations);
-	locationView.setVisibility(View.INVISIBLE);
 	placeList = new ArrayList<PlaceModel>();
 	listAdapter = new LocationsListAdapter(getActivity(), R.layout.element_list_location, placeList);
 	locationView.setAdapter(listAdapter);
