@@ -18,20 +18,28 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
+            <TextView
+                style="@style/sectionHeader"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Main Informations" />
+
             <EditText
                 android:id="@+id/editor_edit_event_text_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="Title" >
+                android:layout_margin="10dp"
+                android:hint="Insert the Title" >
 
             </EditText>
+            
 			 <EditText
 			     android:id="@+id/editor_edit_text_location"
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content"
-			     android:ems="10"
-			     android:hint="Location" >
+			     android:layout_margin="10dp"
+			     android:hint="Insert the Location" >
 
             </EditText>
 
@@ -41,57 +49,164 @@
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content" />
 
+			 <View
+			     android:layout_marginTop="10dp"
+			     android:layout_marginBottom="10dp"
+	             android:layout_width="fill_parent"
+	             android:layout_height="0dp"
+	             android:background="#c0c0c0"/>
+			
+			 <TextView
+                style="@style/sectionHeader"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time Settings" />
+			 
 			 <Switch
 			     android:id="@+id/editor_edit_event_switch_deadline"
+			     android:layout_margin="10dp"
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content"
 			     android:text="Has Deadline" />
 
 			 <TextView
 			     android:id="@+id/editor_edit_event_text_deadline"
+			     android:layout_margin="10dp"
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content"
 			     android:text="Deadline Description"
 			     android:textAppearance="?android:attr/textAppearanceSmall" />
 
+			 <View
+			     android:layout_marginTop="10dp"
+			     android:layout_margin="10dp"
+			     android:layout_marginBottom="10dp"
+	             android:layout_width="fill_parent"
+	             android:layout_height="1dp"
+	             android:background="#c0c0c0"/>
+			 
 			<Switch
 			    android:id="@+id/editor_edit_event_switch_allday"
+			    android:layout_margin="10dp"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:text="All Day Event" />
+			
+			<View
+			     android:layout_marginTop="10dp"
+			     android:layout_margin="10dp"
+			     android:layout_marginBottom="10dp"
+	             android:layout_width="fill_parent"
+	             android:layout_height="0dp"
+	             android:background="#c0c0c0"/>
 
+			<LinearLayout
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content" >
+
+			     <TextView
+			         android:id="@+id/start_day_textview"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1"
+			         android:gravity="center"
+			         android:layout_margin="10dp"
+			         android:text="Begin Day" />
+
+			     <TextView
+			         android:id="@+id/end_day_textview"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1"
+			         android:gravity="center"
+			         android:layout_margin="10dp"
+			         android:text="End Day" />
+			 </LinearLayout>
+			
 			 <LinearLayout
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content" >
 
-			     <Spinner
+			     <TextView
+			         style="@android:style/Widget.DeviceDefault.Light.Spinner"
 			         android:id="@+id/editor_edit_event_spinner_start_day"
 			         android:layout_width="match_parent"
 			         android:layout_height="match_parent"
+			         android:layout_margin="10dp"
 			         android:layout_weight="1" />
 
-			     <Spinner
+			     <TextView
+			         style="@android:style/Widget.DeviceDefault.Light.Spinner"
 			         android:id="@+id/editor_edit_event_spinner_end_day"
 			         android:layout_width="match_parent"
 			         android:layout_height="match_parent"
+			         android:layout_margin="10dp"
 			         android:layout_weight="1" />
 			 </LinearLayout>
+			 
+			 <View
+			     android:layout_marginTop="10dp"
+			     android:layout_margin="10dp"
+			     android:layout_marginBottom="10dp"
+	             android:layout_width="fill_parent"
+	             android:layout_height="1dp"
+	             android:background="#c0c0c0"/>
+			 
+			 <LinearLayout
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content" >
+
+			     <TextView
+			         android:id="@+id/start_hour_textview"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1"
+			         android:gravity="center"
+			         android:layout_margin="10dp"
+			         android:text="Begin Hour" />
+
+			     <TextView
+			         android:id="@+id/end_hour_textview"
+			         android:layout_width="match_parent"
+			         android:layout_height="match_parent"
+			         android:layout_weight="1"
+			         android:gravity="center"
+			         android:layout_margin="10dp"
+			         android:text="End Hour" />
+			 </LinearLayout>
+			 
+			 
 				<LinearLayout
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content" >
 
-			     <Spinner
+			     <TextView
+			         style="@android:style/Widget.DeviceDefault.Light.Spinner"
 			         android:id="@+id/editor_edit_event_spinner_start_time"
 			         android:layout_width="match_parent"
 			         android:layout_height="match_parent"
+			         android:layout_margin="10dp"
 			         android:layout_weight="1" />
 
-			     <Spinner
+			     <TextView
+			         style="@android:style/Widget.DeviceDefault.Light.Spinner"
 			         android:id="@+id/editor_edit_event_spinner_end_time"
 			         android:layout_width="match_parent"
 			         android:layout_height="match_parent"
+			         android:layout_margin="10dp"
 			         android:layout_weight="1" />
 			 </LinearLayout>
+			 
+			<View
+			     android:layout_marginTop="10dp"
+			     android:layout_margin="10dp"
+			     android:layout_marginBottom="10dp"
+	             android:layout_width="fill_parent"
+	             android:layout_height="1dp"
+	             android:background="#c0c0c0"/>
+			
+			
 			 <Spinner
 			         android:id="@+id/editor_edit_event_spinner_repetition"
 			         android:layout_width="match_parent"
