@@ -348,6 +348,7 @@ public final class DatabaseManager {
 			 newPlace.setOpeningTime(openingTimes);
 		     places.add(newPlace);
 		}
+		cursor.close();
 		return places;
 	}
 	
@@ -514,8 +515,8 @@ public final class DatabaseManager {
 				+ PLACE_LOCATION_LATITUDE + " VARCHAR(50), "
 				+ PLACE_LOCATION_LONGITUDE + " VARCHAR(50), "
 				+ PLACE_VISIT_COUNTER + " VARCHAR(50), "
-				+ PLACE_DATE_CREATED + "VARCHAR(50)"
-			    + ");";
+				+ PLACE_DATE_CREATED + " VARCHAR(50)"
+			    + " );";
 		// QUESTION_MODEL
 		private static final String CREATE_TABLE_QUESTION_MODEL = "CREATE TABLE "
 				+ TABLE_QUESTION_MODEL + "(" + ID_QUESTION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "

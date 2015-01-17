@@ -152,7 +152,12 @@ public class EventEditorActivity extends Activity{
 		//TODO: Insert listeners for the ui
 		
 		//Passing this reference to the fragments
-		fragmentLocations.setCaller(this);
+		fragmentLocations.setPlaceOnclick(new LocationClickListener() {
+			@Override
+			public void doSomething(PlaceModel placeSelected) {
+				//TODO: Do something with clicked event
+			}
+		});
 		
 		
 		//focusing on location will show the common location fragment
