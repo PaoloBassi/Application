@@ -87,7 +87,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	 //TODO: Fetch locations here from DatabaseManager
 	 
 	 //Here's a test
-	 PlaceModel testItem =new PlaceModel("0", "TestLocation", null);
+	 PlaceModel testItem =new PlaceModel("TestPlace", "Some Place", "Some Address", "Banana Republic");
 	 placeList.add(testItem);
 	 listAdapter.notifyDataSetChanged();
  }
@@ -121,7 +121,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			        convertView = inflater.inflate(R.layout.element_list_location, null);
 			        viewHolder = new ViewHolder();
 			        viewHolder.name = (TextView)convertView.findViewById(R.id.element_list_location_name);
-			        viewHolder.info = (TextView)convertView.findViewById(R.id.element_list_location_info);
+			        viewHolder.address = (TextView)convertView.findViewById(R.id.element_list_location_address);
+			        viewHolder.country = (TextView)convertView.findViewById(R.id.element_list_location_country);
 			        convertView.setTag(viewHolder);
 		        }
 		        else
@@ -131,8 +132,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			        
 			        PlaceModel placeItem = getItem(position);
 			        viewHolder.name.setText(placeItem.getName());
-			        viewHolder.info.setText(placeItem.getInfo());
-			       
+			        viewHolder.address.setText(placeItem.getAddress());
+			        viewHolder.country.setText(placeItem.getCountry());
 			        
 			        return convertView;
 		}
@@ -143,7 +144,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 		 */
 		 private class ViewHolder {
 		        public TextView name;
-		        public TextView info;
+		        public TextView address;
+		        public TextView country;
 		    }
  }
 

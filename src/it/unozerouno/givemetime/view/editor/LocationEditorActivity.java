@@ -1,11 +1,11 @@
 package it.unozerouno.givemetime.view.editor;
 
+import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
+import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
+
 import java.util.ArrayList;
 
-import it.unozerouno.givemetime.R;
-import it.unozerouno.givemetime.controller.fetcher.places.PlaceAutocomplete;
-import it.unozerouno.givemetime.model.places.PlaceModel;
-import it.unozerouno.givemetime.utils.GiveMeLogger;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -35,19 +35,25 @@ public class LocationEditorActivity extends Activity{
 		
 		  AutoCompleteTextView autoCompView = (AutoCompleteTextView) findViewById(R.id.editor_edit_locations_autocomplete);
 		    autoCompView.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.element_list_location));
+		    
 		    autoCompView.setOnItemClickListener(new OnItemClickListener() {
-
 				@Override
 				public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-					   String str = (String) adapterView.getItemAtPosition(position);		
-					   GiveMeLogger.log("Selected Location:" + str);
-					   //TODO: DatabaseManager.addLocation();
+					PlaceResult placeSelected = (PlaceResult) adapterView.getItemAtPosition(position);		
+					   LocationEditorActivity.this.addPlaceToFavourites(placeSelected);
 				}
 			});
 	}
 	
-	private class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable {
-	    private ArrayList<String> resultList;
+	
+	private void addPlaceToFavourites(PlaceResult place){
+		//TODO: PlaceModel conversion, adding to DB
+		//DatabaseManager.addPlace(PlaceResult), it fetches additional info and stores the whole model into the database.
+		//Then update the commonLocationFragment list
+	}
+	
+	private class PlacesAutoCompleteAdapter extends ArrayAdapter<PlaceResult> implements Filterable {
+	    private ArrayList<PlaceResult> resultList;
 
 	    public PlacesAutoCompleteAdapter(Context context, int textViewResourceId) {
 	        super(context, textViewResourceId);
@@ -67,7 +73,8 @@ public class LocationEditorActivity extends Activity{
 			        convertView = inflater.inflate(R.layout.element_list_location, null);
 			        viewHolder = new ViewHolder();
 			        viewHolder.name = (TextView)convertView.findViewById(R.id.element_list_location_name);
-			        viewHolder.info = (TextView)convertView.findViewById(R.id.element_list_location_info);
+			        viewHolder.address = (TextView)convertView.findViewById(R.id.element_list_location_address);
+			        viewHolder.country = (TextView)convertView.findViewById(R.id.element_list_location_country);
 			        convertView.setTag(viewHolder);
 		        }
 		        else
@@ -75,9 +82,10 @@ public class LocationEditorActivity extends Activity{
 		        	viewHolder = (ViewHolder) convertView.getTag();
 		        }
 			        
-			        String item = getItem(position);
-			        viewHolder.name.setText(item);
-			        viewHolder.info.setText("");
+			        PlaceResult placeItem = getItem(position);
+			        viewHolder.name.setText(placeItem.getName());
+			        viewHolder.address.setText(placeItem.getAddress());
+			        viewHolder.country.setText(placeItem.getCountry());
 			       
 			        
 			        return convertView;
@@ -89,8 +97,9 @@ public class LocationEditorActivity extends Activity{
 		 *
 		 */
 		 private class ViewHolder {
-		        public TextView name;
-		        public TextView info;
+			 public TextView name;
+		        public TextView address;
+		        public TextView country;
 		    }
 	    
 	    @Override
@@ -99,7 +108,7 @@ public class LocationEditorActivity extends Activity{
 	    }
 
 	    @Override
-	    public String getItem(int index) {
+	    public PlaceResult getItem(int index) {
 	        return resultList.get(index);
 	    }
 
@@ -111,7 +120,7 @@ public class LocationEditorActivity extends Activity{
 	                FilterResults filterResults = new FilterResults();
 	                if (constraint != null) {
 	                    // Retrieve the autocomplete results.
-	                    resultList = PlaceAutocomplete.autocomplete(constraint.toString());
+	                    resultList = PlaceFetcher.autocomplete(constraint.toString());
 
 	                    // Assign the data to the FilterResults
 	                    filterResults.values = resultList;
