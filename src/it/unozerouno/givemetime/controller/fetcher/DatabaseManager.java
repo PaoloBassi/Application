@@ -106,9 +106,16 @@ public final class DatabaseManager {
 	 * @return
 	 */
 	private EventDescriptionModel eventDescriptionToModel(String[] eventResult){
-			//Returned Values: 0:Events._ID, 1:Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE
+			//Returned Values: 0:Events._ID, 1:Events.TITLE, 2:Events.DTSTART, 3:Events.DTEND, 4:Events.EVENT_COLOR, 5:Events.RRULE, 6:Events.RDATE, 7: Events.ALL_DAY
 			// put each event inside a EventDescriptionModel 
-			System.out.println("Fetched event: id - " + eventResult[0] + " Title - " + eventResult[1] + "  Start: " + eventResult[2] + " End: " + eventResult[3] + " Color:" + eventResult[4] + " RRULE:" + eventResult[5] + " RDATE: " + eventResult[6]);
+			System.out.println("Fetched event: id - " + eventResult[0] 
+							+ " Title - " + eventResult[1] 
+							+ "  Start: " + eventResult[2] 
+							+ " End: " + eventResult[3] 
+							+ " Color:" + eventResult[4] 
+							+ " RRULE:" + eventResult[5] 
+							+ " RDATE: " + eventResult[6] 
+							+ " ALL_DAY: " + eventResult[7]);
 			// prepare the model
 			String id = eventResult[0];
 			String title = eventResult[1];
@@ -117,6 +124,7 @@ public final class DatabaseManager {
 			String color = eventResult[4];
 			String RRULE = eventResult[5];
 			String RDATE = eventResult[6];
+			String ALL_DAY = eventResult[7];
 			
 			EventDescriptionModel eventDescriptionModel = new EventDescriptionModel(id, title);
 			Long startLong = null;
@@ -129,7 +137,7 @@ public final class DatabaseManager {
 			}
 			
 			if (color != null){
-				eventDescriptionModel.setColor(Integer.parseInt(eventResult[4]));
+				eventDescriptionModel.setColor(Integer.parseInt(color));
 			}
 			// check for recursive events
 			if (RRULE != null){
@@ -137,6 +145,9 @@ public final class DatabaseManager {
 			}
 			if(RDATE != null){
 				eventDescriptionModel.setRDATE(RDATE);
+			}
+			if(ALL_DAY != null){
+				eventDescriptionModel.setAllDay(Integer.parseInt(ALL_DAY));
 			}
 			return eventDescriptionModel;
 	}

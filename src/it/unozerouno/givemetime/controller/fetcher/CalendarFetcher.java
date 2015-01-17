@@ -80,7 +80,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		//Event related
 		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE, Events.DURATION};
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
-		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE}; //When changing this remember to update both fetching and updating
+		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE, Events.ALL_DAY}; //When changing this remember to update both fetching and updating
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
 	}
