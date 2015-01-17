@@ -84,6 +84,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="it.unozerouno.givemetime.view.editor.LocationEditorActivity"
+            android:label="Edit Event"
+            >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         
         
          <meta-data android:name="com.google.android.gms.version"
