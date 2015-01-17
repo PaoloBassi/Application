@@ -99,12 +99,12 @@ public final class PlaceFetcher {
 	 * @return
 	 */
 	public static PlaceModel getAdditionalInfo(PlaceModel place){
-		
+			PlaceModel placeWithInfo = place.clone();
 		    HttpURLConnection conn = null;
 		    StringBuilder jsonResults = new StringBuilder();
 		    try {
 		        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_DETAILS + OUT_JSON);
-		        sb.append("?placeid=" + place.getPlaceId());
+		        sb.append("?placeid=" + placeWithInfo.getPlaceId());
 		        sb.append("&key=" + ApiKeys.getKey());
 
 		        URL url = new URL(sb.toString());
@@ -119,10 +119,10 @@ public final class PlaceFetcher {
 		        }
 		    } catch (MalformedURLException e) {
 		        Log.e(LOG_TAG, "Error processing Places API URL", e);
-		        return place;
+		        return placeWithInfo;
 		    } catch (IOException e) {
 		        Log.e(LOG_TAG, "Error connecting to Places API", e);
-		        return place;
+		        return placeWithInfo;
 		    } finally {
 		        if (conn != null) {
 		            conn.disconnect();
@@ -145,18 +145,18 @@ public final class PlaceFetcher {
 		        
 		        //Setting collected info on PlaceModel
 		        
-		        place.setFormattedAddress(formattedAddress);
-		        place.setPhoneNumber(phoneNumber);
-		        place.setLocation(location);
-		        place.setIcon(icon);
-		        place.setOpeningTime(ComplexConstraint.parseJSONResult(openingTimes));
+		        placeWithInfo.setFormattedAddress(formattedAddress);
+		        placeWithInfo.setPhoneNumber(phoneNumber);
+		        placeWithInfo.setLocation(location);
+		        placeWithInfo.setIcon(icon);
+		        placeWithInfo.setOpeningTime(ComplexConstraint.parseJSONResult(openingTimes));
 
 		     
 		     
 		    } catch (JSONException e) {
 		        Log.e(LOG_TAG, "Cannot process JSON results", e);
 		    }
-		return place;
+		return placeWithInfo;
 	}
 	
 	

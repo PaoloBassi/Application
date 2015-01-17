@@ -25,9 +25,10 @@ public class PlaceModel{
 	private String icon;
 	private Location location;
 	private int visitCounter;
-	
-	
 	private List<ComplexConstraint> openingTime;
+	//When adding attributes remember to edit also constructors and overrides
+	
+	
 
 	public PlaceModel(String placeId, String name, String address,
 			String country) {
@@ -128,10 +129,17 @@ public class PlaceModel{
 	}
 	
 	
-	
-		
-	
-	
-	
+	@Override
+	public PlaceModel clone() {
+		PlaceModel copy = new PlaceModel(placeId, name, address, country);
+		copy.setFormattedAddress(formattedAddress);
+		copy.setCountry(country);
+		copy.setPhoneNumber(phoneNumber);
+		copy.setIcon(icon);
+		copy.setLocation(location);
+		copy.setVisitCounter(visitCounter);
+		copy.setOpeningTime(openingTime);
+		return copy;
+	}
 
 }

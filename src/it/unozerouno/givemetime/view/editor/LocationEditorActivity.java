@@ -1,8 +1,10 @@
 package it.unozerouno.givemetime.view.editor;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
+import it.unozerouno.givemetime.model.places.PlaceModel;
 
 import java.util.ArrayList;
 
@@ -26,16 +28,17 @@ import android.widget.TextView;
  *
  */
 public class LocationEditorActivity extends Activity{
+	CommonLocationFragment fragmentLocationList;
 	//TODO: Fetch even the ID and other data from Places, if possible
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.editor_edit_locations);
-		
+		fragmentLocationList= (CommonLocationFragment) getFragmentManager().findFragmentById(R.id.editor_edit_loactions_common);
 		  AutoCompleteTextView autoCompView = (AutoCompleteTextView) findViewById(R.id.editor_edit_locations_autocomplete);
-		    autoCompView.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.element_list_location));
-		    
+		  //Setting autocomplete  
+		  autoCompView.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.element_list_location));
 		    autoCompView.setOnItemClickListener(new OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -43,13 +46,21 @@ public class LocationEditorActivity extends Activity{
 					   LocationEditorActivity.this.addPlaceToFavourites(placeSelected);
 				}
 			});
+		    
+		    //Setting Location onClick on CommonLocationFragment
+		    fragmentLocationList.setPlaceOnclick(new LocationClickListener() {
+				
+				@Override
+				public void doSomething(PlaceModel placeSelected) {
+					//TODO: Do something with the clicked PlaceModel
+				}
+			});
 	}
 	
 	
 	private void addPlaceToFavourites(PlaceResult place){
-		//TODO: PlaceModel conversion, adding to DB
-		//DatabaseManager.addPlace(PlaceResult), it fetches additional info and stores the whole model into the database.
-		//Then update the commonLocationFragment list
+		DatabaseManager.addLocationAndFetchInfo(place);
+		//TODO: Then update the commonLocationFragment list
 	}
 	
 	private class PlacesAutoCompleteAdapter extends ArrayAdapter<PlaceResult> implements Filterable {
