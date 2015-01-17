@@ -7,8 +7,11 @@
     <ScrollView
         android:id="@+id/editor_edit_event_scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp" >
+        android:layout_height="0dp"
+        android:layout_weight="50"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,7 +25,6 @@
                 android:ems="10"
                 android:hint="Title" >
 
-                <requestFocus />
             </EditText>
 			 <EditText
 			     android:id="@+id/editor_edit_text_location"
@@ -121,11 +123,12 @@
   <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="bottom"
-            android:orientation="horizontal" >
+
+            android:orientation="horizontal"
+            android:layout_weight="1" >
 
             <Button
+                style="?android:buttonBarButtonStyle"
                 android:id="@+id/editor_edit_event_btn_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -141,6 +144,7 @@
                 android:text="" />
 
             <Button
+                style="?android:buttonBarButtonStyle"
                 android:id="@+id/editor_edit_event_btn_save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
