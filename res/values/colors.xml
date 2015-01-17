@@ -5,4 +5,6 @@
     <color name="event_color_03">#87d288</color>
     <color name="event_color_04">#f8b552</color>
     <color name="debug_background_color">#000000</color>
+	<color name="emphasis">#31b6e7</color>
+    <color name="bg_gray">#cecbce</color>
 </resources>
