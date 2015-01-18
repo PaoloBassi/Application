@@ -3,16 +3,13 @@ package it.unozerouno.givemetime.controller.fetcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import com.google.android.gms.drive.internal.SetFileUploadPreferencesRequest;
-import com.google.android.gms.internal.ne;
+import java.util.TimeZone;
 
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.constraints.ComplexConstraint;
-import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
@@ -24,16 +21,19 @@ import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.ContactsContract.Contacts.Data;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Events;
 import android.text.format.Time;
-import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 /**
  * This is the entry Point for the model. It fetches all stored app data from DB and generates Model.
@@ -251,6 +251,67 @@ public final class DatabaseManager {
 		
 	}
 	
+	/**
+	 * Adds a new event into the db 
+	 */
+	public static void addEvent(final Activity caller, EventInstanceModel newEvent){
+		
+		ContentResolver cr = caller.getContentResolver();
+		
+		// extract the data from newEvent to be inserted into EVENT_MODEL
+		String calId = UserKeyRing.getCalendarId(caller);
+		long startTime = newEvent.getStartingTime().toMillis(false);
+		long endingTime = newEvent.getEndingTime().toMillis(false);
+		String RRULE = newEvent.getEvent().getRRULE();
+		String RDATE = newEvent.getEvent().getRDATE();
+		String duration = newEvent.getEvent().getDuration();
+		boolean isRecursive = newEvent.getEvent().isRecursive();
+		int allDay = newEvent.getEvent().isAllDayEvent();
+		
+		ContentValues values = new ContentValues();
+		
+		// This values has to be inserted in order for the provider to accept the insert on the Events table
+		values.put(CalendarContract.Events.DTSTART, startTime);
+		if (isRecursive){
+			// only if the event is recurring
+			values.put(CalendarContract.Events.DURATION, duration); 
+			// only if the event is recurring. If not null, original_id and original_sync_id must be null
+			values.put(CalendarContract.Events.RRULE, RRULE);
+			values.put(CalendarContract.Events.RDATE, RDATE);
+			values.put(CalendarContract.Events.ORIGINAL_ID, "null");
+			values.put(CalendarContract.Events.ORIGINAL_SYNC_ID, "null");
+		} else {
+			// only if the event is non-recurring
+			values.put(CalendarContract.Events.DTEND, endingTime); 
+		}
+		if (allDay == 1){
+			// if allday == 1, it must be TIMEZONE_UTC
+			values.put(CalendarContract.Events.EVENT_TIMEZONE, Time.TIMEZONE_UTC); 
+		} else {
+			values.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
+		}
+		// do not modify
+		values.put(CalendarContract.Events.CALENDAR_ID, calId); 
+		
+		// execute the query and return the ID of the new event
+		Uri result = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+		// this is the ID of the newly inserted event
+		String eventID = result.getLastPathSegment();
+		
+		// synchronize the DB with the new event
+		synchronize(caller);
+		// add all other useful informations
+		
+		
+		
+	}
+	
+	
+	/**
+	 * At the beginning of the flow, adds in the EventDescriptionModel an EMPTY row for each event find in the provider
+	 * @param context
+	 * @param eventId the id fetcher in the provider
+	 */
 	
 	public void createEventRow(Context context, String eventId){
 		String calId = UserKeyRing.getCalendarId(context);
@@ -265,11 +326,11 @@ public final class DatabaseManager {
 		
 	}
 	
-	public void addRecursiveEvents(Context context, String[] event){
-		// TODO add all the recursive events to the event table
-	}
-	
+	/////////////////////
+	//
 	//Location management
+	//
+	/////////////////////
 	
 	/**
 	 * Fetch more informations about Place result and store data into the database.
@@ -380,8 +441,15 @@ public final class DatabaseManager {
 		return places;
 	}
 	
+	/////////////////////////
+	//
+	//
+	//	Constraints functions
+	//
+	//
+	/////////////////////////
 	
-	//Constraints functions
+	
 	/**
 	 * This get the opening time of a particular place in the db. 
 	 * Note that they are not put directly in the PlaceModel object but returned instead.
@@ -419,6 +487,12 @@ public final class DatabaseManager {
 	public static void addConstraints(EventModel constraints){
 		//TODO: Set Constraints
 	}
+	
+	///////////////////////////////
+	//
+	//	Database
+	//
+	///////////////////////////////
 	
 	
 	

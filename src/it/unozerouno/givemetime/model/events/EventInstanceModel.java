@@ -1,17 +1,7 @@
 package it.unozerouno.givemetime.model.events;
 
-import it.unozerouno.givemetime.model.constraints.Constraint;
-import it.unozerouno.givemetime.model.places.PlaceModel;
-import it.unozerouno.givemetime.utils.CalendarUtils;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-
-
-
-import android.location.Location;
 import android.text.format.Time;
 /**
  * Represent an instance of an event which is descripted by an {@link EventDescriptionModel}.

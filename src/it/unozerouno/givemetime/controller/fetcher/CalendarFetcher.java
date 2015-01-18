@@ -90,7 +90,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	private static int task = Actions.NO_ACTION;
 	Activity caller;
 	ProgressBar progressBar;
-	CalendarContract.Calendars calendars;
 	
 	public CalendarFetcher(Activity caller) {
 		this.caller = caller;
@@ -182,7 +181,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 	/**
 	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher
-	 * @param projection: Columns Names
 	 */
 	private void getEvents(){
 		ContentResolver cr = caller.getContentResolver();
@@ -208,6 +206,16 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			setResult(Results.RESULT_TYPE_EVENT,result);
 		}
 		eventCursor.close();
+		
+	}
+	
+	/**
+	 * Add a new event to the Calendar Provider
+	 */
+	public void addNewEvent(){
+
+		
+		// execute the insert
 		
 	}
 

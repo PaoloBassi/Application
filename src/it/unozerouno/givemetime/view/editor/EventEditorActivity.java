@@ -1,30 +1,24 @@
 package it.unozerouno.givemetime.view.editor;
 
-import com.google.android.gms.games.event.Events.LoadEventsResult;
-
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
-import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.view.utilities.DayEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeStartPickerFragment;
+import it.unozerouno.givemetime.view.utilities.WeekView;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
-import android.gesture.GestureOverlayView;
 import android.os.Bundle;
 import android.text.format.Time;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -35,28 +29,34 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 public class EventEditorActivity extends Activity{
-	EventInstanceModel eventToEdit;
-	ScrollView scrollView;
-	EditText editEventTitle;
-	EditText editEventLocation;
-	CommonLocationFragment fragmentLocations;
-	Switch switchDeadline;
-	TextView textDeadLine;
-	Switch switchAllDay;
-	TextView spinnerStartDay;
-	TextView spinnerEndDay;
-	TextView spinnerStartTime;
-	TextView spinnerEndTime;
-	Spinner spinnerRepetition;
-	Switch switchIsMovable;
-	ConstraintsFragment fragmentConstraints;
-	Spinner spinnerCategory;
-	Switch switchDoNotDisturb;
-	Button buttonCancel;
-	Button buttonSave;
-	Time now = new Time();
-	Time start;
-	Time end;
+	
+	private String editOrNew;
+	private EventInstanceModel eventToAdd;
+	private ScrollView scrollView;
+	private EditText editEventTitle;
+	private EditText editEventLocation;
+	private CommonLocationFragment fragmentLocations;
+	private Switch switchDeadline;
+	private TextView textDeadLine;
+	private Switch switchAllDay;
+	private TextView spinnerStartDay;
+	private TextView spinnerEndDay;
+	private TextView spinnerStartTime;
+	private TextView spinnerEndTime;
+	private TextView endDayTextView;
+	private TextView startHourTextView;
+	private TextView endHourTextView;
+	private View middleBar;
+	private Spinner spinnerRepetition;
+	private Switch switchIsMovable;
+	private ConstraintsFragment fragmentConstraints;
+	private Spinner spinnerCategory;
+	private Switch switchDoNotDisturb;
+	private Button buttonCancel;
+	private Button buttonSave;
+	private Time now = new Time();
+	private Time start;
+	private Time end;
 	
 	public Time getStart() {
 		return start;
@@ -86,66 +86,48 @@ public class EventEditorActivity extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.editor_edit_event);
+		// set the title
+		editOrNew = getIntent().getStringExtra("EditOrNew");
+		if (editOrNew.equals("New")){
+			this.setTitle("New Event");
+		} else {
+			this.setTitle("Edit Event");
+		}
 		getUiContent();
 		setUiListeners();
 		hideFragment(fragmentLocations);
 		hideFragment(fragmentConstraints);
-		getEvent();
+		getEventInfo();
 	}
 	private void getUiContent(){
+		
 		 scrollView = (ScrollView) findViewById(R.id.editor_edit_event_scroll);
 		 editEventTitle = (EditText) findViewById(R.id.editor_edit_event_text_title);
-		 editEventTitle.setText(getIntent().getExtras().getString("Title"));
+		 
 		 editEventLocation = (EditText) findViewById(R.id.editor_edit_text_location);
 		 //TODO: get the fragment reference
-		 fragmentLocations= (CommonLocationFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_locations_container);
-		 switchDeadline= (Switch) findViewById(R.id.editor_edit_event_switch_deadline);
-		 textDeadLine= (TextView) findViewById(R.id.editor_edit_event_text_deadline);
-		 // check if it is an all day event
-		 switchAllDay= (Switch) findViewById(R.id.editor_edit_event_switch_allday);
-		 int i = getIntent().getIntExtra("AllDayEvent", 0);
-		 boolean isAllDay;
-		 if (i == 1){
-			 isAllDay = true;
-		 } else {
-			 isAllDay = false;
-		 }
-		 switchAllDay.setChecked(isAllDay);
-		 // retrieve day and hour informations
-		 now.setToNow();
-		 long nowInMillis = now.toMillis(false);
-		 long startTimeInMillis = getIntent().getLongExtra("StartTime", nowInMillis);
-		 long endTimeInMillis = getIntent().getLongExtra("EndTime", nowInMillis);
-		 start = CalendarUtils.longToTime(startTimeInMillis);
-		 end = CalendarUtils.longToTime(endTimeInMillis);
+		 fragmentLocations = (CommonLocationFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_locations_container);
+		 switchDeadline = (Switch) findViewById(R.id.editor_edit_event_switch_deadline);
+		 textDeadLine = (TextView) findViewById(R.id.editor_edit_event_text_deadline);
+		 
 		 // retrieve time views
-		 spinnerStartDay= (TextView) findViewById(R.id.editor_edit_event_spinner_start_day);
-		 spinnerEndDay= (TextView) findViewById(R.id.editor_edit_event_spinner_end_day);
-		 spinnerStartTime= (TextView) findViewById(R.id.editor_edit_event_spinner_start_time);
-		 spinnerEndTime= (TextView) findViewById(R.id.editor_edit_event_spinner_end_time);
+		 spinnerStartDay = (TextView) findViewById(R.id.editor_edit_event_spinner_start_day);
+		 spinnerEndDay = (TextView) findViewById(R.id.editor_edit_event_spinner_end_day);
+		 spinnerStartTime = (TextView) findViewById(R.id.editor_edit_event_spinner_start_time);
+		 spinnerEndTime = (TextView) findViewById(R.id.editor_edit_event_spinner_end_time);
+		 endDayTextView = (TextView) findViewById(R.id.end_day_textview);
+		 startHourTextView = (TextView) findViewById(R.id.start_hour_textview);
+		 endHourTextView = (TextView) findViewById(R.id.end_hour_textview);
+		 middleBar = (View) findViewById(R.id.bottom_day_top_hour_bar);
 		 
-		 spinnerStartDay.setText(start.monthDay + "/" + (start.month + 1) + "/" + start.year);
-		 spinnerEndDay.setText(end.monthDay + "/" + (end.month + 1) + "/" + end.year);
-		 spinnerStartTime.setText(CalendarUtils.formatHour(start.hour, start.minute));
-		 spinnerEndTime.setText(CalendarUtils.formatHour(end.hour, end.minute));
-		 // if all day events, disable all the others
-		 if (!switchAllDay.isChecked()){
-			 spinnerEndDay.setVisibility(View.VISIBLE);
-			 spinnerStartTime.setVisibility(View.VISIBLE);
-			 spinnerEndTime.setVisibility(View.VISIBLE);
-		 } else {
-			 spinnerEndDay.setVisibility(View.GONE);
-			 spinnerStartTime.setVisibility(View.GONE);
-			 spinnerEndTime.setVisibility(View.GONE);
-		 }
-		 
-		 spinnerRepetition= (Spinner) findViewById(R.id.editor_edit_event_spinner_repetition);
-		 switchIsMovable= (Switch) findViewById(R.id.editor_edit_event_switch_ismovable);
-		 fragmentConstraints= (ConstraintsFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_constraints_container);
-		 spinnerCategory= (Spinner) findViewById(R.id.editor_edit_event_spinner_category);
-		 switchDoNotDisturb= (Switch) findViewById(R.id.editor_edit_event_switch_donotdisturb);
-		 buttonCancel= (Button) findViewById(R.id.editor_edit_event_btn_cancel);
-		 buttonSave= (Button) findViewById(R.id.editor_edit_event_btn_save);
+		 switchAllDay = (Switch) findViewById(R.id.editor_edit_event_switch_allday);
+		 // TODO view for repeating events
+		 switchIsMovable = (Switch) findViewById(R.id.editor_edit_event_switch_ismovable);
+		 fragmentConstraints = (ConstraintsFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_constraints_container);
+		 spinnerCategory = (Spinner) findViewById(R.id.editor_edit_event_spinner_category);
+		 switchDoNotDisturb = (Switch) findViewById(R.id.editor_edit_event_switch_donotdisturb);
+		 buttonCancel = (Button) findViewById(R.id.editor_edit_event_btn_cancel);
+		 buttonSave = (Button) findViewById(R.id.editor_edit_event_btn_save);
 	}
 	
 	private void setUiListeners(){
@@ -178,14 +160,10 @@ public class EventEditorActivity extends Activity{
 				// if all day events, disable all the others
 				 if (!switchAllDay.isChecked()){
 					 System.out.println("visible");
-					 spinnerEndDay.setVisibility(View.VISIBLE);
-					 spinnerStartTime.setVisibility(View.VISIBLE);
-					 spinnerEndTime.setVisibility(View.VISIBLE);
+					 setSpinnerVisibility(View.VISIBLE);
 				 } else {
 					 System.out.println("invisible");
-					 spinnerEndDay.setVisibility(View.GONE);
-					 spinnerStartTime.setVisibility(View.GONE);
-					 spinnerEndTime.setVisibility(View.GONE);
+					 setSpinnerVisibility(View.GONE);
 				 }
 				
 			}
@@ -233,6 +211,7 @@ public class EventEditorActivity extends Activity{
 			
 			@Override
 			public void onClick(View arg0) {
+				setResult(RESULT_CANCELED);
 				EventEditorActivity.this.finish();
 			}
 		});
@@ -240,42 +219,86 @@ public class EventEditorActivity extends Activity{
 			@Override
 			public void onClick(View arg0) {
 				saveEvent();
+				setResult(RESULT_OK);
+				EventEditorActivity.this.finish();
 			}
 		});
 	}
 
-	private void getEvent(){
+	/**
+	 * Acquires informations about creating or editing an event, retrieve and display information consequently
+	 */
+	private void getEventInfo(){
 		//TODO: Here get the event passed by the calendarView.
-		if(eventToEdit==null){
-		//If it is not present, this activity is used as "new event activity"
-		
-		//Using editor as "newEventActivity"
-		Time defaultStart = new Time();
-		defaultStart.setToNow();
-		Time defaultEnd = new Time(defaultStart);
-		if(defaultEnd.hour != 23){
-			defaultEnd.hour++;
-			//Have to find a clever way to set default times
-		} 
-		EventDescriptionModel newEvent = new EventDescriptionModel("", editEventTitle.getText().toString(), defaultStart.toMillis(false), defaultEnd.toMillis(false));
-		eventToEdit = new EventInstanceModel(newEvent, defaultStart, defaultEnd);
+		if(editOrNew.equals("New")){
+			//If it is not present, this activity is used as "new event activity"
+			//Using editor as "newEventActivity"
+			editEventTitle.setText("New Event");
+			start = new Time();
+			start.setToNow();
+			end = new Time(start);
+			if(end.hour != 23){
+				end.hour++;
+				//Have to find a clever way to set default times
+			} else {
+				end.hour = 0;
+			}
+			// set data inside the spinner
+			setSpinnerData(start, end);
+			
+		} else {
+			// if this activity is called for editing an event
+			editEventTitle.setText(getIntent().getStringExtra("Title"));
+			// check if it is an all day event
+			int i = getIntent().getIntExtra("AllDayEvent", 0);
+			boolean isAllDay;
+			if (i == 1){
+				isAllDay = true;
+			} else {
+				isAllDay = false;
+			}
+			switchAllDay.setChecked(isAllDay);
+			
+			// if all day events, disable all the others
+			if (!switchAllDay.isChecked()){
+				setSpinnerVisibility(View.VISIBLE);
+			} else {
+				setSpinnerVisibility(View.GONE);
+			}
+			
+			// retrieve day and hour informations
+			now.setToNow();
+			long nowInMillis = now.toMillis(false);
+			long startTimeInMillis = getIntent().getLongExtra("StartTime", nowInMillis);
+			long endTimeInMillis = getIntent().getLongExtra("EndTime", nowInMillis);
+			start = CalendarUtils.longToTime(startTimeInMillis);
+			end = CalendarUtils.longToTime(endTimeInMillis);
+			setSpinnerData(start, end);
 		}
 	}
 	
 	private void saveEvent(){
 		//TODO: Complete this function
 		//Here update all data on the EventDescriptionModel and EventInstanceModel
-		//TODO: Update data on model (Don't change ID)
-		if(eventToEdit.getEvent().getID() == ""){
-			//Here we are creating a new event on Calendar, so we have to ask the CalendarFetcher to create the new event 
-			//DatabaseManager.createEvent(eventToedit);
+		if(editOrNew.equals("New")){
+			// here goes the event creation model
+			EventDescriptionModel newEvent = new EventDescriptionModel("", editEventTitle.getText().toString(), start.toMillis(false), end.toMillis(false));
+			// TODO: set all other data that we have
+			// create the relative instance of the Event
+			eventToAdd = new EventInstanceModel(newEvent, start, end);
+			// if the event is recursive, set the duration
+			eventToAdd.setStartingTime();
+			//TODO: Here we are creating a new event on Calendar, so we have to ask the CalendarFetcher to create the new event 
+			DatabaseManager.addEvent(this, eventToAdd);
 		} else {
 			//Here we are updating an existing event
+			
 			//Updating data about event description
 			//eventToEdit.getEvent().setUpdated();
 			//Updating data about instance?
 			//eventToEdit.setUpdated();
 			//DatabaseManager.update(eventToEdit);
+			
 		}
 	}
 	
@@ -298,4 +321,23 @@ public class EventEditorActivity extends Activity{
 		          .show(fragmentLocations)
 		          .commit();
 	}
+	
+	private void setSpinnerVisibility(int visibility){
+		spinnerEndDay.setVisibility(visibility);
+		spinnerStartTime.setVisibility(visibility);
+		spinnerEndTime.setVisibility(visibility);
+		endDayTextView.setVisibility(visibility);
+		startHourTextView.setVisibility(visibility);
+		endHourTextView.setVisibility(visibility);
+		middleBar.setVisibility(visibility);
+	}
+	
+	private void setSpinnerData(Time start, Time end){
+		spinnerStartDay.setText(start.monthDay + "/" + (start.month + 1) + "/" + start.year);
+		spinnerEndDay.setText(end.monthDay + "/" + (end.month + 1) + "/" + end.year);
+		spinnerStartTime.setText(CalendarUtils.formatHour(start.hour, start.minute));
+		spinnerEndTime.setText(CalendarUtils.formatHour(end.hour, end.minute));
+	}
+	
+	
 }

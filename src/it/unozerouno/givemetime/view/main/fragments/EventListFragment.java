@@ -184,6 +184,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
     public void onEventLongPress(EventInstanceModel event, RectF eventRect) {
         Toast.makeText(this.getActivity(), "Long pressed event: " + event.getEvent().getName(), Toast.LENGTH_SHORT).show();
         Intent editIntent = new Intent(this.getActivity(), EventEditorActivity.class);
+        editIntent.putExtra("EditOrNew", "Edit"); // tell the activity that it is an edit call
         editIntent.putExtra("Title", event.getEvent().getName());
         // TODO retrieve location info
         editIntent.putExtra("StartTime", event.getStartingTime().toMillis(false));

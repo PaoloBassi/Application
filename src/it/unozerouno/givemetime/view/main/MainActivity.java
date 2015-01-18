@@ -3,6 +3,7 @@ package it.unozerouno.givemetime.view.main;
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.StartUpFlow;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
+import it.unozerouno.givemetime.view.editor.EventEditorActivity;
 import it.unozerouno.givemetime.view.main.fragments.DebugFragment;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
@@ -263,8 +264,10 @@ public class MainActivity extends Activity {
         int itemId = item.getItemId();
 		if (itemId == R.id.addEvent) {
 			// Create the intent to handle this option
-			Intent addEvent = new Intent(this, AddNewEventActivity.class);
+			Intent addEvent = new Intent(this, EventEditorActivity.class);
+			addEvent.putExtra("EditOrNew", "New");
 			startActivity(addEvent); // maybe with result?
+			// TODO: refresh the view
 			return true;
 		} else if (itemId == R.id.action_settings) {
 			// create the intent
