@@ -131,27 +131,44 @@ public final class PlaceFetcher {
 
 		    try {
 		        // Create a JSON object hierarchy from the results
-		        JSONObject result = new JSONObject(jsonResults.toString());
+		        
+		    	JSONObject response = new JSONObject(jsonResults.toString());
+		     if (response.has("result")){
+		        JSONObject result = response.getJSONObject("result");
+		        
+		        if (result.has("formatted_address")){  
 		        String formattedAddress = result.getString("formatted_address");
-		        String phoneNumber = result.getString("international_phone_number");
-		        JSONObject jsonLocation = result.getJSONObject("geometry").getJSONObject("location");
-		        String latitude = jsonLocation.getString("lat");
-		        String longitude = jsonLocation.getString("lng");
-		        Location location = new Location("Places");
-		        location.setLatitude(Double.parseDouble(latitude));
-		        location.setLongitude(Double.parseDouble(longitude));
-		        String icon = result.getString("icon");
-		        JSONArray openingTimes = result.getJSONObject("opening_hours").getJSONArray("periods");
-		        
-		        //Setting collected info on PlaceModel
-		        
 		        placeWithInfo.setFormattedAddress(formattedAddress);
+		        }
+		        if (result.has("international_phone_number")){ 
+		        String phoneNumber = result.getString("international_phone_number");
 		        placeWithInfo.setPhoneNumber(phoneNumber);
-		        placeWithInfo.setLocation(location);
+		        }
+		        
+		        if (result.has("geometry")){ 
+		        	  JSONObject geometry = result.getJSONObject("geometry");
+		        	  if (geometry.has("location")){
+		        	  JSONObject jsonLocation= geometry.getJSONObject("location");
+		        	  if (jsonLocation.has("lat") && jsonLocation.has("lng")){
+				        String latitude = jsonLocation.getString("lat");
+				        String longitude = jsonLocation.getString("lng");
+				        Location location = new Location("Places");
+				        location.setLatitude(Double.parseDouble(latitude));
+				        location.setLongitude(Double.parseDouble(longitude));
+				        placeWithInfo.setLocation(location);
+		        	  }
+		        	  }
+		        }
+		      
+		        if (result.has("icon")){ 
+		        String icon = result.getString("icon");
 		        placeWithInfo.setIcon(icon);
+		        }
+		        if (result.has("opening_hours")){ 
+		        JSONArray openingTimes = result.getJSONObject("opening_hours").getJSONArray("periods");
 		        placeWithInfo.setOpeningTime(ComplexConstraint.parseJSONResult(openingTimes));
-
-		     
+		        }
+		     }
 		     
 		    } catch (JSONException e) {
 		        Log.e(LOG_TAG, "Cannot process JSON results", e);

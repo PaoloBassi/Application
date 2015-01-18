@@ -22,6 +22,7 @@ import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
+import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
@@ -29,8 +30,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.provider.ContactsContract.Contacts.Data;
 import android.text.format.Time;
+import android.widget.ArrayAdapter;
 
 /**
  * This is the entry Point for the model. It fetches all stored app data from DB and generates Model.
@@ -268,50 +271,75 @@ public final class DatabaseManager {
 	
 	//Location management
 	
-	
-	public static void addLocationAndFetchInfo(PlaceResult placeResult){
-		//TODO: create model, fetch info and put in the db
+	/**
+	 * Fetch more informations about Place result and store data into the database.
+	 * When the operation is complete, it notify to a provided listener
+	 * @param placeResult input Result
+	 * @param OnDatabaseUpdatedListener Listener to notify
+	 */
+	public static void addLocationAndFetchInfo(PlaceResult placeResult, final OnDatabaseUpdatedListener listener){
 		PlaceModel newPlace = new PlaceModel(placeResult);
-		newPlace = PlaceFetcher.getAdditionalInfo(newPlace);
+		
+		AsyncTask<PlaceModel, Void, PlaceModel> placeFetcher = new AsyncTask<PlaceModel, Void, PlaceModel>(){
+
+			@Override
+			protected PlaceModel doInBackground(PlaceModel... place) {
+				place[0] = PlaceFetcher.getAdditionalInfo(place[0]);
+				return place[0];
+			}
+			@Override
+			protected void onPostExecute(PlaceModel result) {
+				super.onPostExecute(result);
+				addPlace(result);
+				listener.updateFinished();
+			}
+		};
+		placeFetcher.execute(newPlace);
+	}
+	
+	/**
+	 * Store a placeModel into the database
+	 * @param newPlace
+	 */
+	private static void addPlace(PlaceModel newPlace){
 		//Now the place has all known infos
 		
 
-		//Getting whole place data
-		 String placeId = newPlace.getPlaceId();
-		 String name = newPlace.getName();
-		 String address = newPlace.getAddress();
-		 String formattedAddress = newPlace.getFormattedAddress();
-		 String country = newPlace.getCountry();
-		 String phoneNumber = newPlace.getPhoneNumber();
-		 String icon = newPlace.getIcon();
-		 Double latitude = newPlace.getLocation().getLatitude();
-		 Double longitude = newPlace.getLocation().getLongitude();
-		 int visitCounter = newPlace.getVisitCounter();
-		
-		//Insering Values is PlaceModel table
-		 ContentValues values = new ContentValues();
-		 values.put(DatabaseCreator.PLACE_ID, placeId);
-		 values.put(DatabaseCreator.PLACE_NAME, name);
-		 values.put(DatabaseCreator.PLACE_ADDRESS, address);
-		 values.put(DatabaseCreator.PLACE_FORMATTED_ADDRESS, formattedAddress);
-		 values.put(DatabaseCreator.PLACE_COUNTRY, country);
-		 values.put(DatabaseCreator.PLACE_PHONE_NUMBER, phoneNumber);
-		 values.put(DatabaseCreator.PLACE_ICON, icon);
-		 values.put(DatabaseCreator.PLACE_LOCATION_LATITUDE, Double.toString(latitude));
-		 values.put(DatabaseCreator.PLACE_LOCATION_LONGITUDE, Double.toString(longitude));
-		 values.put(DatabaseCreator.PLACE_VISIT_COUNTER, Integer.toString(visitCounter));
-		 Time now = new Time();
-		 now.setToNow();
-		 values.put(DatabaseCreator.PLACE_DATE_CREATED, now.toMillis(false));
-		 
-		 //Executing Query
-		 Long query = database.insert(DatabaseCreator.TABLE_PLACE_MODEL, null, values);
-		System.out.println("Inserted Location, added row: " + query);
-		
-		//TODO: update constraints
-		addConstraints(newPlace);
-		
-	}
+				//Getting whole place data
+				 String placeId = newPlace.getPlaceId();
+				 String name = newPlace.getName();
+				 String address = newPlace.getAddress();
+				 String formattedAddress = newPlace.getFormattedAddress();
+				 String country = newPlace.getCountry();
+				 String phoneNumber = newPlace.getPhoneNumber();
+				 String icon = newPlace.getIcon();
+				 Double latitude = newPlace.getLocation().getLatitude();
+				 Double longitude = newPlace.getLocation().getLongitude();
+				 int visitCounter = newPlace.getVisitCounter();
+				
+				//Insering Values is PlaceModel table
+				 ContentValues values = new ContentValues();
+				 values.put(DatabaseCreator.PLACE_ID, placeId);
+				 values.put(DatabaseCreator.PLACE_NAME, name);
+				 values.put(DatabaseCreator.PLACE_ADDRESS, address);
+				 values.put(DatabaseCreator.PLACE_FORMATTED_ADDRESS, formattedAddress);
+				 values.put(DatabaseCreator.PLACE_COUNTRY, country);
+				 values.put(DatabaseCreator.PLACE_PHONE_NUMBER, phoneNumber);
+				 values.put(DatabaseCreator.PLACE_ICON, icon);
+				 values.put(DatabaseCreator.PLACE_LOCATION_LATITUDE, Double.toString(latitude));
+				 values.put(DatabaseCreator.PLACE_LOCATION_LONGITUDE, Double.toString(longitude));
+				 values.put(DatabaseCreator.PLACE_VISIT_COUNTER, Integer.toString(visitCounter));
+				 Time now = new Time();
+				 now.setToNow();
+				 values.put(DatabaseCreator.PLACE_DATE_CREATED, now.toMillis(false));
+				 
+				 //Executing Query
+				 Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_PLACE_MODEL, null, values,SQLiteDatabase.CONFLICT_IGNORE);
+				System.out.println("Inserted Location, added row: " + query);
+				
+				//TODO: update constraints
+				addConstraints(newPlace);
+	} 
 	
 	public static List<PlaceModel> getLocations(){
 		List<PlaceModel> places = new ArrayList<PlaceModel>();

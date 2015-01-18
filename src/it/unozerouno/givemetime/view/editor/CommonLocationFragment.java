@@ -74,6 +74,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	 placeView.setOnItemClickListener(listener);
  }
  
+ 
  /**
   * Adapter for the locations list view
   * @author Edoardo Giacomello

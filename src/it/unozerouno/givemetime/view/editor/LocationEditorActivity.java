@@ -5,6 +5,7 @@ import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
 import it.unozerouno.givemetime.model.places.PlaceModel;
+import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 
 import java.util.ArrayList;
 
@@ -59,8 +60,14 @@ public class LocationEditorActivity extends Activity{
 	
 	
 	private void addPlaceToFavourites(PlaceResult place){
-		DatabaseManager.addLocationAndFetchInfo(place);
-		//TODO: Then update the commonLocationFragment list
+		OnDatabaseUpdatedListener updateListener = new OnDatabaseUpdatedListener() {
+			@Override
+			protected void onUpdateFinished() {
+				//Tell the fragment to update the list
+				fragmentLocationList.fetchCommonLocations();
+			}
+		};
+		DatabaseManager.addLocationAndFetchInfo(place, updateListener);
 	}
 	
 	private class PlacesAutoCompleteAdapter extends ArrayAdapter<PlaceResult> implements Filterable {
