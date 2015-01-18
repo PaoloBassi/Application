@@ -19,6 +19,7 @@ import android.text.format.Time;
 public class EventDescriptionModel extends EventModel{
 	//Attributes inferred by Google Calendars
 	private String ID; //This is the id from Google calendar event
+	private String calendarId;
 	private String name; 
 	private Time startingDateTime;
 	private Time endingDateTime;
@@ -32,8 +33,11 @@ public class EventDescriptionModel extends EventModel{
 	private Set<Constraint> constraints; 
 	private PlaceModel place;
 	private Boolean doNotDisturb = false;
+	private Boolean hasDeadline = true;
+	private Boolean isMovable = false;
 	private EventCategory category;
 	private List<EventListener<EventDescriptionModel>> listeners;
+	
 	
 	public EventDescriptionModel(String _id, String _name, long sTime, long eTime){
 		ID = _id;
@@ -120,6 +124,27 @@ public class EventDescriptionModel extends EventModel{
 		this.constraints = constraints;
 	}
 	
+	
+	
+	
+	public String getCalendarId() {
+		return calendarId;
+	}
+	public void setCalendarId(String calendarId) {
+		this.calendarId = calendarId;
+	}
+	public Boolean getHasDeadline() {
+		return hasDeadline;
+	}
+	public void setHasDeadline(Boolean hasDeadline) {
+		this.hasDeadline = hasDeadline;
+	}
+	public Boolean getIsMovable() {
+		return isMovable;
+	}
+	public void setIsMovable(Boolean isMovable) {
+		this.isMovable = isMovable;
+	}
 	public List<EventListener<EventDescriptionModel>> getListeners() {
 		return listeners;
 	}

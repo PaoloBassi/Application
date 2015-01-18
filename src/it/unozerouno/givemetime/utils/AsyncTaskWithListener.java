@@ -15,7 +15,7 @@ import android.os.AsyncTask;
  * @see AsyncTask, {@link AsyncTaskWithListener}
  */
 public abstract class AsyncTaskWithListener <Params, Progress, Result>  extends AsyncTask<Params, Progress, Result>{
-	ArrayList<TaskListener<Result>> taskListeners = new ArrayList<TaskListener<Result>>();
+	private ArrayList<TaskListener<Result>> taskListeners = new ArrayList<TaskListener<Result>>();
 	public void setListener(TaskListener<Result> listener){
 		taskListeners.add(listener);
 	}

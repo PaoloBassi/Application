@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.view.editor;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
@@ -283,6 +284,7 @@ public class EventEditorActivity extends Activity{
 		if(editOrNew.equals("New")){
 			// here goes the event creation model
 			EventDescriptionModel newEvent = new EventDescriptionModel("", editEventTitle.getText().toString(), start.toMillis(false), end.toMillis(false));
+			newEvent.setCalendarId(UserKeyRing.getCalendarId(this));
 			// TODO: set all other data that we have
 			// create the relative instance of the Event
 			eventToAdd = new EventInstanceModel(newEvent, start, end);
