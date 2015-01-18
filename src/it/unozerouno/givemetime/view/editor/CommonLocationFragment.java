@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.android.gms.internal.nu;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import android.app.Fragment;
@@ -25,8 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class CommonLocationFragment extends Fragment {
-	private ListView locationView;
-	private EventEditorActivity caller;
+	private ListView placeView;
 	private ArrayList<PlaceModel> placeList;
 	private LocationsListAdapter listAdapter;
 	private Button addBtn;
@@ -36,28 +36,11 @@ public class CommonLocationFragment extends Fragment {
 public View onCreateView(LayoutInflater inflater, ViewGroup container,
 		Bundle savedInstanceState) {
 	View view = inflater.inflate(R.layout.fragment_event_editor_locations, container);
-	locationView = (ListView) view.findViewById(R.id.editor_edit_event_location_listview_locations);
+	placeView = (ListView) view.findViewById(R.id.editor_edit_event_location_listview_locations);
 	placeList = new ArrayList<PlaceModel>();
 	listAdapter = new LocationsListAdapter(getActivity(), R.layout.element_list_location, placeList);
-	locationView.setAdapter(listAdapter);
-	//Setting onClick for Locations
-	locationView.setOnItemClickListener(new OnItemClickListener() {
+	placeView.setAdapter(listAdapter);
 
-		@Override
-		public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-			// reset color of all elements
-			for (int i = 0; i < adapter.getChildCount(); i++) {
-				adapter.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
-			}
-			// change the background color of the selected element
-			view.setBackgroundColor(Color.LTGRAY);
-			// save the element selected
-			PlaceModel placeSelected = (PlaceModel) adapter.getItemAtPosition(position);
-			CommonLocationFragment.this.locationView.setSelection(position);
-			placeSelected(placeSelected);
-		}
-	});
-	
 	//Button Management
 	addBtn = (Button) view.findViewById(R.id.editor_edit_event_location_btn_add);
 	editBtn = (Button) view.findViewById(R.id.editor_edit_event_location_btn_edit);
@@ -79,22 +62,18 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	return view;
 }
  
- private void placeSelected(PlaceModel place){
-	 caller.setSelectedPlaceModel(place);
- }
  
- private void fetchCommonLocations(){
-	 //TODO: Fetch locations here from DatabaseManager
-	 
-	 //Here's a test
-	 PlaceModel testItem =new PlaceModel("0", "TestLocation", null);
-	 placeList.add(testItem);
+ public void fetchCommonLocations(){
+	 List<PlaceModel> newList = DatabaseManager.getLocations();
+	 placeList.clear();
+	 placeList.addAll(newList);
 	 listAdapter.notifyDataSetChanged();
  }
  
- public void setCaller(EventEditorActivity eventEditorActivity) {
-		this.caller = eventEditorActivity;
-	}
+ public void setPlaceOnclick(LocationClickListener listener){
+	 placeView.setOnItemClickListener(listener);
+ }
+ 
  
  /**
   * Adapter for the locations list view
@@ -121,7 +100,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			        convertView = inflater.inflate(R.layout.element_list_location, null);
 			        viewHolder = new ViewHolder();
 			        viewHolder.name = (TextView)convertView.findViewById(R.id.element_list_location_name);
-			        viewHolder.info = (TextView)convertView.findViewById(R.id.element_list_location_info);
+			        viewHolder.address = (TextView)convertView.findViewById(R.id.element_list_location_address);
+			        viewHolder.country = (TextView)convertView.findViewById(R.id.element_list_location_country);
 			        convertView.setTag(viewHolder);
 		        }
 		        else
@@ -131,8 +111,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			        
 			        PlaceModel placeItem = getItem(position);
 			        viewHolder.name.setText(placeItem.getName());
-			        viewHolder.info.setText(placeItem.getInfo());
-			       
+			        viewHolder.address.setText(placeItem.getAddress());
+			        viewHolder.country.setText(placeItem.getCountry());
 			        
 			        return convertView;
 		}
@@ -143,9 +123,10 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 		 */
 		 private class ViewHolder {
 		        public TextView name;
-		        public TextView info;
+		        public TextView address;
+		        public TextView country;
 		    }
  }
 
-
+ 
 }

@@ -29,4 +29,7 @@
     <string name="action_day_view">Day view</string>
     <string name="action_three_day_view">3 day view</string>
     <string name="action_week_view">Week view</string>
+    
+    <string name="place_autocomplete_quota_exceeded">The maximum free user number has been exceeded. You can retry tomorrow. Please donate or purchase GiveMeTime for full functionality!</string>
+    <string name="place_autocomplete_key_outdated">Your application is outdated. Please update it on Play Store or send us an email if the error persists.</string>
 </resources>

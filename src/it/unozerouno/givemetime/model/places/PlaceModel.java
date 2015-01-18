@@ -1,60 +1,145 @@
 package it.unozerouno.givemetime.model.places;
 
+import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
+import it.unozerouno.givemetime.model.constraints.ComplexConstraint;
 import it.unozerouno.givemetime.model.constraints.DayConstraint;
 import it.unozerouno.givemetime.model.constraints.TimeConstraint;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import android.location.Location;
 
 
 public class PlaceModel{
-	private String ID;
-	private String Name;
-	private String info;
+	private String placeId;
+	private String name;
+	private String address;
+	private String formattedAddress;
+	private String country;
+	private String phoneNumber;
+	private String icon;
 	private Location location;
-	private Set<TimeConstraint> openingTime;
-	private Set<DayConstraint> openingDays;
+	private int visitCounter;
+	private List<ComplexConstraint> openingTime;
+	//When adding attributes remember to edit also constructors and overrides
 	
-	public PlaceModel(String iD, String name, Location location) {
+	
+
+	public PlaceModel(String placeId, String name, String address,
+			String country) {
 		super();
-		ID = iD;
-		Name = name;
-		this.location = location;
+		this.placeId = placeId;
+		this.name = name;
+		this.address = address;
+		this.country = country;
+	}
+	
+	public PlaceModel(PlaceResult placeResult) {
+		this.placeId = placeResult.getPlaceID();
+		this.name = placeResult.getName();
+		this.address = placeResult.getAddress();
+		this.country = placeResult.getCountry();
+	}
+	
+	
+	
+
+	public String getPlaceId() {
+		return placeId;
 	}
 
-	public void setLocation(String ID, Location location) {
-		this.ID = ID;
-		this.location = location;
+	public void setPlaceId(String placeId) {
+		this.placeId = placeId;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getFormattedAddress() {
+		return formattedAddress;
+	}
+
+	public void setFormattedAddress(String formattedAddress) {
+		this.formattedAddress = formattedAddress;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
 	public Location getLocation() {
 		return location;
 	}
-	public String getName() {
-		return Name;
+
+	public void setLocation(Location location) {
+		this.location = location;
 	}
-	public void setName(String name) {
-		Name = name;
-	}
-	public String getInfo() {
-		return info;
-	}
-	public void setInfo(String info) {
-		this.info = info;
-	}
-	public Set<TimeConstraint> getOpeningTime() {
+
+	public List<ComplexConstraint> getOpeningTime() {
 		return openingTime;
 	}
-	public void setOpeningTime(Set<TimeConstraint> openingTime) {
+
+	public void setOpeningTime(List<ComplexConstraint> openingTime) {
 		this.openingTime = openingTime;
 	}
-	public Set<DayConstraint> getOpeningDays() {
-		return openingDays;
+	public void setVisitCounter(int visitCounter){
+		this.visitCounter = visitCounter;
 	}
-	public void setOpeningDays(Set<DayConstraint> openingDays) {
-		this.openingDays = openingDays;
+
+	public int getVisitCounter() {
+		return visitCounter;
 	}
 	
 	
+	@Override
+	public PlaceModel clone() {
+		PlaceModel copy = new PlaceModel(placeId, name, address, country);
+		copy.setFormattedAddress(formattedAddress);
+		copy.setCountry(country);
+		copy.setPhoneNumber(phoneNumber);
+		copy.setIcon(icon);
+		copy.setLocation(location);
+		copy.setVisitCounter(visitCounter);
+		copy.setOpeningTime(openingTime);
+		return copy;
+	}
 
 }

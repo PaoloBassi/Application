@@ -1,22 +1,39 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
+import com.google.android.gms.drive.internal.SetFileUploadPreferencesRequest;
+import com.google.android.gms.internal.ne;
 
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
+import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
+import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.model.constraints.ComplexConstraint;
+import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.events.EventModel;
+import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
+import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
+import android.os.AsyncTask;
+import android.provider.ContactsContract.Contacts.Data;
 import android.text.format.Time;
+import android.widget.ArrayAdapter;
 
 /**
  * This is the entry Point for the model. It fetches all stored app data from DB and generates Model.
@@ -31,7 +48,10 @@ public final class DatabaseManager {
 	private static DatabaseCreator dbCreator;
 	private static DatabaseManager dbManagerInstance;
 	
-
+	
+	
+	
+	
 
 
 	private DatabaseManager(Context context) {
@@ -106,9 +126,16 @@ public final class DatabaseManager {
 	 * @return
 	 */
 	private EventDescriptionModel eventDescriptionToModel(String[] eventResult){
-			//Returned Values: 0:Events._ID, 1:Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE
+			//Returned Values: 0:Events._ID, 1:Events.TITLE, 2:Events.DTSTART, 3:Events.DTEND, 4:Events.EVENT_COLOR, 5:Events.RRULE, 6:Events.RDATE, 7: Events.ALL_DAY
 			// put each event inside a EventDescriptionModel 
-			System.out.println("Fetched event: id - " + eventResult[0] + " Title - " + eventResult[1] + "  Start: " + eventResult[2] + " End: " + eventResult[3] + " Color:" + eventResult[4] + " RRULE:" + eventResult[5] + " RDATE: " + eventResult[6]);
+			System.out.println("Fetched event: id - " + eventResult[0] 
+							+ " Title - " + eventResult[1] 
+							+ "  Start: " + eventResult[2] 
+							+ " End: " + eventResult[3] 
+							+ " Color:" + eventResult[4] 
+							+ " RRULE:" + eventResult[5] 
+							+ " RDATE: " + eventResult[6] 
+							+ " ALL_DAY: " + eventResult[7]);
 			// prepare the model
 			String id = eventResult[0];
 			String title = eventResult[1];
@@ -117,6 +144,7 @@ public final class DatabaseManager {
 			String color = eventResult[4];
 			String RRULE = eventResult[5];
 			String RDATE = eventResult[6];
+			String ALL_DAY = eventResult[7];
 			
 			EventDescriptionModel eventDescriptionModel = new EventDescriptionModel(id, title);
 			Long startLong = null;
@@ -129,7 +157,7 @@ public final class DatabaseManager {
 			}
 			
 			if (color != null){
-				eventDescriptionModel.setColor(Integer.parseInt(eventResult[4]));
+				eventDescriptionModel.setColor(Integer.parseInt(color));
 			}
 			// check for recursive events
 			if (RRULE != null){
@@ -137,6 +165,9 @@ public final class DatabaseManager {
 			}
 			if(RDATE != null){
 				eventDescriptionModel.setRDATE(RDATE);
+			}
+			if(ALL_DAY != null){
+				eventDescriptionModel.setAllDay(Integer.parseInt(ALL_DAY));
 			}
 			return eventDescriptionModel;
 	}
@@ -224,10 +255,10 @@ public final class DatabaseManager {
 	public void createEventRow(Context context, String eventId){
 		String calId = UserKeyRing.getCalendarId(context);
 		String CREATE_NEW_EMPTY_EVENT = "INSERT INTO "
-										+ DatabaseCreator.EVENT_MODEL
+										+ DatabaseCreator.TABLE_EVENT_MODEL
 										+ " (" + DatabaseCreator.ID_CALENDAR + ", " + DatabaseCreator.ID_EVENT_PROVIDER + ") " 
 										+ "SELECT '" + Integer.parseInt(calId) + "', '" + Integer.parseInt(eventId) + "' " 
-										+ "WHERE NOT EXISTS (" + "SELECT * FROM "+ DatabaseCreator.EVENT_MODEL 
+										+ "WHERE NOT EXISTS (" + "SELECT * FROM "+ DatabaseCreator.TABLE_EVENT_MODEL 
 										+" WHERE "+ DatabaseCreator.ID_CALENDAR + " = '"+ calId + "' AND "
 										+ DatabaseCreator.ID_EVENT_PROVIDER +" = '"+ eventId +"'); ";  
 		database.execSQL(CREATE_NEW_EMPTY_EVENT);
@@ -238,6 +269,159 @@ public final class DatabaseManager {
 		// TODO add all the recursive events to the event table
 	}
 	
+	//Location management
+	
+	/**
+	 * Fetch more informations about Place result and store data into the database.
+	 * When the operation is complete, it notify to a provided listener
+	 * @param placeResult input Result
+	 * @param OnDatabaseUpdatedListener Listener to notify
+	 */
+	public static void addLocationAndFetchInfo(PlaceResult placeResult, final OnDatabaseUpdatedListener listener){
+		PlaceModel newPlace = new PlaceModel(placeResult);
+		
+		AsyncTask<PlaceModel, Void, PlaceModel> placeFetcher = new AsyncTask<PlaceModel, Void, PlaceModel>(){
+
+			@Override
+			protected PlaceModel doInBackground(PlaceModel... place) {
+				place[0] = PlaceFetcher.getAdditionalInfo(place[0]);
+				return place[0];
+			}
+			@Override
+			protected void onPostExecute(PlaceModel result) {
+				super.onPostExecute(result);
+				addPlace(result);
+				listener.updateFinished();
+			}
+		};
+		placeFetcher.execute(newPlace);
+	}
+	
+	/**
+	 * Store a placeModel into the database
+	 * @param newPlace
+	 */
+	private static void addPlace(PlaceModel newPlace){
+		//Now the place has all known infos
+		
+
+				//Getting whole place data
+				 String placeId = newPlace.getPlaceId();
+				 String name = newPlace.getName();
+				 String address = newPlace.getAddress();
+				 String formattedAddress = newPlace.getFormattedAddress();
+				 String country = newPlace.getCountry();
+				 String phoneNumber = newPlace.getPhoneNumber();
+				 String icon = newPlace.getIcon();
+				 Double latitude = newPlace.getLocation().getLatitude();
+				 Double longitude = newPlace.getLocation().getLongitude();
+				 int visitCounter = newPlace.getVisitCounter();
+				
+				//Insering Values is PlaceModel table
+				 ContentValues values = new ContentValues();
+				 values.put(DatabaseCreator.PLACE_ID, placeId);
+				 values.put(DatabaseCreator.PLACE_NAME, name);
+				 values.put(DatabaseCreator.PLACE_ADDRESS, address);
+				 values.put(DatabaseCreator.PLACE_FORMATTED_ADDRESS, formattedAddress);
+				 values.put(DatabaseCreator.PLACE_COUNTRY, country);
+				 values.put(DatabaseCreator.PLACE_PHONE_NUMBER, phoneNumber);
+				 values.put(DatabaseCreator.PLACE_ICON, icon);
+				 values.put(DatabaseCreator.PLACE_LOCATION_LATITUDE, Double.toString(latitude));
+				 values.put(DatabaseCreator.PLACE_LOCATION_LONGITUDE, Double.toString(longitude));
+				 values.put(DatabaseCreator.PLACE_VISIT_COUNTER, Integer.toString(visitCounter));
+				 Time now = new Time();
+				 now.setToNow();
+				 values.put(DatabaseCreator.PLACE_DATE_CREATED, now.toMillis(false));
+				 
+				 //Executing Query
+				 Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_PLACE_MODEL, null, values,SQLiteDatabase.CONFLICT_IGNORE);
+				System.out.println("Inserted Location, added row: " + query);
+				
+				//TODO: update constraints
+				addConstraints(newPlace);
+	} 
+	
+	public static List<PlaceModel> getLocations(){
+		List<PlaceModel> places = new ArrayList<PlaceModel>();
+		String[] projection = DatabaseCreator.Projections.PLACES_ALL;
+		Cursor cursor = database.query(DatabaseCreator.TABLE_PLACE_MODEL, projection, null, null, null, null, DatabaseCreator.PLACE_DATE_CREATED + ", " +DatabaseCreator.PLACE_VISIT_COUNTER + " DESC");
+		while (cursor.moveToNext()) {
+			 String placeId = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_ID ));
+			 String name = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_NAME ));
+			 String address = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_ADDRESS ));
+			 String formattedAddress = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_FORMATTED_ADDRESS ));
+			 String country = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_COUNTRY ));
+			 String phoneNumber = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_PHONE_NUMBER ));
+			 String icon = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_ICON ));
+			 
+			 String latitudeString = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_LOCATION_LATITUDE ));
+			 Double latitude = Double.parseDouble(latitudeString);
+			 String longitudeString = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_LOCATION_LONGITUDE ));
+			 Double longitude = Double.parseDouble(longitudeString);		
+			 String visitCounterString = cursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.PLACE_VISIT_COUNTER ));
+			 int visitCounter = Integer.parseInt(visitCounterString);
+			 
+			 //Creating PlaceModel
+			 PlaceModel newPlace = new PlaceModel(placeId,name,address,country);
+			 newPlace.setFormattedAddress(formattedAddress);
+			 newPlace.setPhoneNumber(phoneNumber);
+			 newPlace.setIcon(icon);
+			 Location newLocation = new Location("GiveMeTime");
+			 newLocation.setLatitude(latitude);
+			 newLocation.setLongitude(longitude);
+			 newPlace.setLocation(newLocation);
+			 newPlace.setVisitCounter(visitCounter);
+			 
+			 List<ComplexConstraint> openingTimes = getConstraints(newPlace);
+			 newPlace.setOpeningTime(openingTimes);
+		     places.add(newPlace);
+		}
+		cursor.close();
+		return places;
+	}
+	
+	
+	//Constraints functions
+	/**
+	 * This get the opening time of a particular place in the db. 
+	 * Note that they are not put directly in the PlaceModel object but returned instead.
+	 * @param place
+	 * @return
+	 */
+	public static List<ComplexConstraint> getConstraints(PlaceModel place){
+		List<ComplexConstraint> constraints = new ArrayList<ComplexConstraint>();
+		//TODO: fetch constraints
+		return constraints;
+	}
+	
+	/**
+	 * This get the constraints of a particular event in the db. 
+	 * Note that they are not put directly in the Event Model object but returned instead.
+	 * @param event
+	 * @return
+	 */
+	public static List<ComplexConstraint> getConstraints(EventModel event){
+		List<ComplexConstraint> constraints = new ArrayList<ComplexConstraint>();
+		//TODO: fetch constraints
+		return constraints;
+	}
+	/**
+	 * This function adds opening time of a particular places in db
+	 * @param place
+	 */
+	public static void addConstraints(PlaceModel place){
+		//TODO: Set constraints
+	}
+	/**
+	 * Adds event constraint in db
+	 * @param constraints
+	 */
+	public static void addConstraints(EventModel constraints){
+		//TODO: Set Constraints
+	}
+	
+	
+	
 	/**
 	 * This helper class creates the GiveMeTime database
 	 * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com>
@@ -245,23 +429,37 @@ public final class DatabaseManager {
 	 *
 	 */
 	private static class DatabaseCreator extends SQLiteOpenHelper{
+		static class Projections{
+			public static final String[] PLACES_ALL = {PLACE_ID,PLACE_NAME,PLACE_ADDRESS,PLACE_FORMATTED_ADDRESS,PLACE_COUNTRY,PLACE_PHONE_NUMBER,PLACE_ICON,PLACE_LOCATION_LONGITUDE,PLACE_LOCATION_LATITUDE,PLACE_VISIT_COUNTER,PLACE_DATE_CREATED};
+			
+			public static int getIndex(String[] projection, String coloumn){
+				int counter = 0;
+					for (String currentColoumn : projection) {
+						if (currentColoumn == coloumn) return counter;
+						else {
+							counter++;
+						}
+					}
+					return -1;
+			}
+		}
 		
 		// Database Name
 		private static final String DATABASE_NAME = "givemetime.db";
 		// Database Version
 		private static final int DATABASE_VERSION = 1;
 		// Database Tables
-		 static final String EVENT_MODEL = "event_model";
-		 static final String PLACE_MODEL = "place_model";
-		 static final String QUESTION_MODEL = "question_model";
-		 static final String OPENING_TIMES = "opening_times";
-		 static final String OPENING_DAYS = "opening_days";
-		 static final String EVENT_CATEGORY = "event_category";
-		 static final String EVENT_CONSTRAINTS = "event_constraints";
-		 static final String CONSTRAINTS = "constraints";
-		 static final String USER_PREFERENCE = "user_preference";
-		 static final String VACATION_DAYS = "vacation_days";
-		 static final String WORK_TIMETABLE = "work_timetable";
+		 static final String TABLE_EVENT_MODEL = "event_model";
+		 static final String TABLE_PLACE_MODEL = "place_model";
+		 static final String TABLE_QUESTION_MODEL = "question_model";
+		 static final String TABLE_OPENING_TIMES = "opening_times";
+		 static final String TABLE_OPENING_DAYS = "opening_days";
+		 static final String TABLE_EVENT_CATEGORY = "event_category";
+		 static final String TABLE_EVENT_CONSTRAINTS = "event_constraints";
+		 static final String TABLE_CONSTRAINTS = "constraints";
+		 static final String TABLE_USER_PREFERENCE = "user_preference";
+		 static final String TABLE_VACATION_DAYS = "vacation_days";
+		 static final String TABLE_WORK_TIMETABLE = "work_timetable";
 		
 		// Database Column Names
 		// EVENT_MODEL
@@ -273,8 +471,19 @@ public final class DatabaseManager {
 		private static final String FLAG_DEADLINE = "flag_deadline";
 		private static final String FLAG_MOVABLE = "flag_movable";
 		// PLACE_MODEL
-		private static final String ID_LOCATION = "id_location";
-		private static final String PM_NAME = "name";
+		private static final String PLACE_ID = "place_id";
+		private static final String PLACE_NAME = "place_name";
+		private static final String PLACE_ADDRESS = "place_address";
+		private static final String PLACE_FORMATTED_ADDRESS = "place_formatted_address";
+		private static final String PLACE_COUNTRY = "place_country";
+		private static final String PLACE_PHONE_NUMBER = "place_phone_number";
+		private static final String PLACE_ICON = "place_icon";
+		private static final String PLACE_LOCATION_LATITUDE = "place_location_latitude";
+		private static final String PLACE_LOCATION_LONGITUDE = "place_location_longitude";
+		private static final String PLACE_VISIT_COUNTER = "place_visit_counter";
+		private static final String PLACE_DATE_CREATED="place_date_created";
+		
+		
 		// QUESTION_MODEL
 		private static final String ID_QUESTION = "id_question";
 		private static final String DATE_TIME = "date_time";
@@ -282,10 +491,10 @@ public final class DatabaseManager {
 		private static final String EVENT_ID = "event_id";
 		private static final String USER_LOCATION = "user_location";
 		// OPENING TIMES
-		private static final String OT_ID_LOCATION = "ot_id_location";
+		private static final String OT_PLACE_ID = "ot_place_id";
 		private static final String OT_ID_CONSTRAINT = "ot_id_constraint";
 		// OPENING DAYS
-		private static final String OD_ID_LOCATION = "od_id_location";
+		private static final String OD_PLACE_ID = "od_place_id";
 		private static final String OD_ID_CONSTRAINT = "od_id_constraint";
 		// EVENT CATEGORY
 		private static final String ECA_NAME = "eca_name";
@@ -312,84 +521,93 @@ public final class DatabaseManager {
 		// Table Create Statements
 		// EVENT_MODEL
 		private static final String CREATE_TABLE_EVENT_MODEL = "CREATE TABLE "
-				+ EVENT_MODEL + "(" + ID_CALENDAR + " INT NOT NULL, "
+				+ TABLE_EVENT_MODEL + "(" + ID_CALENDAR + " INT NOT NULL, "
 				+ ID_EVENT_PROVIDER + " INT NOT NULL, "
 				+ ID_EVENT_CATEGORY + " VARCHAR(30), "
-				+ ID_PLACE + " INT, "
+				+ ID_PLACE + " VARCHAR(255), "
 				+ FLAG_DO_NOT_DISTURB + " BOOLEAN, "
 				+ FLAG_DEADLINE + " BOOLEAN, "
 				+ FLAG_MOVABLE + " BOOLEAN, "
 				+ " PRIMARY KEY (" + ID_CALENDAR + ", " + ID_EVENT_PROVIDER + "),"
-				+ " FOREIGN KEY (" + ID_EVENT_CATEGORY + ") REFERENCES " + EVENT_CATEGORY + " (" + ECA_NAME + ")" 
-				+ " FOREIGN KEY (" + ID_PLACE + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")" + ");";
+				+ " FOREIGN KEY (" + ID_EVENT_CATEGORY + ") REFERENCES " + TABLE_EVENT_CATEGORY + " (" + ECA_NAME + ")" 
+				+ " FOREIGN KEY (" + ID_PLACE + ") REFERENCES " + TABLE_PLACE_MODEL + " (" + PLACE_ID + ")" + ");";
 		// PLACE_MODEL
 		private static final String CREATE_TABLE_PLACE_MODEL = "CREATE TABLE "
-				+ PLACE_MODEL + "(" + ID_LOCATION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
-				+ PM_NAME + " VARCHAR(50), "
-				+ " FOREIGN KEY (" + ID_LOCATION + ") REFERENCES " + OPENING_TIMES + " (" + OT_ID_LOCATION + ")" + ");";
+				+ TABLE_PLACE_MODEL + "(" + PLACE_ID + " VARCHAR(255) PRIMARY KEY NOT NULL, "
+				+ PLACE_NAME + " VARCHAR(50), "
+				+ PLACE_ADDRESS + " VARCHAR(50), "
+				+ PLACE_FORMATTED_ADDRESS + " VARCHAR(255), "
+				+ PLACE_COUNTRY + " VARCHAR(50), "
+				+ PLACE_PHONE_NUMBER + " VARCHAR(50), "
+				+ PLACE_ICON + " VARCHAR(255), "
+				+ PLACE_LOCATION_LATITUDE + " VARCHAR(50), "
+				+ PLACE_LOCATION_LONGITUDE + " VARCHAR(50), "
+				+ PLACE_VISIT_COUNTER + " VARCHAR(50), "
+				+ PLACE_DATE_CREATED + " VARCHAR(50)"
+			    + " );";
 		// QUESTION_MODEL
 		private static final String CREATE_TABLE_QUESTION_MODEL = "CREATE TABLE "
-				+ QUESTION_MODEL + "(" + ID_QUESTION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+				+ TABLE_QUESTION_MODEL + "(" + ID_QUESTION + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ DATE_TIME + " DATE, "
 				+ TYPE_QUESTION + " VARCHAR(30), "
 				+ EVENT_ID + " INT, "
-				+ USER_LOCATION + " INT, "
-				+ " FOREIGN KEY (" + EVENT_ID + ") REFERENCES " + EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")"
-				+ " FOREIGN KEY (" + USER_LOCATION + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION	 + ")" + ");";
+				+ USER_LOCATION + " VARCHAR(255), "
+				+ " FOREIGN KEY (" + EVENT_ID + ") REFERENCES " + TABLE_EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")"
+				+ " FOREIGN KEY (" + USER_LOCATION + ") REFERENCES " + TABLE_PLACE_MODEL + " (" + PLACE_ID	 + ")" + ");";
 		// OPENING_TIMES 
 		private static final String CREATE_TABLE_OPENING_TIMES = "CREATE TABLE "
-				+ OPENING_TIMES + "(" + OT_ID_LOCATION + " INT, "
+				+ TABLE_OPENING_TIMES + "(" + OT_PLACE_ID + " VARCHAR(255), "
 				+ OT_ID_CONSTRAINT + " INT, "
-				+ " PRIMARY KEY (" + OT_ID_LOCATION + ", " + OT_ID_CONSTRAINT + "),"
-				+ " FOREIGN KEY (" + OT_ID_LOCATION + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")"
-				+ " FOREIGN KEY (" + OT_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
+				+ " PRIMARY KEY (" + OT_PLACE_ID + ", " + OT_ID_CONSTRAINT + "),"
+				+ " FOREIGN KEY (" + OT_PLACE_ID + ") REFERENCES " + TABLE_PLACE_MODEL + " (" + PLACE_ID + ")"
+				+ " FOREIGN KEY (" + OT_ID_CONSTRAINT + ") REFERENCES " + TABLE_CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// OPENING_DAYS 
 		private static final String CREATE_TABLE_OPENING_DAYS = "CREATE TABLE "
-				+ OPENING_DAYS + "(" + OD_ID_LOCATION + " INT, "
+				+ TABLE_OPENING_DAYS + "(" + OD_PLACE_ID + " VARCHAR(255), "
 				+ OD_ID_CONSTRAINT + " INT, "
-				+ " PRIMARY KEY (" + OD_ID_LOCATION + ", " + OD_ID_CONSTRAINT + "),"
-				+ " FOREIGN KEY (" + OD_ID_LOCATION + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")"
-				+ " FOREIGN KEY (" + OD_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
+				+ " PRIMARY KEY (" + OD_PLACE_ID + ", " + OD_ID_CONSTRAINT + "),"
+				+ " FOREIGN KEY (" + OD_PLACE_ID + ") REFERENCES " + TABLE_PLACE_MODEL + " (" + PLACE_ID + ")"
+				+ " FOREIGN KEY (" + OD_ID_CONSTRAINT + ") REFERENCES " + TABLE_CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// EVENT_CATEGORY 
 		private static final String CREATE_TABLE_EVENT_CATEGORY = "CREATE TABLE "
-				+ EVENT_CATEGORY + "(" + ECA_NAME + " VARCHAR(30) PRIMARY KEY, "
+				+ TABLE_EVENT_CATEGORY + "(" + ECA_NAME + " VARCHAR(30) PRIMARY KEY, "
 				+ DEFAULT_DONOTDISTURB + " BOOLEAN"
 				+  ");";
 		// EVENT_CONSTRAINTS 
 		private static final String CREATE_TABLE_EVENT_CONSTRAINTS = "CREATE TABLE "
-				+ EVENT_CONSTRAINTS + "(" + ECO_ID_CONSTRAINT + " INT, "
+				+ TABLE_EVENT_CONSTRAINTS + "(" + ECO_ID_CONSTRAINT + " INT, "
 				+ ECO_ID_EVENT + " INT, "
 				+ " PRIMARY KEY (" + ECO_ID_CONSTRAINT + ", " + ECO_ID_EVENT + "),"
-				+ " FOREIGN KEY (" + ECO_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")"
-				+ " FOREIGN KEY (" + ECO_ID_EVENT + ") REFERENCES " + EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")" + ");";
+				+ " FOREIGN KEY (" + ECO_ID_CONSTRAINT + ") REFERENCES " + TABLE_CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")"
+				+ " FOREIGN KEY (" + ECO_ID_EVENT + ") REFERENCES " + TABLE_EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")" + ");";
 		// CONSTRAINTS 
 		private static final String CREATE_TABLE_CONSTRAINTS = "CREATE TABLE "
-				+ CONSTRAINTS + "(" + C_ID_CONSTRAINT + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+				+ TABLE_CONSTRAINTS + "(" + C_ID_CONSTRAINT + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
 				+ CONSTRAINT_TYPE + " VARCHAR(30), "
 				+ C_START + " VARCHAR(30), "
 				+ C_END + " VARCHAR(30)" + ");";
 		// USER_PREFERENCE
 		private static final String CREATE_TABLE_USER_PREFERENCE = "CREATE TABLE "
-				+ USER_PREFERENCE + "(" + ACCOUNT + " VARCHAR(30) PRIMARY KEY, "
-				+ HOME_LOCATION + " INT, "
+				+ TABLE_USER_PREFERENCE + "(" + ACCOUNT + " VARCHAR(30) PRIMARY KEY, "
+				+ HOME_LOCATION + " VARCHAR(255), "
 				+ ID_SLEEP_TIME + " INT, "
-				+ " FOREIGN KEY (" + ACCOUNT + ") REFERENCES " + VACATION_DAYS + " (" + VD_ACCOUNT + ")"
-				+ " FOREIGN KEY (" + HOME_LOCATION + ") REFERENCES " + PLACE_MODEL + " (" + ID_LOCATION + ")"
-				+ " FOREIGN KEY (" + ID_SLEEP_TIME + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
+				+ " FOREIGN KEY (" + ACCOUNT + ") REFERENCES " + TABLE_VACATION_DAYS + " (" + VD_ACCOUNT + ")"
+				+ " FOREIGN KEY (" + HOME_LOCATION + ") REFERENCES " + TABLE_PLACE_MODEL + " (" + PLACE_ID + ")"
+				+ " FOREIGN KEY (" + ID_SLEEP_TIME + ") REFERENCES " + TABLE_CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// VACATION_DAYS 
 		private static final String CREATE_TABLE_VACATION_DAYS = "CREATE TABLE "
-				+ VACATION_DAYS + "(" + VD_ACCOUNT + " VARCHAR(30), "
+				+ TABLE_VACATION_DAYS + "(" + VD_ACCOUNT + " VARCHAR(30), "
 				+ VD_ID_CONSTRAINT + " INT, "
 				+ " PRIMARY KEY (" + VD_ACCOUNT + ", " + VD_ID_CONSTRAINT + "),"
-				+ " FOREIGN KEY (" + VD_ACCOUNT + ") REFERENCES " + USER_PREFERENCE + " (" + ACCOUNT + ")"
-				+ " FOREIGN KEY (" + VD_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
+				+ " FOREIGN KEY (" + VD_ACCOUNT + ") REFERENCES " + TABLE_USER_PREFERENCE + " (" + ACCOUNT + ")"
+				+ " FOREIGN KEY (" + VD_ID_CONSTRAINT + ") REFERENCES " + TABLE_CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		// WORK_TIMETABLE
 		private static final String CREATE_TABLE_WORK_TIMETABLE = "CREATE TABLE "
-				+ WORK_TIMETABLE + "(" + WT_ACCOUNT + " VARCHAR(30), "
+				+ TABLE_WORK_TIMETABLE + "(" + WT_ACCOUNT + " VARCHAR(30), "
 				+ WT_ID_CONSTRAINT + " INT, "
 				+ " PRIMARY KEY (" + WT_ACCOUNT + ", " + WT_ID_CONSTRAINT + "),"
-				+ " FOREIGN KEY (" + WT_ACCOUNT + ") REFERENCES " + USER_PREFERENCE + " (" + ACCOUNT + ")"
-				+ " FOREIGN KEY (" + WT_ID_CONSTRAINT + ") REFERENCES " + CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
+				+ " FOREIGN KEY (" + WT_ACCOUNT + ") REFERENCES " + TABLE_USER_PREFERENCE + " (" + ACCOUNT + ")"
+				+ " FOREIGN KEY (" + WT_ID_CONSTRAINT + ") REFERENCES " + TABLE_CONSTRAINTS + " (" + C_ID_CONSTRAINT + ")" + ");";
 		
 		public static DatabaseCreator createHelper(Context context){
 			return new DatabaseCreator(context);
@@ -423,17 +641,17 @@ public final class DatabaseManager {
 			GiveMeLogger.log("Upgrading database from version " + oldVersion + " to "
 					+ newVersion + " which will destroy all old data");
 			// on upgrade drop older tables
-			db.execSQL("DROP TABLE IF EXISTS " + EVENT_MODEL);
-			db.execSQL("DROP TABLE IF EXISTS " + PLACE_MODEL);
-			db.execSQL("DROP TABLE IF EXISTS " + QUESTION_MODEL);
-			db.execSQL("DROP TABLE IF EXISTS " + OPENING_TIMES);
-			db.execSQL("DROP TABLE IF EXISTS " + OPENING_DAYS);
-			db.execSQL("DROP TABLE IF EXISTS " + EVENT_CATEGORY);
-			db.execSQL("DROP TABLE IF EXISTS " + EVENT_CONSTRAINTS);
-			db.execSQL("DROP TABLE IF EXISTS " + CONSTRAINTS);
-			db.execSQL("DROP TABLE IF EXISTS " + USER_PREFERENCE);
-			db.execSQL("DROP TABLE IF EXISTS " + VACATION_DAYS);
-			db.execSQL("DROP TABLE IF EXISTS " + WORK_TIMETABLE);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENT_MODEL);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLACE_MODEL);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUESTION_MODEL);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPENING_TIMES);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPENING_DAYS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENT_CATEGORY);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENT_CONSTRAINTS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONSTRAINTS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_PREFERENCE);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_VACATION_DAYS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORK_TIMETABLE);
 			
 			// create new tables
 			onCreate(db);

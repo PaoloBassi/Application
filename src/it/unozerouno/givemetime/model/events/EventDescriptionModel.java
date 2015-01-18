@@ -26,6 +26,7 @@ public class EventDescriptionModel extends EventModel{
 	private String RRULE;
 	private String RDATE;
 	private int color;
+	private int allDay;
 	
 	//GiveMeTime specific attributes
 	private Set<Constraint> constraints; 
@@ -179,6 +180,14 @@ public class EventDescriptionModel extends EventModel{
 
 	public boolean isRecursive(){
 		return (RDATE!=null || RRULE!=null);
+	}
+	
+	public int isAllDayEvent(){
+		return allDay;
+	}
+	
+	public void setAllDay(int allDay) {
+		this.allDay = allDay;
 	}
 	
 	public Location getLocation(){
