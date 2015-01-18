@@ -10,6 +10,7 @@ import it.unozerouno.givemetime.utils.TaskListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -22,6 +23,7 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
+import android.text.format.Time;
 import android.view.View;
 import android.widget.ProgressBar;
 /**
@@ -66,6 +68,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static final int ADD_NEW_CALENDAR = 3;
 		public static final int LIST_EVENTS_ID_RRULE = 4;
 		public static final int UPDATE_EVENT = 5;
+		public static final int ADD_NEW_EVENT = 6;
 		//... here other actions
 	}
 	/**
@@ -150,6 +153,9 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		case Actions.UPDATE_EVENT:
 			updateEvent();
 			break;
+		case Actions.ADD_NEW_EVENT:
+			addNewEvent();
+			break;
 		//Add here new actions
 		default:
 			break;
@@ -209,15 +215,8 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 	}
 	
-	/**
-	 * Add a new event to the Calendar Provider
-	 */
-	public void addNewEvent(){
+	
 
-		
-		// execute the insert
-		
-	}
 
 	private void getInstances(){
 		//Fetching events Instances
@@ -312,7 +311,59 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 
 	}
 	
-	
+	/**
+	 * Adds a new event to the Calendar Provider. Please set this event with setEventToUpdate() prior to task execution
+	 */
+	private void addNewEvent(){
+		if(eventInstanceToUpdate == null){
+			System.err.println("Event to add has not been set.");
+			return;
+		}
+		ContentResolver cr = caller.getContentResolver();
+		
+		// extract the data from newEvent to be inserted into EVENT_MODEL
+		String calId = UserKeyRing.getCalendarId(caller);
+		long startTime = eventInstanceToUpdate.getStartingTime().toMillis(false);
+		long endingTime = eventInstanceToUpdate.getEndingTime().toMillis(false);
+		String RRULE = eventInstanceToUpdate.getEvent().getRRULE();
+		String RDATE = eventInstanceToUpdate.getEvent().getRDATE();
+		String duration = eventInstanceToUpdate.getEvent().getDuration();
+		boolean isRecursive = eventInstanceToUpdate.getEvent().isRecursive();
+		int allDay = eventInstanceToUpdate.getEvent().isAllDayEvent();
+		
+		ContentValues values = new ContentValues();
+		
+		// This values has to be inserted in order for the provider to accept the insert on the Events table
+		values.put(CalendarContract.Events.DTSTART, startTime);
+		if (isRecursive){
+			// only if the event is recurring
+			values.put(CalendarContract.Events.DURATION, duration); 
+			// only if the event is recurring. If not null, original_id and original_sync_id must be null
+			values.put(CalendarContract.Events.RRULE, RRULE);
+			values.put(CalendarContract.Events.RDATE, RDATE);
+			values.put(CalendarContract.Events.ORIGINAL_ID, "null");
+			values.put(CalendarContract.Events.ORIGINAL_SYNC_ID, "null");
+		} else {
+			// only if the event is non-recurring
+			values.put(CalendarContract.Events.DTEND, endingTime); 
+		}
+		if (allDay == 1){
+			// if allday == 1, it must be TIMEZONE_UTC
+			values.put(CalendarContract.Events.EVENT_TIMEZONE, Time.TIMEZONE_UTC); 
+		} else {
+			values.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
+		}
+		// do not modify
+		values.put(CalendarContract.Events.CALENDAR_ID, calId); 
+		
+		// execute the query and return the ID of the new event
+		Uri result = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+		// this is the ID of the newly inserted event
+		String eventID = result.getLastPathSegment();
+		String[] insertResult = new String[1];
+		insertResult[0] = eventID;
+		setResult(insertResult);
+	}
 	
 	/**
 	 * This function fetches the calendars managing needed projections in order to provide a ready-to-use CalendarModel list.

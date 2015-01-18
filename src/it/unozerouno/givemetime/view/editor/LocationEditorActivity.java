@@ -67,7 +67,7 @@ public class LocationEditorActivity extends Activity{
 				fragmentLocationList.fetchCommonLocations();
 			}
 		};
-		DatabaseManager.addLocationAndFetchInfo(place, updateListener);
+		DatabaseManager.addPlaceAndFetchInfo(place, updateListener);
 	}
 	
 	private class PlacesAutoCompleteAdapter extends ArrayAdapter<PlaceResult> implements Filterable {
