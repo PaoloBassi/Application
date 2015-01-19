@@ -1124,34 +1124,86 @@ public final class DatabaseManager {
 		// /////////////////////////////
 	
 	/**
-	 * Adds or updates home place
+	 * Adds or updates home place (home has to be already added to Place table)
 	 * @param home
 	 */
-		public static void addUserHomeLocation(PlaceModel home){
-			//TODO: Implement this
+		public static void addUserHomePlace(String account, PlaceModel home){
+			//The home place should already be in Places table
+			String table = DatabaseCreator.TABLE_USER_PREFERENCE;
+			//Building the whole row for update, old sleepTime is needed to preserve it
+			int oldSleeptime = getUserSleepTime(account).getId();
+			
+			ContentValues values = new ContentValues();
+			values.put(DatabaseCreator.ACCOUNT, account);
+			values.put(DatabaseCreator.HOME_LOCATION, home.getPlaceId());
+			values.put(DatabaseCreator.ID_SLEEP_TIME, oldSleeptime);
+			
+			database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		}
+		
 		/**
 		 * Return the home get location
 		 * @return
 		 */
-		public static PlaceModel getUserHomeLocation(){
-			//TODO: IMPLEMENT THIS
-			return null;
+		public static PlaceModel getUserHomePlace(String account){
+			String resultPlace = "";
+			String table = DatabaseCreator.TABLE_USER_PREFERENCE;
+			String[] projection = {DatabaseCreator.HOME_LOCATION};
+			String where = DatabaseCreator.ACCOUNT + " = " + account;
+			
+			Cursor result = database.query(table, projection, where, null, null, null, null);
+			while (result.moveToNext()){
+				resultPlace = result.getString(0);
+				}
+			result.close();
+			PlaceModel homePlace = getPlaceById(resultPlace);
+			return homePlace;
 		}
+		
 		/**
 		 * Set or updates the user sleep time
 		 * @param sleepTime
 		 */
-		public static void setUserSleepTime(List<ComplexConstraint> sleepTime){
-			//TODO: IMPLEMENT THIS
+		public static void setUserSleepTime(String account, TimeConstraint sleepTime){
+			String table = DatabaseCreator.TABLE_USER_PREFERENCE;
+			//Building the whole row for update, old HomePlace is needed to preserve it
+			String oldHomePlace = getUserHomePlace(account).getPlaceId();
+			//Building a complexConstraint to store sleeptime, and adding to db
+			ComplexConstraint sleepTimeComplex = new ComplexConstraint();
+			sleepTimeComplex.addConstraint(sleepTime);
+			int sleepTimeComplexID = addComplexConstraintInDatabase(sleepTimeComplex);
+			
+			ContentValues values = new ContentValues();
+			values.put(DatabaseCreator.ACCOUNT, account);
+			values.put(DatabaseCreator.ID_SLEEP_TIME, sleepTimeComplexID);
+			values.put(DatabaseCreator.HOME_LOCATION, oldHomePlace);
+	
+			database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		}
+	
 		/**
 		 * Return the user sleep time
 		 * @return
 		 */
-		public static List<ComplexConstraint> getUserSleepTime(){
-			//TODO: IMPLEMENT THIS
+		public static TimeConstraint getUserSleepTime(String account){
+			int resultComplexSleepTime = -1;
+			String table = DatabaseCreator.TABLE_USER_PREFERENCE;
+			String[] projection = {DatabaseCreator.ID_SLEEP_TIME};
+			String where = DatabaseCreator.ACCOUNT + " = " + account;
+			
+			Cursor result = database.query(table, projection, where, null, null, null, null);
+			while (result.moveToNext()){
+				resultComplexSleepTime = result.getInt(0);
+				}
+			ComplexConstraint complexSleepTime = getComplexConstraint(resultComplexSleepTime);
+			for (Constraint constraint : complexSleepTime.getConstraints()) {
+				if(constraint instanceof TimeConstraint){
+					return (TimeConstraint)constraint;
+				}
+			}
+			System.out.println("No TimeConstraints found in sleeptime, maybe none has ben set?");
 			return null;
+			
 		}
 		
 		
@@ -1159,42 +1211,112 @@ public final class DatabaseManager {
 		/**
 		 * Set or update vacation days
 		 */
-		public static void setUserVacationDays(List<ComplexConstraint> vacationDays){
-			//TODO: IMPLEMENT THIS
+		public static void setUserVacationDays(String account, List<ComplexConstraint> vacationDays){
+			//Removing all old entries
+			removeUserVacationDays(account);
+			//adding complexConstraints to DB
+			ArrayList<Integer> constraintIndexList = new ArrayList<Integer>();
+			for (ComplexConstraint complexConstraint : vacationDays) {
+				int index = addComplexConstraintInDatabase(complexConstraint);
+				constraintIndexList.add(index);
+			}
+			String table = DatabaseCreator.TABLE_VACATION_DAYS;
+			
+			for (Integer constrintID : constraintIndexList) {
+				ContentValues values = new ContentValues();
+				values.put(DatabaseCreator.VD_ACCOUNT, account);
+				values.put(DatabaseCreator.VD_ID_CONSTRAINT, constrintID);
+				database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+			}
 		}
+		
 		/**
 		 * Delete all user vacations
 		 */
-		public static void removeUserVacationDays(){
-			//TODO: IMPLEMENT THIS
+		public static void removeUserVacationDays(String account){
+			String table = DatabaseCreator.TABLE_VACATION_DAYS;
+			String where = DatabaseCreator.VD_ACCOUNT + " = " + account; 
+			database.delete(table, where, null);
 		}
 		/**
 		 * Return the vacation periods
 		 * @return
 		 */
-		public static List<ComplexConstraint> getVacationDays(){
-			//TODO: IMPLEMENT THIS
-			return null;
+		public static List<ComplexConstraint> getVacationDays(String account){
+			String table = DatabaseCreator.TABLE_VACATION_DAYS;
+			String where = DatabaseCreator.VD_ACCOUNT + " = " + account; 
+			String[] projection = {DatabaseCreator.VD_ID_CONSTRAINT};
+			ArrayList<Integer> resultConstraint = new ArrayList<Integer>();
+			ArrayList<ComplexConstraint> results = new ArrayList<ComplexConstraint>();
+			//Getting constraint ids
+			Cursor result = database.query(table, projection, where, null, null, null, null);
+			while (result.moveToNext()){
+				int constraintId = result.getInt(0);
+				resultConstraint.add(constraintId);
+				}
+			result.close();
+			
+			//Fetching constraints
+			for (Integer constraintId : resultConstraint) {
+				ComplexConstraint  constraint = getComplexConstraint(constraintId);
+				results.add(constraint);
+			}
+			return results;
 		}
 		/**
 		 * Set the user work timetable
 		 */
-		public static void setUserWorkTimetable(List<ComplexConstraint> workTimetable){
-			//TODO: IMPLEMENT THIS
+		public static void setUserWorkTimetable(String account, List<ComplexConstraint> workTimetable){
+			//Removing all old entries
+			removeUserWorkTimetable(account);
+			//adding complexConstraints to DB
+			ArrayList<Integer> constraintIndexList = new ArrayList<Integer>();
+			for (ComplexConstraint complexConstraint : workTimetable) {
+				int index = addComplexConstraintInDatabase(complexConstraint);
+				constraintIndexList.add(index);
+			}
+			String table = DatabaseCreator.TABLE_WORK_TIMETABLE;
+			
+			for (Integer constrintID : constraintIndexList) {
+				ContentValues values = new ContentValues();
+				values.put(DatabaseCreator.WT_ACCOUNT, account);
+				values.put(DatabaseCreator.WT_ID_CONSTRAINT, constrintID);
+				database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+			}
 		}
 		/**
 		 * Returns the user work timetable
 		 * @return
 		 */
-		public static List<ComplexConstraint> getUserWorkTimetable(){
-			//TODO: IMPLEMENT THIS
-			return null;
+		public static List<ComplexConstraint> getUserWorkTimetable(String account){
+			String table = DatabaseCreator.TABLE_WORK_TIMETABLE;
+			String where = DatabaseCreator.WT_ACCOUNT + " = " + account; 
+			String[] projection = {DatabaseCreator.WT_ID_CONSTRAINT};
+			ArrayList<Integer> resultConstraint = new ArrayList<Integer>();
+			ArrayList<ComplexConstraint> results = new ArrayList<ComplexConstraint>();
+			//Getting constraint ids
+			Cursor result = database.query(table, projection, where, null, null, null, null);
+			while (result.moveToNext()){
+				int constraintId = result.getInt(0);
+				resultConstraint.add(constraintId);
+				}
+			result.close();
+			
+			//Fetching constraints
+			for (Integer constraintId : resultConstraint) {
+				ComplexConstraint  constraint = getComplexConstraint(constraintId);
+				results.add(constraint);
+			}
+			return results;
 		}
 		/**
 		 * Remove the user work timetable
+		 * @param account 
 		 */
-		public static void removeUserWorkTimetable(){
-			//TODO: IMPLEMENT THIS
+		public static void removeUserWorkTimetable(String account){
+			String table = DatabaseCreator.TABLE_WORK_TIMETABLE;
+			String where = DatabaseCreator.WT_ACCOUNT + " = " + account; 
+			database.delete(table, where, null);
 		}
 		// /////////////////////////////
 		//
