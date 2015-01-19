@@ -1124,12 +1124,23 @@ public final class DatabaseManager {
 		// /////////////////////////////
 	
 	/**
-	 * Adds or updates home place
+	 * Adds or updates home place (home has to be already added to Place table)
 	 * @param home
 	 */
-		public static void addUserHomeLocation(PlaceModel home){
-			//TODO: Implement this
+		public static void addUserHomeLocation(String account, PlaceModel home){
+			//The home place should already be in Places table
+			String table = DatabaseCreator.TABLE_USER_PREFERENCE;
+			//Building the whole row for update, old sleepTime is needed to preserve it
+			int oldSleeptime = getUserSleepTime().getId();
+			
+			ContentValues values = new ContentValues();
+			values.put(DatabaseCreator.ACCOUNT, account);
+			values.put(DatabaseCreator.HOME_LOCATION, home.getPlaceId());
+			values.put(DatabaseCreator.ID_SLEEP_TIME, oldSleeptime);
+			
+			database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		}
+		
 		/**
 		 * Return the home get location
 		 * @return
@@ -1142,14 +1153,14 @@ public final class DatabaseManager {
 		 * Set or updates the user sleep time
 		 * @param sleepTime
 		 */
-		public static void setUserSleepTime(List<ComplexConstraint> sleepTime){
+		public static void setUserSleepTime(TimeConstraint sleepTime){
 			//TODO: IMPLEMENT THIS
 		}
 		/**
 		 * Return the user sleep time
 		 * @return
 		 */
-		public static List<ComplexConstraint> getUserSleepTime(){
+		public static TimeConstraint getUserSleepTime(){
 			//TODO: IMPLEMENT THIS
 			return null;
 		}
