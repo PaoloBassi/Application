@@ -705,10 +705,10 @@ public final class DatabaseManager {
 		static final String TABLE_PLACE_MODEL = "place_model";
 		static final String TABLE_QUESTION_MODEL = "question_model";
 		static final String TABLE_OPENING_TIMES = "opening_times";
-		static final String TABLE_OPENING_DAYS = "opening_days";
 		static final String TABLE_EVENT_CATEGORY = "event_category";
 		static final String TABLE_EVENT_CONSTRAINTS = "event_constraints";
-		static final String TABLE_CONSTRAINTS = "constraints";
+		static final String TABLE_SIMPLE_CONSTRAINTS = "simple_constraints";
+		static final String TABLE_COMPLEX_CONSTRAINTS = "complex_constraints";
 		static final String TABLE_USER_PREFERENCE = "user_preference";
 		static final String TABLE_VACATION_DAYS = "vacation_days";
 		static final String TABLE_WORK_TIMETABLE = "work_timetable";
@@ -734,32 +734,31 @@ public final class DatabaseManager {
 		private static final String PLACE_LOCATION_LONGITUDE = "place_location_longitude";
 		private static final String PLACE_VISIT_COUNTER = "place_visit_counter";
 		private static final String PLACE_DATE_CREATED = "place_date_created";
-
+		//OPENING_TIMES
+		private static final String OT_PLACE_ID = "ot_place_id";
+		private static final String OT_COMPLEX_CONSTRAINT = "ot_constraint_id";
 		// QUESTION_MODEL
 		private static final String ID_QUESTION = "id_question";
 		private static final String DATE_TIME = "date_time";
 		private static final String TYPE_QUESTION = "type_question";
 		private static final String EVENT_ID = "event_id";
 		private static final String USER_LOCATION = "user_location";
-		// OPENING TIMES
-		private static final String OT_PLACE_ID = "ot_place_id";
-		private static final String OT_ID_CONSTRAINT = "ot_id_constraint";
-		// OPENING DAYS
-		private static final String OD_PLACE_ID = "od_place_id";
-		private static final String OD_ID_CONSTRAINT = "od_id_constraint";
 		// EVENT CATEGORY
 		private static final String ECA_NAME = "eca_name";
 		private static final String ECA_DEFAULT_DONOTDISTURB = "default_donotdisturb";
 		private static final String ECA_DEFAULT_MOVABLE = "default_movable";
 		private static final String ECA_DEFAULT_CATEGORY = "default_category";
 		// EVENT CONSTRAINT
-		private static final String ECO_ID_CONSTRAINT = "eco_id_constraint";
+		private static final String ECO_ID_COMPLEX_CONSTRAINT = "eco_id_complex_constraint";
 		private static final String ECO_ID_EVENT = "eco_id_event";
-		// CONSTRAINTS
-		private static final String C_ID_CONSTRAINT = "c_id_constraint";
-		private static final String CONSTRAINT_TYPE = "constraint_type";
+		// SIMPLE CONSTRAINTS
+		private static final String C_SIMPLE_ID_CONSTRAINT = "c_simple_id_constraint";
+		private static final String C_SIMPLE_CONSTRAINT_TYPE = "c_simple_constraint_type";
 		private static final String C_START = "c_start";
 		private static final String C_END = "c_end";
+		// COMPLEX CONSTRAINTS
+		private static final String C_COMPLEX_ID = "c_complex_id_constraint";
+		private static final String C_COMPLEX_S_ID = "c_complex_simple_id";
 		// USER_PREFERENCE
 		private static final String ACCOUNT = "account";
 		private static final String HOME_LOCATION = "home_location";
@@ -778,12 +777,11 @@ public final class DatabaseManager {
 				+ ID_EVENT_PROVIDER + " INT NOT NULL, " + ID_EVENT_CATEGORY
 				+ " VARCHAR(30), " + ID_PLACE + " VARCHAR(255), "
 				+ FLAG_DO_NOT_DISTURB + " BOOLEAN, " + FLAG_DEADLINE
-				+ " BOOLEAN, " + FLAG_MOVABLE + " BOOLEAN, " + " PRIMARY KEY ("
-				+ ID_CALENDAR + ", " + ID_EVENT_PROVIDER + "),"
-				+ " FOREIGN KEY (" + ID_EVENT_CATEGORY + ") REFERENCES "
-				+ TABLE_EVENT_CATEGORY + " (" + ECA_NAME + ")"
-				+ " FOREIGN KEY (" + ID_PLACE + ") REFERENCES "
-				+ TABLE_PLACE_MODEL + " (" + PLACE_ID + ")" + ");";
+				+ " BOOLEAN, " + FLAG_MOVABLE + " BOOLEAN, " 
+				+ " PRIMARY KEY (" + ID_CALENDAR + ", " + ID_EVENT_PROVIDER + "),"
+				+ " FOREIGN KEY (" + ID_EVENT_CATEGORY + ") REFERENCES " + TABLE_EVENT_CATEGORY + " (" + ECA_NAME + ")"
+				+ " FOREIGN KEY (" + ID_PLACE + ") REFERENCES " + TABLE_PLACE_MODEL + " (" + PLACE_ID + ")" 
+				+ ");";
 		// PLACE_MODEL
 		private static final String CREATE_TABLE_PLACE_MODEL = "CREATE TABLE "
 				+ TABLE_PLACE_MODEL + "(" + PLACE_ID
@@ -794,7 +792,18 @@ public final class DatabaseManager {
 				+ PLACE_ICON + " VARCHAR(255), " + PLACE_LOCATION_LATITUDE
 				+ " VARCHAR(50), " + PLACE_LOCATION_LONGITUDE
 				+ " VARCHAR(50), " + PLACE_VISIT_COUNTER + " VARCHAR(50), "
-				+ PLACE_DATE_CREATED + " VARCHAR(50)" + " );";
+				+ PLACE_DATE_CREATED + " VARCHAR(50)" + 
+				" );";
+		// OPENING_TIMES
+		private static final String CREATE_TABLE_OPENING_TIMES = "CREATE TABLE "
+						+ TABLE_OPENING_TIMES + "(" 
+						+ OT_PLACE_ID + " VARCHAR(255), " 
+						+ OT_COMPLEX_CONSTRAINT + " INTEGER NOT NULL,"
+						+ " PRIMARY KEY ("+ OT_PLACE_ID + ", " + OT_COMPLEX_CONSTRAINT +"),"
+						+ " FOREIGN KEY (" + OT_PLACE_ID + ") REFERENCES " + TABLE_PLACE_MODEL + "(" + PLACE_ID + ")"
+						+ " FOREIGN KEY (" + OT_COMPLEX_CONSTRAINT + ") REFERENCES " + TABLE_COMPLEX_CONSTRAINTS + "(" + C_COMPLEX_ID + ")"
+						+ " );";
+		
 		// QUESTION_MODEL
 		private static final String CREATE_TABLE_QUESTION_MODEL = "CREATE TABLE "
 				+ TABLE_QUESTION_MODEL
@@ -820,42 +829,6 @@ public final class DatabaseManager {
 				+ USER_LOCATION
 				+ ") REFERENCES "
 				+ TABLE_PLACE_MODEL + " (" + PLACE_ID + ")" + ");";
-		// OPENING_TIMES
-		private static final String CREATE_TABLE_OPENING_TIMES = "CREATE TABLE "
-				+ TABLE_OPENING_TIMES
-				+ "("
-				+ OT_PLACE_ID
-				+ " VARCHAR(255), "
-				+ OT_ID_CONSTRAINT
-				+ " INT, "
-				+ " PRIMARY KEY ("
-				+ OT_PLACE_ID
-				+ ", "
-				+ OT_ID_CONSTRAINT
-				+ "),"
-				+ " FOREIGN KEY ("
-				+ OT_PLACE_ID
-				+ ") REFERENCES "
-				+ TABLE_PLACE_MODEL
-				+ " ("
-				+ PLACE_ID
-				+ ")"
-				+ " FOREIGN KEY ("
-				+ OT_ID_CONSTRAINT
-				+ ") REFERENCES "
-				+ TABLE_CONSTRAINTS
-				+ " ("
-				+ C_ID_CONSTRAINT
-				+ ")" + ");";
-		// OPENING_DAYS
-		private static final String CREATE_TABLE_OPENING_DAYS = "CREATE TABLE "
-				+ TABLE_OPENING_DAYS + "(" + OD_PLACE_ID + " VARCHAR(255), "
-				+ OD_ID_CONSTRAINT + " INT, " + " PRIMARY KEY (" + OD_PLACE_ID
-				+ ", " + OD_ID_CONSTRAINT + ")," + " FOREIGN KEY ("
-				+ OD_PLACE_ID + ") REFERENCES " + TABLE_PLACE_MODEL + " ("
-				+ PLACE_ID + ")" + " FOREIGN KEY (" + OD_ID_CONSTRAINT
-				+ ") REFERENCES " + TABLE_CONSTRAINTS + " (" + C_ID_CONSTRAINT
-				+ ")" + ");";
 		// EVENT_CATEGORY
 		private static final String CREATE_TABLE_EVENT_CATEGORY = "CREATE TABLE "
 				+ TABLE_EVENT_CATEGORY
@@ -868,117 +841,57 @@ public final class DatabaseManager {
 		// EVENT_CONSTRAINTS
 		private static final String CREATE_TABLE_EVENT_CONSTRAINTS = "CREATE TABLE "
 				+ TABLE_EVENT_CONSTRAINTS
-				+ "("
-				+ ECO_ID_CONSTRAINT
-				+ " INT, "
-				+ ECO_ID_EVENT
-				+ " INT, "
-				+ " PRIMARY KEY ("
-				+ ECO_ID_CONSTRAINT
-				+ ", "
-				+ ECO_ID_EVENT
-				+ "),"
-				+ " FOREIGN KEY ("
-				+ ECO_ID_CONSTRAINT
-				+ ") REFERENCES "
-				+ TABLE_CONSTRAINTS
-				+ " ("
-				+ C_ID_CONSTRAINT
-				+ ")"
-				+ " FOREIGN KEY ("
-				+ ECO_ID_EVENT
-				+ ") REFERENCES "
-				+ TABLE_EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")" + ");";
-		// CONSTRAINTS
-		private static final String CREATE_TABLE_CONSTRAINTS = "CREATE TABLE "
-				+ TABLE_CONSTRAINTS + "(" + C_ID_CONSTRAINT
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
-				+ CONSTRAINT_TYPE + " VARCHAR(30), " + C_START
-				+ " VARCHAR(30), " + C_END + " VARCHAR(30)" + ");";
+				+ "(" + ECO_ID_COMPLEX_CONSTRAINT + " INT, "
+				+ ECO_ID_EVENT 	+ " INT, " + " PRIMARY KEY (" 
+				+ ECO_ID_COMPLEX_CONSTRAINT + ", " + ECO_ID_EVENT + "),"
+				+ " FOREIGN KEY (" + ECO_ID_COMPLEX_CONSTRAINT + ") REFERENCES " + TABLE_COMPLEX_CONSTRAINTS + " (" + C_COMPLEX_ID + ")"
+				+ " FOREIGN KEY (" + ECO_ID_EVENT + ") REFERENCES "+ TABLE_EVENT_MODEL + " (" + ID_EVENT_PROVIDER + ")" 
+				+ ");";
+		// SIMPLE_CONSTRAINTS
+		private static final String CREATE_TABLE_SIMPLE_CONSTRAINTS = "CREATE TABLE "
+				+ TABLE_SIMPLE_CONSTRAINTS + "(" 
+				+ C_SIMPLE_ID_CONSTRAINT + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+				+ C_SIMPLE_CONSTRAINT_TYPE + " VARCHAR(30), " 
+				+ C_START + " VARCHAR(30), " 
+				+ C_END + " VARCHAR(30)" 
+				+ ");";
+		//COMPLEX_CONSTRAINTS
+		private static final String CREATE_TABLE_COMPLEX_CONSTRAINTS = "CREATE TABLE "
+						+ TABLE_COMPLEX_CONSTRAINTS + "(" 
+						+ C_COMPLEX_ID + " INTEGER NOT NULL, "
+						+ C_COMPLEX_S_ID + " INTEGER NOT NULL, " 
+						+ " PRIMARY KEY ("+ C_COMPLEX_ID + ", " + C_COMPLEX_S_ID +"),"
+						+ " FOREIGN KEY (" + C_COMPLEX_ID + ") REFERENCES " + TABLE_SIMPLE_CONSTRAINTS + "(" + C_SIMPLE_ID_CONSTRAINT + ")"
+						+ ");";
+		
 		// USER_PREFERENCE
 		private static final String CREATE_TABLE_USER_PREFERENCE = "CREATE TABLE "
-				+ TABLE_USER_PREFERENCE
-				+ "("
-				+ ACCOUNT
-				+ " VARCHAR(30) PRIMARY KEY, "
-				+ HOME_LOCATION
-				+ " VARCHAR(255), "
-				+ ID_SLEEP_TIME
-				+ " INT, "
-				+ " FOREIGN KEY ("
-				+ ACCOUNT
-				+ ") REFERENCES "
-				+ TABLE_VACATION_DAYS
-				+ " ("
-				+ VD_ACCOUNT
-				+ ")"
-				+ " FOREIGN KEY ("
-				+ HOME_LOCATION
-				+ ") REFERENCES "
-				+ TABLE_PLACE_MODEL
-				+ " ("
-				+ PLACE_ID
-				+ ")"
-				+ " FOREIGN KEY ("
-				+ ID_SLEEP_TIME
-				+ ") REFERENCES "
-				+ TABLE_CONSTRAINTS
-				+ " ("
-				+ C_ID_CONSTRAINT + ")" + ");";
+				+ TABLE_USER_PREFERENCE + "("
+				+ ACCOUNT + " VARCHAR(30) PRIMARY KEY, "
+				+ HOME_LOCATION	+ " VARCHAR(255), "
+				+ ID_SLEEP_TIME	+ " INT, "+ " FOREIGN KEY ("+ ACCOUNT+ ") REFERENCES "+ TABLE_VACATION_DAYS	+ " ("	+ VD_ACCOUNT+ ")"	
+				+ " FOREIGN KEY ("+ HOME_LOCATION+ ") REFERENCES "+ TABLE_PLACE_MODEL+ " ("+ PLACE_ID+ ")"
+				+ " FOREIGN KEY ("+ ID_SLEEP_TIME+ ") REFERENCES "+ TABLE_COMPLEX_CONSTRAINTS+ " ("+ C_COMPLEX_ID + ")" 
+				+ ");";
 		// VACATION_DAYS
 		private static final String CREATE_TABLE_VACATION_DAYS = "CREATE TABLE "
 				+ TABLE_VACATION_DAYS
 				+ "("
-				+ VD_ACCOUNT
-				+ " VARCHAR(30), "
-				+ VD_ID_CONSTRAINT
-				+ " INT, "
-				+ " PRIMARY KEY ("
-				+ VD_ACCOUNT
-				+ ", "
-				+ VD_ID_CONSTRAINT
-				+ "),"
-				+ " FOREIGN KEY ("
-				+ VD_ACCOUNT
-				+ ") REFERENCES "
-				+ TABLE_USER_PREFERENCE
-				+ " ("
-				+ ACCOUNT
-				+ ")"
-				+ " FOREIGN KEY ("
-				+ VD_ID_CONSTRAINT
-				+ ") REFERENCES "
-				+ TABLE_CONSTRAINTS
-				+ " ("
-				+ C_ID_CONSTRAINT
-				+ ")" + ");";
+				+ VD_ACCOUNT + " VARCHAR(30), "
+				+ VD_ID_CONSTRAINT+ " INT, "+ 
+				" PRIMARY KEY ("+ VD_ACCOUNT+ ", "+ VD_ID_CONSTRAINT+ "),"
+				+ " FOREIGN KEY ("+ VD_ACCOUNT+ ") REFERENCES "+ TABLE_USER_PREFERENCE+ " ("+ ACCOUNT+ ")"
+				+ " FOREIGN KEY ("+ VD_ID_CONSTRAINT+ ") REFERENCES "+ TABLE_COMPLEX_CONSTRAINTS+ " ("+ C_COMPLEX_ID+ ")" 
+				+ ");";
 		// WORK_TIMETABLE
 		private static final String CREATE_TABLE_WORK_TIMETABLE = "CREATE TABLE "
-				+ TABLE_WORK_TIMETABLE
-				+ "("
-				+ WT_ACCOUNT
-				+ " VARCHAR(30), "
-				+ WT_ID_CONSTRAINT
-				+ " INT, "
-				+ " PRIMARY KEY ("
-				+ WT_ACCOUNT
-				+ ", "
-				+ WT_ID_CONSTRAINT
-				+ "),"
-				+ " FOREIGN KEY ("
-				+ WT_ACCOUNT
-				+ ") REFERENCES "
-				+ TABLE_USER_PREFERENCE
-				+ " ("
-				+ ACCOUNT
-				+ ")"
-				+ " FOREIGN KEY ("
-				+ WT_ID_CONSTRAINT
-				+ ") REFERENCES "
-				+ TABLE_CONSTRAINTS
-				+ " ("
-				+ C_ID_CONSTRAINT
-				+ ")" + ");";
+				+ TABLE_WORK_TIMETABLE 	+ "("
+				+ WT_ACCOUNT+ " VARCHAR(30), "
+				+ WT_ID_CONSTRAINT+ " INT, "
+				+ " PRIMARY KEY ("+ WT_ACCOUNT+ ", "+ WT_ID_CONSTRAINT+ "),"
+				+ " FOREIGN KEY ("+ WT_ACCOUNT+ ") REFERENCES "+ TABLE_USER_PREFERENCE+ " ("+ ACCOUNT+ ")"
+				+ " FOREIGN KEY ("+ WT_ID_CONSTRAINT+ ") REFERENCES "+ TABLE_COMPLEX_CONSTRAINTS+ " ("+ C_COMPLEX_ID+ ")" 
+				+ ");";
 
 		public static DatabaseCreator createHelper(Context context) {
 			return new DatabaseCreator(context);
@@ -996,10 +909,10 @@ public final class DatabaseManager {
 			db.execSQL(CREATE_TABLE_PLACE_MODEL);
 			db.execSQL(CREATE_TABLE_QUESTION_MODEL);
 			db.execSQL(CREATE_TABLE_OPENING_TIMES);
-			db.execSQL(CREATE_TABLE_OPENING_DAYS);
 			db.execSQL(CREATE_TABLE_EVENT_CATEGORY);
 			db.execSQL(CREATE_TABLE_EVENT_CONSTRAINTS);
-			db.execSQL(CREATE_TABLE_CONSTRAINTS);
+			db.execSQL(CREATE_TABLE_SIMPLE_CONSTRAINTS);
+			db.execSQL(CREATE_TABLE_COMPLEX_CONSTRAINTS);
 			db.execSQL(CREATE_TABLE_USER_PREFERENCE);
 			db.execSQL(CREATE_TABLE_VACATION_DAYS);
 			db.execSQL(CREATE_TABLE_WORK_TIMETABLE);
@@ -1016,10 +929,10 @@ public final class DatabaseManager {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLACE_MODEL);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_QUESTION_MODEL);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPENING_TIMES);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPENING_DAYS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENT_CATEGORY);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENT_CONSTRAINTS);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONSTRAINTS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_SIMPLE_CONSTRAINTS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMPLEX_CONSTRAINTS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_PREFERENCE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_VACATION_DAYS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORK_TIMETABLE);
