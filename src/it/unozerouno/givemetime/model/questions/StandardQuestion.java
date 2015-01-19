@@ -9,7 +9,7 @@ import it.unozerouno.givemetime.model.places.PlaceModel;
  * @author Edoardo Giacomello
  *
  */
-public class StandardQuestion extends Question {
+public class StandardQuestion extends QuestionModel {
 	private String account;
 	private PlaceModel homeLocation;
 	private TimeConstraint sleepTime;

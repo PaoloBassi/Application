@@ -5,6 +5,6 @@ package it.unozerouno.givemetime.model.questions;
  * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com>
  *
  */
-public class FreeTimeQuestion extends Question{
+public class FreeTimeQuestion extends QuestionModel{
 
 }

@@ -1,5 +1,5 @@
 package it.unozerouno.givemetime.model.questions;
 
-public abstract class Question {
+public abstract class QuestionModel {
 
 }

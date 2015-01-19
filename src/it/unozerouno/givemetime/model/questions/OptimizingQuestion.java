@@ -5,6 +5,6 @@ package it.unozerouno.givemetime.model.questions;
  * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com>
  *
  */
-public class OptimizingQuestion extends Question{
+public class OptimizingQuestion extends QuestionModel{
 
 }

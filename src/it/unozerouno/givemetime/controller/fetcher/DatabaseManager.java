@@ -14,6 +14,7 @@ import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.places.PlaceModel;
+import it.unozerouno.givemetime.model.questions.QuestionModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
@@ -1116,9 +1117,103 @@ public final class DatabaseManager {
 		System.out.println("Deleted " + deleteQuery + " category rows.");
 	}
 	
+	    ///////////////////////////////
+		//
+		// User Preferences
+		//
+		// /////////////////////////////
 	
+	/**
+	 * Adds or updates home place
+	 * @param home
+	 */
+		public static void addUserHomeLocation(PlaceModel home){
+			//TODO: Implement this
+		}
+		/**
+		 * Return the home get location
+		 * @return
+		 */
+		public static PlaceModel getUserHomeLocation(){
+			//TODO: IMPLEMENT THIS
+			return null;
+		}
+		/**
+		 * Set or updates the user sleep time
+		 * @param sleepTime
+		 */
+		public static void setUserSleepTime(List<ComplexConstraint> sleepTime){
+			//TODO: IMPLEMENT THIS
+		}
+		/**
+		 * Return the user sleep time
+		 * @return
+		 */
+		public static List<ComplexConstraint> getUserSleepTime(){
+			//TODO: IMPLEMENT THIS
+			return null;
+		}
+		
+		
+		
+		/**
+		 * Set or update vacation days
+		 */
+		public static void setUserVacationDays(List<ComplexConstraint> vacationDays){
+			//TODO: IMPLEMENT THIS
+		}
+		/**
+		 * Delete all user vacations
+		 */
+		public static void removeUserVacationDays(){
+			//TODO: IMPLEMENT THIS
+		}
+		/**
+		 * Return the vacation periods
+		 * @return
+		 */
+		public static List<ComplexConstraint> getVacationDays(){
+			//TODO: IMPLEMENT THIS
+			return null;
+		}
+		/**
+		 * Set the user work timetable
+		 */
+		public static void setUserWorkTimetable(List<ComplexConstraint> workTimetable){
+			//TODO: IMPLEMENT THIS
+		}
+		/**
+		 * Returns the user work timetable
+		 * @return
+		 */
+		public static List<ComplexConstraint> getUserWorkTimetable(){
+			//TODO: IMPLEMENT THIS
+			return null;
+		}
+		/**
+		 * Remove the user work timetable
+		 */
+		public static void removeUserWorkTimetable(){
+			//TODO: IMPLEMENT THIS
+		}
+		// /////////////////////////////
+		//
+		// Questions
+		//
+		// /////////////////////////////		
 	
-	
+		public static void addQuestion(QuestionModel question){
+			//TODO: IMPLEMENT THIS
+		}
+		public static void removeQuestion(QuestionModel question){
+			//TODO: IMPLEMENT THIS
+		}
+		public static List<QuestionModel> getQuestions(){
+			//TODO: IMPLEMENT THIS
+			return null;
+		}
+		
+		
 	// /////////////////////////////
 	//
 	// Database
