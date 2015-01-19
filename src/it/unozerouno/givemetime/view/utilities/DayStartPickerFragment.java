@@ -6,6 +6,7 @@ import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.widget.DatePicker;
 
 public class DayStartPickerFragment extends DialogFragment implements OnDateSetListener{
@@ -18,7 +19,7 @@ public class DayStartPickerFragment extends DialogFragment implements OnDateSetL
 	public DayStartPickerFragment(EventEditorActivity eea) {
 		activity = eea;
 		day = eea.getStart().monthDay;
-		month = eea.getStart().month + 1;
+		month = eea.getStart().month;
 		year = eea.getStart().year;
 	}
 	
@@ -33,9 +34,21 @@ public class DayStartPickerFragment extends DialogFragment implements OnDateSetL
 	@Override
 	public void onDateSet(DatePicker view, int year, int monthOfYear,
 			int dayOfMonth) {
+		// set the text of the data
+		activity.getSpinnerStartDay().setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+		// set the variable referring to the starting data
+		Time newStartDay = activity.getStart();
+		newStartDay.monthDay = dayOfMonth;
+		newStartDay.month = monthOfYear;
+		newStartDay.year = year;
+		activity.setStart(newStartDay);
 		
-		activity.getSpinnerStartDay().setText(dayOfMonth + "/" + monthOfYear + "/" + year);
-		
+		// if the new start happens after the end, then set the end accordingly. Otherwise, do nothing
+		if (newStartDay.after(activity.getEnd())){
+			// set the time of the end at the same day of the start
+			activity.setEnd(newStartDay);
+			activity.getSpinnerEndDay().setText(newStartDay.monthDay + "/" + (newStartDay.month + 1) + "/" + newStartDay.year);
+		}
 	}
 
 }

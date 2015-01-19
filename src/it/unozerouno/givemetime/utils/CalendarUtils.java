@@ -63,4 +63,20 @@ public class CalendarUtils {
 		}
 		return strHour + ":" + strMinute;
 	}
+
+	
+	/**
+	 * when creating a new event, set the minute of the starting event to 0 or 30, after the current minute values
+	 * @param minutes
+	 * @return 30 if current minute value is between 0 or 30, 0 otherwise. The hour is incremented accordingly
+	 */
+	
+	public static void approximateMinutes(Time time){
+		if (time.minute >= 0 && time.minute <= 30){
+			time.minute = 30;
+		} else {
+			time.minute = 0;
+			time.hour += 1;
+		}
+	}
 }

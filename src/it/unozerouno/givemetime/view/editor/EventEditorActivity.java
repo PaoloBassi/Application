@@ -59,6 +59,14 @@ public class EventEditorActivity extends Activity{
 	private Time start;
 	private Time end;
 	
+	public void setStart(Time start) {
+		this.start = start;
+	}
+	
+	public void setEnd(Time end) {
+		this.end = end;
+	}
+	
 	public Time getStart() {
 		return start;
 	}
@@ -237,6 +245,7 @@ public class EventEditorActivity extends Activity{
 			editEventTitle.setText("New Event");
 			start = new Time();
 			start.setToNow();
+			CalendarUtils.approximateMinutes(start);
 			end = new Time(start);
 			if(end.hour != 23){
 				end.hour++;

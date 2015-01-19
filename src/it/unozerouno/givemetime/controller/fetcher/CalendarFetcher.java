@@ -3,7 +3,6 @@ package it.unozerouno.givemetime.controller.fetcher;
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
-import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
@@ -323,6 +322,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		
 		// extract the data from newEvent to be inserted into EVENT_MODEL
 		String calId = UserKeyRing.getCalendarId(caller);
+		String title = eventInstanceToUpdate.getEvent().getName();
 		long startTime = eventInstanceToUpdate.getStartingTime().toMillis(false);
 		long endingTime = eventInstanceToUpdate.getEndingTime().toMillis(false);
 		String RRULE = eventInstanceToUpdate.getEvent().getRRULE();
@@ -334,6 +334,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		ContentValues values = new ContentValues();
 		
 		// This values has to be inserted in order for the provider to accept the insert on the Events table
+		values.put(CalendarContract.Events.TITLE, title);
 		values.put(CalendarContract.Events.DTSTART, startTime);
 		if (isRecursive){
 			// only if the event is recurring
