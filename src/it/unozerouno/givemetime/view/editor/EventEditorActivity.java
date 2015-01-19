@@ -7,6 +7,7 @@ import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
+import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.utilities.DayEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
@@ -311,6 +312,7 @@ public class EventEditorActivity extends Activity{
 			//DatabaseManager.update(eventToEdit);
 			
 		}
+		//EventListFragment.getWeekViewInstance().notifyDatasetChanged();
 	}
 	
 	public void setSelectedPlaceModel(PlaceModel placeSelected){

@@ -51,6 +51,7 @@ public class TimeStartPickerFragment extends DialogFragment implements OnTimeSet
 				newEndTime.hour = hourOfDay + 1;
 			}
 			activity.setEnd(newEndTime);
+			
 			activity.getSpinnerEndTime().setText(CalendarUtils.formatHour(newEndTime.hour, minute));
 		}
 	}

@@ -39,7 +39,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
     private static final int TYPE_THREE_DAY_VIEW = 2;
     private static final int TYPE_WEEK_VIEW = 3;
     private int weekViewType = TYPE_THREE_DAY_VIEW;
-    private WeekView weekView;
+    private static WeekView weekView;
 	
 	public static final String ITEM_NAME = "item_name";
 	
@@ -82,7 +82,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 					public void run() {
 						GiveMeLogger.log("New event arrived to View - " + newEvent.toString());
 							EventListFragment.this.eventList.add(newEvent);
-						EventListFragment.this.weekView.notifyDatasetChanged();
+						weekView.notifyDatasetChanged();
 					}
 				});			
 			}
@@ -97,6 +97,10 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
         DatabaseManager.getInstance(getActivity()).getEventsInstances(start, end, getActivity(), eventListener);
         
   		return view;
+	}
+	
+	public static WeekView getWeekViewInstance(){
+		return weekView;
 	}
 	
 	@Override
