@@ -196,7 +196,7 @@ public final class PlaceFetcher {
 		String address;
 		String country;
 		
-		public PlaceResult(String id, String placeID, String description) {
+		public PlaceResult(String placeID, String description) {
 			super();
 			this.placeID = placeID;
 			this.description = description;

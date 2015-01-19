@@ -1,18 +1,5 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TimeZone;
-
-import com.google.android.gms.drive.internal.am;
-import com.google.android.gms.internal.da;
-import com.google.android.gms.internal.fe;
-import com.google.android.gms.internal.ne;
-import com.google.android.gms.internal.nu;
-import com.google.android.gms.internal.pr;
-import com.google.android.gms.internal.qu;
-
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
@@ -26,32 +13,26 @@ import it.unozerouno.givemetime.model.events.EventCategory;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
-import it.unozerouno.givemetime.model.events.EventModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
-import android.R.bool;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteTransactionListener;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.CalendarContract;
-import android.provider.CalendarContract.Events;
-import android.provider.ContactsContract.Contacts.Data;
 import android.text.format.Time;
-import android.text.style.BulletSpan;
 import android.util.SparseArray;
-import android.widget.Toast;
 
 /**
  * This is the entry Point for the model. It fetches all stored app data from DB
@@ -87,7 +68,7 @@ public final class DatabaseManager {
 	 * close all instances of DB and DBHelper
 	 */
 
-	public static void closeDB() {
+	static void closeDB() {
 		if (database != null) {
 			database.close();
 		}
@@ -262,7 +243,11 @@ public final class DatabaseManager {
 		// TODO: synchronization: update of modified events while app was not
 		// running
 	}
-
+	/**
+	 * Updates event in both database and calendar provider
+	 * @param caller
+	 * @param eventToUpdate
+	 */
 	public static void updateEvent(Activity caller,
 			EventInstanceModel eventToUpdate) {
 		// Updating CalendarFetcher
@@ -321,7 +306,6 @@ public final class DatabaseManager {
 	private static void addEventInDatabase(String addedEventId,
 			EventInstanceModel newEventInstance) {
 
-		// TODO: Event addition
 		EventDescriptionModel newEvent = newEventInstance.getEvent();
 		String eventId = addedEventId;
 		int calendarId = Integer.parseInt(newEvent.getCalendarId());
@@ -355,7 +339,45 @@ public final class DatabaseManager {
 	 * @return
 	 */
 	private EventDescriptionModel loadEventFromDatabase (EventDescriptionModel eventToLoad){
-		//TODO: Load event
+		int eventIdToLoad = Integer.parseInt(eventToLoad.getID());
+		List<ComplexConstraint> constraints;
+		String calendarId ="";
+		String placeId = "";
+		boolean doNotDisturb=false;
+		boolean hasDeadline=false;
+		boolean isMovable=false;
+		String categoryString = "";
+		
+		String table= DatabaseCreator.TABLE_EVENT_MODEL;
+		String[] projection = DatabaseCreator.Projections.EVENT_MODEL_ALL;
+		String where = DatabaseCreator.ID_EVENT_PROVIDER +" = " + eventIdToLoad;
+		Cursor eventCursor = database.query(table, projection, where, null, null, null, null);
+		while (eventCursor.moveToNext()){
+			calendarId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_CALENDAR));
+			doNotDisturb = Boolean.parseBoolean(eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DO_NOT_DISTURB)));
+			hasDeadline = Boolean.parseBoolean(eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DEADLINE)));
+			isMovable = Boolean.parseBoolean(eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_MOVABLE)));
+			categoryString = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_EVENT_CATEGORY));
+			placeId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_PLACE));
+		}
+		eventCursor.close();
+		
+		//Creating model dependencies
+		PlaceModel place = getPlaceById(placeId);
+		constraints = getConstraints(eventToLoad);
+		EventCategory category = getCategoryByName(categoryString);
+		
+		
+		//Filling the model
+		eventToLoad.setCalendarId(calendarId);
+		eventToLoad.setDoNotDisturb(doNotDisturb);
+		eventToLoad.setHasDeadline(hasDeadline);
+		eventToLoad.setIsMovable(isMovable);
+		eventToLoad.setCategory(category);
+		eventToLoad.setConstraints(constraints);
+		eventToLoad.setPlace(place);
+		
+		
 		
 		return eventToLoad;
 	}
@@ -470,7 +492,73 @@ public final class DatabaseManager {
 		addOpeningTime(newPlace);
 	}
 
-	public static List<PlaceModel> getLocations() {
+	/**
+	 * Return a place stored into the GiveMeTime db with id equals to placeId, or null if the place is not found.
+	 * @param placeId
+	 * @return
+	 */
+	public static PlaceModel getPlaceById(String placeId){
+		PlaceModel placeResult = null;
+		String[] projection = DatabaseCreator.Projections.PLACES_ALL;
+		String where = DatabaseCreator.PLACE_ID + " = " + placeId;
+		Cursor cursor = database.query(DatabaseCreator.TABLE_PLACE_MODEL,
+				projection, where, null, null, null,
+				DatabaseCreator.PLACE_DATE_CREATED + ", "
+						+ DatabaseCreator.PLACE_VISIT_COUNTER + " DESC");
+		while (cursor.moveToNext()) {
+			String name = cursor.getString(DatabaseCreator.Projections
+					.getIndex(projection, DatabaseCreator.PLACE_NAME));
+			String address = cursor.getString(DatabaseCreator.Projections
+					.getIndex(projection, DatabaseCreator.PLACE_ADDRESS));
+			String formattedAddress = cursor
+					.getString(DatabaseCreator.Projections.getIndex(projection,
+							DatabaseCreator.PLACE_FORMATTED_ADDRESS));
+			String country = cursor.getString(DatabaseCreator.Projections
+					.getIndex(projection, DatabaseCreator.PLACE_COUNTRY));
+			String phoneNumber = cursor.getString(DatabaseCreator.Projections
+					.getIndex(projection, DatabaseCreator.PLACE_PHONE_NUMBER));
+			String icon = cursor.getString(DatabaseCreator.Projections
+					.getIndex(projection, DatabaseCreator.PLACE_ICON));
+
+			String latitudeString = cursor
+					.getString(DatabaseCreator.Projections.getIndex(projection,
+							DatabaseCreator.PLACE_LOCATION_LATITUDE));
+			Double latitude = Double.parseDouble(latitudeString);
+			String longitudeString = cursor
+					.getString(DatabaseCreator.Projections.getIndex(projection,
+							DatabaseCreator.PLACE_LOCATION_LONGITUDE));
+			Double longitude = Double.parseDouble(longitudeString);
+			String visitCounterString = cursor
+					.getString(DatabaseCreator.Projections.getIndex(projection,
+							DatabaseCreator.PLACE_VISIT_COUNTER));
+			int visitCounter = Integer.parseInt(visitCounterString);
+
+			// Creating PlaceModel
+			PlaceModel newPlace = new PlaceModel(placeId, name, address,
+					country);
+			newPlace.setFormattedAddress(formattedAddress);
+			newPlace.setPhoneNumber(phoneNumber);
+			newPlace.setIcon(icon);
+			Location newLocation = new Location("GiveMeTime");
+			newLocation.setLatitude(latitude);
+			newLocation.setLongitude(longitude);
+			newPlace.setLocation(newLocation);
+			newPlace.setVisitCounter(visitCounter);
+
+			List<ComplexConstraint> openingTimes = getOpeningTime(newPlace);
+			newPlace.setOpeningTime(openingTimes);
+			placeResult=newPlace;
+			
+		}
+		cursor.close();
+		return placeResult;
+	}
+	
+	/**
+	 * Gets all places stored into the DB
+	 * @return
+	 */
+	public static List<PlaceModel> getPlaces() {
 		List<PlaceModel> places = new ArrayList<PlaceModel>();
 		String[] projection = DatabaseCreator.Projections.PLACES_ALL;
 		Cursor cursor = database.query(DatabaseCreator.TABLE_PLACE_MODEL,
@@ -670,7 +758,6 @@ public final class DatabaseManager {
 	 * @return
 	 */
 	private static synchronized int getNewSimpleConstraintId(){
-		//TODO: implement this
 		Long rowIndex = database.insert(DatabaseCreator.TABLE_SIMPLE_CONSTRAINTS, null, new ContentValues());
 		String where = "rowid = " + rowIndex;
 		String[] projection = {DatabaseCreator.C_SIMPLE_ID_CONSTRAINT};
@@ -971,6 +1058,7 @@ public final class DatabaseManager {
 	}
 	
 	/**
+	 * Return all existing Event Categories
 	 */
 	public static List<EventCategory> getCategories(){
 		List<EventCategory> categories = new ArrayList<EventCategory>();
@@ -995,7 +1083,32 @@ public final class DatabaseManager {
 		fetchedCategories.close();
 		return categories;
 	} 
-	
+	/**
+	 * Return a DB stored category that has "categoryName" as name
+	 * @param categoryName
+	 * @return
+	 */
+	public static EventCategory getCategoryByName(String categoryName){
+		EventCategory category = null;
+		String[] projection = DatabaseCreator.Projections.ECA_ALL;
+		String table = DatabaseCreator.TABLE_EVENT_CATEGORY;
+		String where = DatabaseCreator.ECA_NAME + " = " + categoryName;
+		String orderBy = DatabaseCreator.ECA_DEFAULT_CATEGORY+", "+ DatabaseCreator.ECA_NAME;
+		
+		Cursor fetchedCategories = database.query(table, projection, where, null, null, null, orderBy);
+			while (fetchedCategories.moveToNext()) {
+				String name = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_NAME));				
+				String defaultDoNotDisturb = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_DONOTDISTURB));
+				String defaultMovable = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_MOVABLE));
+				String defaultCategory = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_CATEGORY));
+				
+				EventCategory newCategory = new EventCategory(name, Boolean.parseBoolean(defaultMovable), Boolean.parseBoolean(defaultDoNotDisturb));
+				newCategory.setDefaultCategory(Boolean.parseBoolean(defaultCategory));
+				category=newCategory;
+			}
+		fetchedCategories.close();
+		return category;
+	}
 	public static void deleteCategory(EventCategory categoryToDelete){
 		String table = DatabaseCreator.TABLE_EVENT_CATEGORY;
 		String where = DatabaseCreator.ECA_NAME + " = " + categoryToDelete.getName();
@@ -1030,6 +1143,7 @@ public final class DatabaseManager {
 			public static final String[] CONSTRAINTS_SIMPLE_ALL = {C_SIMPLE_ID_CONSTRAINT, C_SIMPLE_CONSTRAINT_TYPE, C_START, C_END};
 			public static final String[] CONSTRAINT_COMPLEX_ALL = {C_COMPLEX_ID, C_COMPLEX_S_ID};
 			public static final String[] OT_ALL = {OT_PLACE_ID, OT_COMPLEX_CONSTRAINT};
+			public static final String[] EVENT_MODEL_ALL = { ID_CALENDAR, ID_EVENT_PROVIDER,ID_PLACE, ID_EVENT_CATEGORY, FLAG_DO_NOT_DISTURB,FLAG_DEADLINE,FLAG_MOVABLE };
 			public static int getIndex(String[] projection, String coloumn) {
 				int counter = 0;
 				for (String currentColoumn : projection) {

@@ -64,7 +64,7 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
  
  
  public void fetchCommonLocations(){
-	 List<PlaceModel> newList = DatabaseManager.getLocations();
+	 List<PlaceModel> newList = DatabaseManager.getPlaces();
 	 placeList.clear();
 	 placeList.addAll(newList);
 	 listAdapter.notifyDataSetChanged();
