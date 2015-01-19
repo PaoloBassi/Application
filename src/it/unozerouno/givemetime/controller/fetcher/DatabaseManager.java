@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.google.android.gms.drive.internal.am;
+import com.google.android.gms.internal.da;
+import com.google.android.gms.internal.fe;
 import com.google.android.gms.internal.ne;
+import com.google.android.gms.internal.nu;
 
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.constraints.ComplexConstraint;
+import it.unozerouno.givemetime.model.events.EventCategory;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
@@ -22,6 +27,7 @@ import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
+import android.R.bool;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -29,12 +35,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteTransactionListener;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.text.format.Time;
+import android.text.style.BulletSpan;
 import android.util.SparseArray;
 import android.widget.Toast;
 
@@ -563,7 +571,97 @@ public final class DatabaseManager {
 	public static void addConstraints(EventModel constraints) {
 		// TODO: Set Constraints
 	}
-
+	
+	// ///////////////////////
+	//
+	//
+	// EventCategory functions
+	//
+	//
+	// ///////////////////////
+	
+	/**
+	 * This functions addds the default categories into the GiveMeTime database
+	 */
+	public static void addDefaultCategories(){
+		//Default categories
+		EventCategory workCategory = new EventCategory("Work", false, true);
+		//They are default category, thus they cannot be removed by the user
+		workCategory.setDefaultCategory(true);
+		EventCategory errandsCategory = new EventCategory("Errands (Movable)", true, false);
+		errandsCategory.setDefaultCategory(true);
+		EventCategory amusementCategory = new EventCategory("Amusement", false, false);
+		amusementCategory.setDefaultCategory(true);
+		
+		List<EventCategory> defaultCategories = new ArrayList<EventCategory>();
+		
+		defaultCategories.add(workCategory);
+		defaultCategories.add(errandsCategory);
+		defaultCategories.add(amusementCategory);
+		
+		//Adding categories to database
+		for (EventCategory eventCategory : defaultCategories) {
+			ContentValues values = new ContentValues();
+			values.put(DatabaseCreator.ECA_NAME, eventCategory.getName());
+			values.put(DatabaseCreator.ECA_DEFAULT_DONOTDISTURB, eventCategory.isDefault_donotdisturb());
+			values.put(DatabaseCreator.ECA_DEFAULT_MOVABLE, eventCategory.isDefault_movable());
+			values.put(DatabaseCreator.ECA_DEFAULT_CATEGORY, eventCategory.isDefaultCategory());
+			
+			//TODO: Check if this update policy erases categories from the EVENT_MODEL table when they update
+			Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_CATEGORY, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+			System.out.println("Added default constraint row: " + query);
+		}
+		
+	}
+	public static void addCategory(EventCategory category){
+				//Adding category to database
+					ContentValues values = new ContentValues();
+					values.put(DatabaseCreator.ECA_NAME, category.getName());
+					values.put(DatabaseCreator.ECA_DEFAULT_DONOTDISTURB, category.isDefault_donotdisturb());
+					values.put(DatabaseCreator.ECA_DEFAULT_MOVABLE, category.isDefault_movable());
+					values.put(DatabaseCreator.ECA_DEFAULT_CATEGORY, category.isDefaultCategory());
+					
+					//TODO: Check if this update policy erases categories from the EVENT_MODEL table when they update
+					Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_CATEGORY, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+					System.out.println("Added default constraint row: " + query);
+	}
+	
+	/**
+	 */
+	public static List<EventCategory> getCategories(){
+		List<EventCategory> categories = new ArrayList<EventCategory>();
+		
+		String[] projection = DatabaseCreator.Projections.ECA_ALL;
+		String table = DatabaseCreator.TABLE_EVENT_CATEGORY;
+		String orderBy = DatabaseCreator.ECA_DEFAULT_CATEGORY+", "+ DatabaseCreator.ECA_NAME;
+		
+		Cursor fetchedCategories = database.query(table, projection, null, null, null, null, orderBy);
+			while (fetchedCategories.moveToNext()) {
+				String name = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_NAME));				
+				String defaultDoNotDisturb = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_DONOTDISTURB));
+				String defaultMovable = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_MOVABLE));
+				String defaultCategory = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_CATEGORY));
+				
+				EventCategory newCategory = new EventCategory(name, Boolean.parseBoolean(defaultMovable), Boolean.parseBoolean(defaultDoNotDisturb));
+				newCategory.setDefaultCategory(Boolean.parseBoolean(defaultCategory));
+				categories.add(newCategory);
+			}
+		
+		
+		fetchedCategories.close();
+		return categories;
+	} 
+	
+	public static void deleteCategory(EventCategory categoryToDelete){
+		String table = DatabaseCreator.TABLE_EVENT_CATEGORY;
+		String where = DatabaseCreator.ECA_NAME + " = " + categoryToDelete.getName();
+		int deleteQuery = database.delete(table, where, null);
+		System.out.println("Deleted " + deleteQuery + " category rows.");
+	}
+	
+	
+	
+	
 	// /////////////////////////////
 	//
 	// Database
@@ -583,6 +681,7 @@ public final class DatabaseManager {
 					PLACE_PHONE_NUMBER, PLACE_ICON, PLACE_LOCATION_LONGITUDE,
 					PLACE_LOCATION_LATITUDE, PLACE_VISIT_COUNTER,
 					PLACE_DATE_CREATED };
+			public static final String[] ECA_ALL = {ECA_NAME, ECA_DEFAULT_DONOTDISTURB, ECA_DEFAULT_MOVABLE, ECA_DEFAULT_CATEGORY};
 
 			public static int getIndex(String[] projection, String coloumn) {
 				int counter = 0;
@@ -650,7 +749,9 @@ public final class DatabaseManager {
 		private static final String OD_ID_CONSTRAINT = "od_id_constraint";
 		// EVENT CATEGORY
 		private static final String ECA_NAME = "eca_name";
-		private static final String DEFAULT_DONOTDISTURB = "default_donotdisturb";
+		private static final String ECA_DEFAULT_DONOTDISTURB = "default_donotdisturb";
+		private static final String ECA_DEFAULT_MOVABLE = "default_movable";
+		private static final String ECA_DEFAULT_CATEGORY = "default_category";
 		// EVENT CONSTRAINT
 		private static final String ECO_ID_CONSTRAINT = "eco_id_constraint";
 		private static final String ECO_ID_EVENT = "eco_id_event";
@@ -759,10 +860,11 @@ public final class DatabaseManager {
 		private static final String CREATE_TABLE_EVENT_CATEGORY = "CREATE TABLE "
 				+ TABLE_EVENT_CATEGORY
 				+ "("
-				+ ECA_NAME
-				+ " VARCHAR(30) PRIMARY KEY, "
-				+ DEFAULT_DONOTDISTURB
-				+ " BOOLEAN" + ");";
+				+ ECA_NAME 	+ " VARCHAR(30) PRIMARY KEY, "	
+				+ ECA_DEFAULT_DONOTDISTURB	+ " BOOLEAN," 
+				+ ECA_DEFAULT_MOVABLE	+ " BOOLEAN," 
+				+ ECA_DEFAULT_CATEGORY	+ " BOOLEAN" 
+				+ ");";
 		// EVENT_CONSTRAINTS
 		private static final String CREATE_TABLE_EVENT_CONSTRAINTS = "CREATE TABLE "
 				+ TABLE_EVENT_CONSTRAINTS
