@@ -1,6 +1,7 @@
 package it.unozerouno.givemetime.view.main.fragments;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.view.editor.LocationEditorActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -29,6 +30,9 @@ public class DebugFragment extends Fragment{
 		setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.fragment_debug_layout, container, false);
 		debugTextView = (TextView) view.findViewById(R.id.debug_textview);
+		// get the db and set the categories
+		DatabaseManager.getInstance(getActivity());
+        DatabaseManager.addDefaultCategories();
 		setBtnOnclick(view);
 		return view;
 	}

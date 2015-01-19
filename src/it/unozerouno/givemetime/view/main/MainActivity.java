@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.view.main;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.StartUpFlow;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.editor.EventEditorActivity;
 import it.unozerouno.givemetime.view.main.fragments.DebugFragment;

@@ -1,18 +1,21 @@
 package it.unozerouno.givemetime.view.editor;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.model.events.EventCategory;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
-import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.utilities.DayEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeStartPickerFragment;
-import it.unozerouno.givemetime.view.utilities.WeekView;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -21,6 +24,9 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -59,6 +65,8 @@ public class EventEditorActivity extends Activity{
 	private Time now = new Time();
 	private Time start;
 	private Time end;
+	private String categoryName;
+	private List<String> items; 
 	
 	public void setStart(Time start) {
 		this.start = start;
@@ -134,7 +142,24 @@ public class EventEditorActivity extends Activity{
 		 // TODO view for repeating events
 		 switchIsMovable = (Switch) findViewById(R.id.editor_edit_event_switch_ismovable);
 		 fragmentConstraints = (ConstraintsFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_constraints_container);
-		 spinnerCategory = (Spinner) findViewById(R.id.editor_edit_event_spinner_category);
+		 
+		 // set the spinner
+		 spinnerCategory = (Spinner) findViewById(R.id.category_spinner);
+		 // retrieve the name of all categories
+		 items = new ArrayList<String>();
+		 for (EventCategory category : DatabaseManager.getCategories()) {
+			items.add(category.getName());
+		 }
+		 Collections.reverse(items);
+		 // at the end, add the "Add category" option
+		 items.add("Add Category");
+		 ArrayAdapter<String> spinnerAdapterCategory = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+		 spinnerAdapterCategory.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		 spinnerCategory.setAdapter(spinnerAdapterCategory);
+		 // set the first item in the list as first selection
+		 spinnerCategory.setSelection(0);
+		 categoryName = (String) spinnerCategory.getItemAtPosition(0);
+		 
 		 switchDoNotDisturb = (Switch) findViewById(R.id.editor_edit_event_switch_donotdisturb);
 		 buttonCancel = (Button) findViewById(R.id.editor_edit_event_btn_cancel);
 		 buttonSave = (Button) findViewById(R.id.editor_edit_event_btn_save);
@@ -212,6 +237,27 @@ public class EventEditorActivity extends Activity{
 			public void onClick(View v) {
 				DialogFragment newFragment = new DayEndPickerFragment(EventEditorActivity.this);
 				newFragment.show(getFragmentManager(), "Day Ending Picker");
+				
+			}
+		});
+		
+		// set the spinner listener
+		spinnerCategory.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				// if the position is not the last, save the name of the category
+				if (position != (items.size() - 1)){
+					categoryName = items.get(position);
+				} else {
+					// TODO creation of new category
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -295,6 +341,15 @@ public class EventEditorActivity extends Activity{
 			// here goes the event creation model
 			EventDescriptionModel newEvent = new EventDescriptionModel("", editEventTitle.getText().toString(), start.toMillis(false), end.toMillis(false));
 			newEvent.setCalendarId(UserKeyRing.getCalendarId(this));
+			// retrieve the name of the category selected and the default data of the switch associated
+			EventCategory selectedCategory = DatabaseManager.getCategoryByName(categoryName);
+			// check if it is a default category
+			if (selectedCategory.isDefaultCategory()){
+				EventCategory category = new EventCategory(categoryName, selectedCategory.isDefault_movable(), selectedCategory.isDefault_donotdisturb());
+				newEvent.setCategory(category);
+			} else {
+				// TODO do other things with non default categories
+			}
 			// TODO: set all other data that we have
 			// create the relative instance of the Event
 			eventToAdd = new EventInstanceModel(newEvent, start, end);
