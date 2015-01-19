@@ -11,6 +11,7 @@ import com.google.android.gms.internal.fe;
 import com.google.android.gms.internal.ne;
 import com.google.android.gms.internal.nu;
 import com.google.android.gms.internal.pr;
+import com.google.android.gms.internal.qu;
 
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
@@ -324,7 +325,7 @@ public final class DatabaseManager {
 		EventDescriptionModel newEvent = newEventInstance.getEvent();
 		String eventId = addedEventId;
 		int calendarId = Integer.parseInt(newEvent.getCalendarId());
-		int eventCategory = 0; //TODO: Manage categories
+		String eventCategory = newEvent.getCategory().getName();
 		String placeId = null;
 		if(newEvent.getPlace() != null){
 			placeId = newEvent.getPlace().getPlaceId();
@@ -355,6 +356,7 @@ public final class DatabaseManager {
 	 */
 	private EventDescriptionModel loadEventFromDatabase (EventDescriptionModel eventToLoad){
 		//TODO: Load event
+		
 		return eventToLoad;
 	}
 
@@ -798,7 +800,22 @@ public final class DatabaseManager {
 	 */
     public static List<ComplexConstraint> getOpeningTime(PlaceModel place) {
 		List<ComplexConstraint> constraints = new ArrayList<ComplexConstraint>();
-		// TODO: fetch constraints
+		String placeId =place.getPlaceId();
+		String table = DatabaseCreator.TABLE_OPENING_TIMES;
+		String[] projection = DatabaseCreator.Projections.OT_ALL;
+		String where = DatabaseCreator.OT_PLACE_ID + " = " + placeId;
+		ArrayList<Integer> complexConstraintId = new ArrayList<Integer>();
+
+		Cursor queryResult = database.query(table, projection, where, null, null, null, null);
+		while(queryResult.moveToNext()){
+			complexConstraintId.add(queryResult.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.OT_COMPLEX_CONSTRAINT)));
+			}
+		queryResult.close();
+		
+		//Now fetching all found constraints
+		for (Integer compConstraintId : complexConstraintId) {
+			constraints.add(getComplexConstraint(compConstraintId));
+		}
 		return constraints;
 	}
 
@@ -809,9 +826,24 @@ public final class DatabaseManager {
 	 * @param event
 	 * @return
 	 */
-	public static List<ComplexConstraint> getConstraints(EventModel event) {
+	public static List<ComplexConstraint> getConstraints(EventDescriptionModel event) {
 		List<ComplexConstraint> constraints = new ArrayList<ComplexConstraint>();
-		// TODO: fetch constraints
+		int eventId = Integer.parseInt(event.getID());
+		String table = DatabaseCreator.TABLE_EVENT_CONSTRAINTS;
+		String[] projection = DatabaseCreator.Projections.ECO_ALL;
+		String where = DatabaseCreator.ECO_ID_EVENT + " = " + eventId;
+		ArrayList<Integer> complexConstraintId = new ArrayList<Integer>();
+
+		Cursor queryResult = database.query(table, projection, where, null, null, null, null);
+		while(queryResult.moveToNext()){
+			complexConstraintId.add(queryResult.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECO_ID_COMPLEX_CONSTRAINT)));
+			}
+		queryResult.close();
+		
+		//Now fetching all found constraints
+		for (Integer compConstraintId : complexConstraintId) {
+			constraints.add(getComplexConstraint(compConstraintId));
+		}
 		return constraints;
 	}
 
@@ -994,8 +1026,10 @@ public final class DatabaseManager {
 					PLACE_LOCATION_LATITUDE, PLACE_VISIT_COUNTER,
 					PLACE_DATE_CREATED };
 			public static final String[] ECA_ALL = {ECA_NAME, ECA_DEFAULT_DONOTDISTURB, ECA_DEFAULT_MOVABLE, ECA_DEFAULT_CATEGORY};
+			public static final String[] ECO_ALL = {ECO_ID_EVENT, ECO_ID_COMPLEX_CONSTRAINT};
 			public static final String[] CONSTRAINTS_SIMPLE_ALL = {C_SIMPLE_ID_CONSTRAINT, C_SIMPLE_CONSTRAINT_TYPE, C_START, C_END};
 			public static final String[] CONSTRAINT_COMPLEX_ALL = {C_COMPLEX_ID, C_COMPLEX_S_ID};
+			public static final String[] OT_ALL = {OT_PLACE_ID, OT_COMPLEX_CONSTRAINT};
 			public static int getIndex(String[] projection, String coloumn) {
 				int counter = 0;
 				for (String currentColoumn : projection) {
