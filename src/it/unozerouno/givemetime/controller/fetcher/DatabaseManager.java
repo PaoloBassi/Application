@@ -10,6 +10,7 @@ import com.google.android.gms.internal.da;
 import com.google.android.gms.internal.fe;
 import com.google.android.gms.internal.ne;
 import com.google.android.gms.internal.nu;
+import com.google.android.gms.internal.pr;
 
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
@@ -45,6 +46,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
+import android.provider.ContactsContract.Contacts.Data;
 import android.text.format.Time;
 import android.text.style.BulletSpan;
 import android.util.SparseArray;
@@ -463,8 +465,7 @@ public final class DatabaseManager {
 				SQLiteDatabase.CONFLICT_REPLACE);
 		System.out.println("Inserted Location, added row: " + query);
 
-		// TODO: update constraints
-		addConstraints(newPlace);
+		addOpeningTime(newPlace);
 	}
 
 	public static List<PlaceModel> getLocations() {
@@ -516,7 +517,7 @@ public final class DatabaseManager {
 			newPlace.setLocation(newLocation);
 			newPlace.setVisitCounter(visitCounter);
 
-			List<ComplexConstraint> openingTimes = getConstraints(newPlace);
+			List<ComplexConstraint> openingTimes = getOpeningTime(newPlace);
 			newPlace.setOpeningTime(openingTimes);
 			places.add(newPlace);
 		}
@@ -535,7 +536,7 @@ public final class DatabaseManager {
 			//////////////////////////
 			// Constraints Insert/Update
 			/////////////////////////
-	private static void addComplexConstraintInDatabase(ComplexConstraint complexConstraint){
+	private static int addComplexConstraintInDatabase(ComplexConstraint complexConstraint){
 		SparseArray<Constraint> addedConstraintIndexes = new SparseArray<Constraint>();
 		for (Constraint currentConstraint : complexConstraint.getConstraints()) {
 		   int currentId = addSimpleConstratint(currentConstraint);
@@ -578,7 +579,7 @@ public final class DatabaseManager {
 			}
 				System.out.println("Added complex constraint with id " + complexConstraint.getId() + ", parent of a single event with id" + currentSimpleConstraintId );
 		}
-		
+		return complexConstraintID;
 			
 			
 		
@@ -681,13 +682,121 @@ public final class DatabaseManager {
 	}
 	
 	/**
+	 * Return a constraint saved into the database. If id is -1, all constraints are returned.
+	 * @param id
+	 * @return
+	 */
+	private static synchronized Constraint getSimpleConstraint(int selectId){
+		Constraint fetchedConstraint;
+		int id = -1;
+		String type="";
+		String start ="";
+		String end="";
+		
+		String[] projection = DatabaseCreator.Projections.CONSTRAINTS_SIMPLE_ALL;
+		String selection=null;
+		if (selectId != -1){
+			selection = DatabaseCreator.C_SIMPLE_ID_CONSTRAINT + " = " + selectId;
+		}
+		String table = DatabaseCreator.TABLE_SIMPLE_CONSTRAINTS;
+		Cursor databaseResult = database.query(table, projection, selection, null, null, null, null);
+		while (databaseResult.moveToNext()) {
+			id = databaseResult.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.C_SIMPLE_ID_CONSTRAINT));
+			type =  databaseResult.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.C_SIMPLE_CONSTRAINT_TYPE));
+			start = databaseResult.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.C_START));
+			end = databaseResult.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.C_END));
+		}
+		databaseResult.close();
+		
+		//Discerning what type of constraint has been fetched
+		if (type == "DateConstraint")
+		{
+			Time startTime = new Time();
+			startTime.set(Long.parseLong(start));
+			Time endTime = new Time();
+			endTime.set(Long.parseLong(end));
+			fetchedConstraint = new DateConstraint(startTime, endTime);
+			fetchedConstraint.setId(id);
+			return fetchedConstraint;
+		}
+		if (type == "TimeConstraint")
+		{
+			Time startTime = new Time();
+			startTime.set(Long.parseLong(start));
+			Time endTime = new Time();
+			endTime.set(Long.parseLong(end));
+			fetchedConstraint = new TimeConstraint(startTime, endTime);
+			fetchedConstraint.setId(id);
+			return fetchedConstraint;
+		}
+		if (type == "DayConstraint")
+		{
+			int startDay = Integer.parseInt(start);
+			int endDay = Integer.parseInt(end);
+			fetchedConstraint = new DayConstraint(startDay, endDay);
+			fetchedConstraint.setId(id);
+			return fetchedConstraint;
+		}
+		System.out.println("This function cannot parse the constraint row in the db");
+		return null;
+	}
+
+	private static synchronized ComplexConstraint getComplexConstraint(int selectId){
+		ComplexConstraint complexConstraint = new ComplexConstraint();
+		String[] projection = DatabaseCreator.Projections.CONSTRAINT_COMPLEX_ALL;
+		String selection=null;
+		if (selectId != -1){
+			selection = DatabaseCreator.C_COMPLEX_ID + " = " + selectId;
+		}
+		String table = DatabaseCreator.TABLE_COMPLEX_CONSTRAINTS;
+		Cursor databaseResult = database.query(table, projection, selection, null, null, null, null);
+		ArrayList<Integer> simpleConstraintsId = new ArrayList<Integer>();
+		while (databaseResult.moveToNext()) {
+			int complexConstraintId = databaseResult.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.C_COMPLEX_ID));
+			complexConstraint.setId(complexConstraintId);
+			int simpleConstraintId = databaseResult.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.C_COMPLEX_S_ID));
+			simpleConstraintsId.add(simpleConstraintId);
+		}
+		databaseResult.close();
+		
+		//Now we have the list with all the simpleConstraints related to this complexConstraint
+		for (Integer simpleConstraintIndex : simpleConstraintsId) {
+			//We are fetching every single simple constraint
+			complexConstraint.addConstraint(getSimpleConstraint(simpleConstraintIndex));
+		}
+		return complexConstraint;
+	}
+	
+	private static synchronized void deleteComplexConstraint (int complexIdToRemove){
+		//First let's delete the simpleConstraints
+		String[] projection = {DatabaseCreator.C_COMPLEX_S_ID};
+		Cursor queryResult = database.query(DatabaseCreator.TABLE_COMPLEX_CONSTRAINTS,projection , DatabaseCreator.C_COMPLEX_ID + " = " + complexIdToRemove, null, null, null, null);
+		ArrayList<Integer> simpleConstraintsToRemove = new ArrayList<Integer>();
+		while (queryResult.moveToNext()) {
+			simpleConstraintsToRemove.add(queryResult.getInt(0));
+		}
+		queryResult.close();
+			//Here simple constraints are removed
+			for (Integer simpleIdToRemove : simpleConstraintsToRemove) {
+				deleteSimpleConstraint(simpleIdToRemove);
+			}
+		//Then delete the constraint
+		int rowsDeleted = database.delete(DatabaseCreator.TABLE_COMPLEX_CONSTRAINTS, DatabaseCreator.C_COMPLEX_ID + " = " + complexIdToRemove, null);
+		System.out.println("Deleted " + rowsDeleted + "comples constraints from db");
+	}
+	private static synchronized void deleteSimpleConstraint(int idToRemove) {
+		int rowsDeleted = database.delete(DatabaseCreator.TABLE_SIMPLE_CONSTRAINTS, DatabaseCreator.C_SIMPLE_ID_CONSTRAINT + " = " + idToRemove, null);
+		System.out.println("Deleted " + rowsDeleted + "simple constraints from db");
+	}
+	
+	/**
 	 * This get the opening time of a particular place in the db. Note that they
 	 * are not put directly in the PlaceModel object but returned instead.
 	 * 
 	 * @param place
 	 * @return
 	 */
-    public static List<ComplexConstraint> getConstraints(PlaceModel place) {
+    public static List<ComplexConstraint> getOpeningTime(PlaceModel place) {
 		List<ComplexConstraint> constraints = new ArrayList<ComplexConstraint>();
 		// TODO: fetch constraints
 		return constraints;
@@ -711,21 +820,69 @@ public final class DatabaseManager {
 	 * 
 	 * @param place
 	 */
-	public static void addConstraints(PlaceModel place) {
-		// TODO: Set constraints
+	public static void addOpeningTime(PlaceModel place) {
+		List<ComplexConstraint> constraints = place.getOpeningTime();
+			SparseArray<ComplexConstraint> constraintList = new SparseArray<ComplexConstraint>();
+				for (ComplexConstraint complexConstraint : constraints) {
+					int constraintId = addComplexConstraintInDatabase(complexConstraint);
+					constraintList.put(constraintId, complexConstraint);
+				}
+				//Now we have a map with id-constraints
+				
+				String placeId = place.getPlaceId();
+				
+			for (int i = 0; i < constraintList.size(); i++) {
+				int constraintId = constraintList.keyAt(i);
+				//Inserting into DB
+				ContentValues values = new ContentValues();
+				values.put(DatabaseCreator.OT_COMPLEX_CONSTRAINT, constraintId);
+				values.put(DatabaseCreator.OT_PLACE_ID, placeId);
+				database.insertWithOnConflict(DatabaseCreator.TABLE_OPENING_TIMES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+				System.out.println("Added row in Opening Times table - Place: " + placeId + " Constraint: " + constraintId);
+			}
+		
 	}
 
 	/**
-	 * Adds event constraint in db
-	 * 
-	 * @param constraints
+	 * Removes every old constraints from the EventConstraints table and reinsert current ones
+	 * @param event
 	 */
-	public static void addConstraints(EventDescriptionModel event) {
-		//Adding constraints to database
-		//TODO: adding ComplexConstraints to EventConstraint table
+	public static void setConstraints(EventDescriptionModel event) {
+		//Removing old constraints
+		 String[] projection = {DatabaseCreator.ECO_ID_COMPLEX_CONSTRAINT};
+		 String where = DatabaseCreator.ECO_ID_EVENT + " = " + event.getID();
+		 Cursor queryResult = database.query(DatabaseCreator.TABLE_EVENT_CONSTRAINTS, projection, where, null, null, null, null);
+		 ArrayList<Integer> complexConstraintToRemove = new ArrayList<Integer>();
+		 while (queryResult.moveToNext()){
+			 complexConstraintToRemove.add(queryResult.getInt(0));
+		 }
+		 queryResult.close();
+		 for (Integer complexConstraintIdToRemove : complexConstraintToRemove) {
+			deleteComplexConstraint(complexConstraintIdToRemove);
+		}
+		 
+		//Adding new constraints to database
+		List<ComplexConstraint> constraints = event.getConstraints();
+		SparseArray<ComplexConstraint> constraintList = new SparseArray<ComplexConstraint>();
+		for (ComplexConstraint complexConstraint : constraints) {
+			int constraintId = addComplexConstraintInDatabase(complexConstraint);
+			constraintList.put(constraintId, complexConstraint);
+		}
+		//Now we have a map with id-constraints
 		
+		int eventId = Integer.parseInt(event.getID());
 		
+	for (int i = 0; i < constraintList.size(); i++) {
+		int constraintId = constraintList.keyAt(i);
+		//Inserting into DB
+		ContentValues values = new ContentValues();
+		values.put(DatabaseCreator.ECO_ID_COMPLEX_CONSTRAINT, constraintId);
+		values.put(DatabaseCreator.ECO_ID_EVENT, eventId);
+		database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_CONSTRAINTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+		System.out.println("Added row in Event-Constraint table - Event: " + eventId + " Constraint: " + constraintId);
 	}
+	}
+
 	
 	// ///////////////////////
 	//
@@ -736,7 +893,7 @@ public final class DatabaseManager {
 	// ///////////////////////
 	
 	/**
-	 * This functions addds the default categories into the GiveMeTime database
+	 * This functions adds the default categories into the GiveMeTime database
 	 */
 	public static void addDefaultCategories(){
 		//Default categories
@@ -837,7 +994,8 @@ public final class DatabaseManager {
 					PLACE_LOCATION_LATITUDE, PLACE_VISIT_COUNTER,
 					PLACE_DATE_CREATED };
 			public static final String[] ECA_ALL = {ECA_NAME, ECA_DEFAULT_DONOTDISTURB, ECA_DEFAULT_MOVABLE, ECA_DEFAULT_CATEGORY};
-
+			public static final String[] CONSTRAINTS_SIMPLE_ALL = {C_SIMPLE_ID_CONSTRAINT, C_SIMPLE_CONSTRAINT_TYPE, C_START, C_END};
+			public static final String[] CONSTRAINT_COMPLEX_ALL = {C_COMPLEX_ID, C_COMPLEX_S_ID};
 			public static int getIndex(String[] projection, String coloumn) {
 				int counter = 0;
 				for (String currentColoumn : projection) {

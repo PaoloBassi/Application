@@ -31,7 +31,7 @@ public class EventDescriptionModel extends EventModel{
 	private int allDay;
 	
 	//GiveMeTime specific attributes
-	private Set<ComplexConstraint> constraints; 
+	private List<ComplexConstraint> constraints; 
 	private PlaceModel place;
 	private Boolean doNotDisturb = false;
 	private Boolean hasDeadline = true;
@@ -46,11 +46,13 @@ public class EventDescriptionModel extends EventModel{
 		startingDateTime = CalendarUtils.longToTime(sTime);
 		endingDateTime = CalendarUtils.longToTime(eTime);
 		listeners = new ArrayList<EventListener<EventDescriptionModel>>();
+		constraints = new ArrayList<ComplexConstraint>();
 	}
 	public EventDescriptionModel(String _id, String _name) {
 		ID = _id;
 		name = _name;
 		listeners = new ArrayList<EventListener<EventDescriptionModel>>();
+		constraints = new ArrayList<ComplexConstraint>();
 	}
 	
 	public String getID() {
@@ -117,11 +119,11 @@ public class EventDescriptionModel extends EventModel{
 		this.color = color;
 	}
 
-	public Set<ComplexConstraint> getConstraints() {
+	public List<ComplexConstraint> getConstraints() {
 		return constraints;
 	}
 
-	public void setConstraints(Set<ComplexConstraint> constraints) {
+	public void setConstraints(List<ComplexConstraint> constraints) {
 		this.constraints = constraints;
 	}
 	
