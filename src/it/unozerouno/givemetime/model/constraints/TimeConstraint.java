@@ -107,8 +107,19 @@ public class TimeConstraint extends Constraint{
 		return isActive(when);		
 	}
 	
+	
+	
+	public Time getStartingTime() {
+		return startingTime;
+	}
+
+	public Time getEndingTime() {
+		return endingTime;
+	}
+
 	@Override
 	public String toString() {
 		return "Start: " + startingTime + " End: " + endingTime;
 	}
+	
 }

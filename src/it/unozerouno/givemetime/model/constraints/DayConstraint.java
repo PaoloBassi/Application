@@ -34,5 +34,14 @@ public class DayConstraint extends Constraint {
 	public Boolean isActive(int when){
 		return ((when >= startingDay) && (when <= endingDay));
 	}
+
+	public int getStartingDay() {
+		return startingDay;
+	}
+
+	public int getEndingDay() {
+		return endingDay;
+	}
+	
 	
 }

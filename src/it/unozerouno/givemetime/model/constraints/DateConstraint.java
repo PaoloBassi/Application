@@ -53,5 +53,15 @@ public class DateConstraint extends Constraint{
 		mWhen.set(mWhen.monthDay, mWhen.month, mWhen.year);
 		return (startingDate.before(mWhen)&&endingDate.after(mWhen));
 	}
+
+	public Time getStartingDate() {
+		return startingDate;
+	}
+
+	public Time getEndingDate() {
+		return endingDate;
+	}
+	
+	
 	
 }

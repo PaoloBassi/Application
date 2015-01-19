@@ -1,5 +1,6 @@
 package it.unozerouno.givemetime.model.events;
 
+import it.unozerouno.givemetime.model.constraints.ComplexConstraint;
 import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
@@ -30,7 +31,7 @@ public class EventDescriptionModel extends EventModel{
 	private int allDay;
 	
 	//GiveMeTime specific attributes
-	private Set<Constraint> constraints; 
+	private Set<ComplexConstraint> constraints; 
 	private PlaceModel place;
 	private Boolean doNotDisturb = false;
 	private Boolean hasDeadline = true;
@@ -116,11 +117,11 @@ public class EventDescriptionModel extends EventModel{
 		this.color = color;
 	}
 
-	public Set<Constraint> getConstraints() {
+	public Set<ComplexConstraint> getConstraints() {
 		return constraints;
 	}
 
-	public void setConstraints(Set<Constraint> constraints) {
+	public void setConstraints(Set<ComplexConstraint> constraints) {
 		this.constraints = constraints;
 	}
 	
