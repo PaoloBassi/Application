@@ -40,4 +40,5 @@
 	    <item>Every Year</item>
 	    <item>Personalize</item>
 	</string-array>
+    <string name="editor_constraints_datepicker_title">Date Constraints</string>
 </resources>

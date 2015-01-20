@@ -39,6 +39,10 @@ public class ComplexConstraint extends Constraint {
 	public List<Constraint> getConstraints() {
 		return constraints;
 	}
+	
+	public void setConstraints(List<Constraint> constraints) {
+		this.constraints = constraints;
+	}
 	public Boolean isActive(Time when){
 		for (Constraint constraint : constraints) {
 			if (constraint instanceof DateConstraint) {
