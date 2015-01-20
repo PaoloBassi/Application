@@ -1195,6 +1195,7 @@ public final class DatabaseManager {
 			while (result.moveToNext()){
 				resultComplexSleepTime = result.getInt(0);
 				}
+			result.close();
 			ComplexConstraint complexSleepTime = getComplexConstraint(resultComplexSleepTime);
 			for (Constraint constraint : complexSleepTime.getConstraints()) {
 				if(constraint instanceof TimeConstraint){
