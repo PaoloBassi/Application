@@ -9,7 +9,7 @@ public class EventCategory {
 	private String name;
 	private boolean default_movable;
 	private boolean default_donotdisturb;
-	private boolean defaultCategory =false;
+	private boolean defaultCategory;
 	/**
 	 * Creates a new Event Category. The parameter "name" cannot be null.
 	 * @param name
@@ -22,6 +22,7 @@ public class EventCategory {
 		this.name = name;
 		this.default_movable = default_movable;
 		this.default_donotdisturb = default_donotdisturb;
+		this.defaultCategory=false;
 	}
 	public String getName() {
 		return name;

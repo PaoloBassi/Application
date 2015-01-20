@@ -356,9 +356,9 @@ public final class DatabaseManager {
 		Cursor eventCursor = database.query(table, projection, where, null, null, null, null);
 		while (eventCursor.moveToNext()){
 			calendarId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_CALENDAR));
-			doNotDisturb = Boolean.parseBoolean(eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DO_NOT_DISTURB)));
-			hasDeadline = Boolean.parseBoolean(eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DEADLINE)));
-			isMovable = Boolean.parseBoolean(eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_MOVABLE)));
+			doNotDisturb = ("1"==eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DO_NOT_DISTURB)));
+			hasDeadline = ("1"==eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DEADLINE)));
+			isMovable = ("1"==eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_MOVABLE)));
 			categoryString = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_EVENT_CATEGORY));
 			placeId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_PLACE));
 		}
@@ -1042,7 +1042,7 @@ public final class DatabaseManager {
 			
 			//TODO: Check if this update policy erases categories from the EVENT_MODEL table when they update
 			Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_CATEGORY, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-			System.out.println("Added default constraint row: " + query);
+			System.out.println("Added default category row: " + query);
 		}
 		
 	}
@@ -1076,8 +1076,8 @@ public final class DatabaseManager {
 				String defaultMovable = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_MOVABLE));
 				String defaultCategory = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_CATEGORY));
 				
-				EventCategory newCategory = new EventCategory(name, Boolean.parseBoolean(defaultMovable), Boolean.parseBoolean(defaultDoNotDisturb));
-				newCategory.setDefaultCategory(Boolean.parseBoolean(defaultCategory));
+				EventCategory newCategory = new EventCategory(name, (defaultMovable.equals("1")), (defaultDoNotDisturb).equals("1"));
+				newCategory.setDefaultCategory((defaultCategory.equals("1")));
 				categories.add(newCategory);
 			}
 		
@@ -1104,8 +1104,8 @@ public final class DatabaseManager {
 				String defaultMovable = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_MOVABLE));
 				String defaultCategory = fetchedCategories.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ECA_DEFAULT_CATEGORY));
 				
-				EventCategory newCategory = new EventCategory(name, Boolean.parseBoolean(defaultMovable), Boolean.parseBoolean(defaultDoNotDisturb));
-				newCategory.setDefaultCategory(Boolean.parseBoolean(defaultCategory));
+				EventCategory newCategory = new EventCategory(name, (defaultMovable.equals("1")), (defaultDoNotDisturb.equals("1")));
+				newCategory.setDefaultCategory((defaultCategory.equals("1")));
 				category=newCategory;
 			}
 		fetchedCategories.close();
