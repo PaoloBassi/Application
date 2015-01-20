@@ -501,7 +501,7 @@ public final class DatabaseManager {
 	public static PlaceModel getPlaceById(String placeId){
 		PlaceModel placeResult = null;
 		String[] projection = DatabaseCreator.Projections.PLACES_ALL;
-		String where = DatabaseCreator.PLACE_ID + " = " + placeId;
+		String where = DatabaseCreator.PLACE_ID + " = "+ "'" + placeId+ "'";
 		Cursor cursor = database.query(DatabaseCreator.TABLE_PLACE_MODEL,
 				projection, where, null, null, null,
 				DatabaseCreator.PLACE_DATE_CREATED + ", "
@@ -891,7 +891,7 @@ public final class DatabaseManager {
 		String placeId =place.getPlaceId();
 		String table = DatabaseCreator.TABLE_OPENING_TIMES;
 		String[] projection = DatabaseCreator.Projections.OT_ALL;
-		String where = DatabaseCreator.OT_PLACE_ID + " = " + placeId;
+		String where = DatabaseCreator.OT_PLACE_ID + " = "+ "'"+ placeId+ "'";
 		ArrayList<Integer> complexConstraintId = new ArrayList<Integer>();
 
 		Cursor queryResult = database.query(table, projection, where, null, null, null, null);
@@ -970,7 +970,7 @@ public final class DatabaseManager {
 	public static void setConstraints(EventDescriptionModel event) {
 		//Removing old constraints
 		 String[] projection = {DatabaseCreator.ECO_ID_COMPLEX_CONSTRAINT};
-		 String where = DatabaseCreator.ECO_ID_EVENT + " = " + event.getID();
+		 String where = DatabaseCreator.ECO_ID_EVENT + " = "+ "'" + event.getID()+ "'";
 		 Cursor queryResult = database.query(DatabaseCreator.TABLE_EVENT_CONSTRAINTS, projection, where, null, null, null, null);
 		 ArrayList<Integer> complexConstraintToRemove = new ArrayList<Integer>();
 		 while (queryResult.moveToNext()){
@@ -1093,7 +1093,7 @@ public final class DatabaseManager {
 		EventCategory category = null;
 		String[] projection = DatabaseCreator.Projections.ECA_ALL;
 		String table = DatabaseCreator.TABLE_EVENT_CATEGORY;
-		String where = DatabaseCreator.ECA_NAME + " = " + categoryName;
+		String where = DatabaseCreator.ECA_NAME + " = " +"'" +categoryName + "'";
 		String orderBy = DatabaseCreator.ECA_DEFAULT_CATEGORY+", "+ DatabaseCreator.ECA_NAME;
 		
 		Cursor fetchedCategories = database.query(table, projection, where, null, null, null, orderBy);
@@ -1112,7 +1112,7 @@ public final class DatabaseManager {
 	}
 	public static void deleteCategory(EventCategory categoryToDelete){
 		String table = DatabaseCreator.TABLE_EVENT_CATEGORY;
-		String where = DatabaseCreator.ECA_NAME + " = " + categoryToDelete.getName();
+		String where = DatabaseCreator.ECA_NAME + " = " + "'" +categoryToDelete.getName() + "'";
 		int deleteQuery = database.delete(table, where, null);
 		System.out.println("Deleted " + deleteQuery + " category rows.");
 	}
@@ -1149,7 +1149,7 @@ public final class DatabaseManager {
 			String resultPlace = "";
 			String table = DatabaseCreator.TABLE_USER_PREFERENCE;
 			String[] projection = {DatabaseCreator.HOME_LOCATION};
-			String where = DatabaseCreator.ACCOUNT + " = " + account;
+			String where = DatabaseCreator.ACCOUNT + " = " + "'"+ account+ "'";
 			
 			Cursor result = database.query(table, projection, where, null, null, null, null);
 			while (result.moveToNext()){
@@ -1189,7 +1189,7 @@ public final class DatabaseManager {
 			int resultComplexSleepTime = -1;
 			String table = DatabaseCreator.TABLE_USER_PREFERENCE;
 			String[] projection = {DatabaseCreator.ID_SLEEP_TIME};
-			String where = DatabaseCreator.ACCOUNT + " = " + account;
+			String where = DatabaseCreator.ACCOUNT + " = " + "'"+ account+ "'";
 			
 			Cursor result = database.query(table, projection, where, null, null, null, null);
 			while (result.moveToNext()){
@@ -1235,7 +1235,7 @@ public final class DatabaseManager {
 		 */
 		public static void removeUserVacationDays(String account){
 			String table = DatabaseCreator.TABLE_VACATION_DAYS;
-			String where = DatabaseCreator.VD_ACCOUNT + " = " + account; 
+			String where = DatabaseCreator.VD_ACCOUNT + " = "+ "'" + account+ "'"; 
 			database.delete(table, where, null);
 		}
 		/**
@@ -1244,7 +1244,7 @@ public final class DatabaseManager {
 		 */
 		public static List<ComplexConstraint> getVacationDays(String account){
 			String table = DatabaseCreator.TABLE_VACATION_DAYS;
-			String where = DatabaseCreator.VD_ACCOUNT + " = " + account; 
+			String where = DatabaseCreator.VD_ACCOUNT + " = " +  "'"+account+ "'"; 
 			String[] projection = {DatabaseCreator.VD_ID_CONSTRAINT};
 			ArrayList<Integer> resultConstraint = new ArrayList<Integer>();
 			ArrayList<ComplexConstraint> results = new ArrayList<ComplexConstraint>();
@@ -1290,7 +1290,7 @@ public final class DatabaseManager {
 		 */
 		public static List<ComplexConstraint> getUserWorkTimetable(String account){
 			String table = DatabaseCreator.TABLE_WORK_TIMETABLE;
-			String where = DatabaseCreator.WT_ACCOUNT + " = " + account; 
+			String where = DatabaseCreator.WT_ACCOUNT + " = "+ "'" + account+ "'"; 
 			String[] projection = {DatabaseCreator.WT_ID_CONSTRAINT};
 			ArrayList<Integer> resultConstraint = new ArrayList<Integer>();
 			ArrayList<ComplexConstraint> results = new ArrayList<ComplexConstraint>();
@@ -1315,7 +1315,7 @@ public final class DatabaseManager {
 		 */
 		public static void removeUserWorkTimetable(String account){
 			String table = DatabaseCreator.TABLE_WORK_TIMETABLE;
-			String where = DatabaseCreator.WT_ACCOUNT + " = " + account; 
+			String where = DatabaseCreator.WT_ACCOUNT + " = " + "'"+ account+ "'"; 
 			database.delete(table, where, null);
 		}
 		// /////////////////////////////
