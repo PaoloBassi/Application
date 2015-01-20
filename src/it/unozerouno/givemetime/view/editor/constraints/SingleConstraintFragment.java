@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import com.google.android.gms.internal.cu;
+import com.google.android.gms.internal.da;
 import com.google.android.gms.internal.di;
 
 import it.unozerouno.givemetime.R;
@@ -14,6 +15,8 @@ import it.unozerouno.givemetime.model.constraints.Constraint;
 import it.unozerouno.givemetime.model.constraints.DateConstraint;
 import it.unozerouno.givemetime.model.constraints.DayConstraint;
 import it.unozerouno.givemetime.model.constraints.TimeConstraint;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.editor.constraints.DoubleDatePickerDialog.OnConstraintSelectedListener;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Fragment;
@@ -83,19 +86,22 @@ public class SingleConstraintFragment extends Fragment {
 				if(position==1){
 					Time now = new Time();
 					now.setToNow();
-					//Showing the starting date picker
-					new DatePickerDialog(getActivity(), new OnDateSetListener() {
+					
+					DoubleDatePickerDialog datePickerDialog = new DoubleDatePickerDialog(new OnConstraintSelectedListener() {
 						
 						@Override
-						public void onDateSet(DatePicker view, int year, int monthOfYear,
-								int dayOfMonth) {
-							//Creating and adding the constraint
-							Time selectedStart = new Time();
-							selectedStart.set(dayOfMonth, monthOfYear, year);
-							//TODO: kill this
+						void onDateSelected(Time startTime, Time endTime) {
+							timeConstraint = new TimeConstraint(startTime, endTime);
+							GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
+							
 						}
-					}, now.year, now.month, now.monthDay).show();
-					
+
+						@Override
+						void dateNotSelected() {
+							dateSpinner.setSelection(0);							
+						}
+					});
+					datePickerDialog.show(getFragmentManager(), getTag());
 				
 				}
 			}
