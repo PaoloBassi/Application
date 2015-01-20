@@ -79,4 +79,24 @@ public class CalendarUtils {
 			time.hour += 1;
 		}
 	}
+	
+	/**
+	 * return the string representation of a week day in number (1-7), using the first two uppercase letters of each day 
+	 * @param weekDay the week day number representation, starting from 1 = Monday to 7 = Sunday
+	 * @return the string representation of the day, "MO", "TU", "WE", "TH, "FR", "SA", "SU"
+	 */
+	public static String weekDayNumberToString(int weekDay){
+		switch (weekDay) {
+			case 1: return "MO";
+			case 2: return "TU";
+			case 3: return "WE";
+			case 4: return "TH";
+			case 5: return "FR";
+			case 6: return "SA";
+			case 7: return "SU";
+			default:
+				break;
+		}
+		return "ERROR";
+	}
 }

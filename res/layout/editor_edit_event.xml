@@ -94,6 +94,21 @@
 	             android:layout_height="1dp"
 	             android:background="#c0c0c0"/>
 			 
+			 <Spinner 
+			     android:id="@+id/recursive_spinner"
+			     android:layout_width="match_parent"
+			     android:layout_height="wrap_content"
+			     android:layout_margin="10dp"
+			     />
+			 
+			 <View
+			     android:layout_marginTop="10dp"
+			     android:layout_margin="10dp"
+			     android:layout_marginBottom="10dp"
+	             android:layout_width="fill_parent"
+	             android:layout_height="1dp"
+	             android:background="#c0c0c0"/>
+			 
 			<Switch
 			    android:id="@+id/editor_edit_event_switch_allday"
 			    android:layout_margin="10dp"

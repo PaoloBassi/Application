@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.ical.values.RRule;
+
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.UserKeyRing;
@@ -67,6 +69,7 @@ public class EventEditorActivity extends Activity{
 	private Time end;
 	private String categoryName;
 	private List<String> items; 
+	private EventCategory selectedCategory;
 	
 	public void setStart(Time start) {
 		this.start = start;
@@ -137,13 +140,18 @@ public class EventEditorActivity extends Activity{
 		 startHourTextView = (TextView) findViewById(R.id.start_hour_textview);
 		 endHourTextView = (TextView) findViewById(R.id.end_hour_textview);
 		 middleBar = (View) findViewById(R.id.bottom_day_top_hour_bar);
+		 spinnerRepetition = (Spinner) findViewById(R.id.recursive_spinner);
 		 
 		 switchAllDay = (Switch) findViewById(R.id.editor_edit_event_switch_allday);
-		 // TODO view for repeating events
 		 switchIsMovable = (Switch) findViewById(R.id.editor_edit_event_switch_ismovable);
+		 switchDoNotDisturb = (Switch) findViewById(R.id.editor_edit_event_switch_donotdisturb);
 		 fragmentConstraints = (ConstraintsFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_constraints_container);
 		 
-		 // set the spinner
+		 ArrayAdapter<CharSequence> spinnerAdapterRepetition = ArrayAdapter.createFromResource(getBaseContext(), R.array.Repetitions, android.R.layout.simple_spinner_item);
+		 spinnerAdapterRepetition.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		 spinnerRepetition.setAdapter(spinnerAdapterRepetition);
+		 
+		 // set the category spinner
 		 spinnerCategory = (Spinner) findViewById(R.id.category_spinner);
 		 // retrieve the name of all categories
 		 items = new ArrayList<String>();
@@ -159,8 +167,9 @@ public class EventEditorActivity extends Activity{
 		 // set the first item in the list as first selection
 		 spinnerCategory.setSelection(0);
 		 categoryName = (String) spinnerCategory.getItemAtPosition(0);
+		 switchDoNotDisturb.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_donotdisturb());
+		 switchIsMovable.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_movable());
 		 
-		 switchDoNotDisturb = (Switch) findViewById(R.id.editor_edit_event_switch_donotdisturb);
 		 buttonCancel = (Button) findViewById(R.id.editor_edit_event_btn_cancel);
 		 buttonSave = (Button) findViewById(R.id.editor_edit_event_btn_save);
 	}
@@ -247,9 +256,11 @@ public class EventEditorActivity extends Activity{
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
-				// if the position is not the last, save the name of the category
+				// if the position is not the last, save the name of the category and load the switch values associated
 				if (position != (items.size() - 1)){
 					categoryName = items.get(position);
+					switchDoNotDisturb.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_donotdisturb());
+					switchIsMovable.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_movable());
 				} else {
 					// TODO creation of new category
 				}
@@ -353,14 +364,15 @@ public class EventEditorActivity extends Activity{
 		//TODO: Complete this function
 		//Here update all data on the EventDescriptionModel and EventInstanceModel
 		if(editOrNew.equals("New")){
-			// here goes the event creation model
 			EventDescriptionModel newEvent = new EventDescriptionModel("", editEventTitle.getText().toString(), start.toMillis(false), end.toMillis(false));
 			newEvent.setCalendarId(UserKeyRing.getCalendarId(this));
 			// retrieve the name of the category selected and the default data of the switch associated
-			EventCategory selectedCategory = DatabaseManager.getCategoryByName(categoryName);
+			selectedCategory = DatabaseManager.getCategoryByName(categoryName);
 			// check if it is a default category
 			if (selectedCategory.isDefaultCategory()){
 				newEvent.setCategory(selectedCategory);
+				switchDoNotDisturb.setChecked(selectedCategory.isDefault_donotdisturb());
+				switchIsMovable.setChecked(selectedCategory.isDefault_movable());
 			} else {
 				// TODO do other things with non default categories
 			}
@@ -368,10 +380,16 @@ public class EventEditorActivity extends Activity{
 			// create the relative instance of the Event
 			eventToAdd = new EventInstanceModel(newEvent, start, end);
 			// if the event is recursive, set the duration
-			eventToAdd.setStartingTime();
-			//TODO: Here we are creating a new event on Calendar, so we have to ask the CalendarFetcher to create the new event 
-			DatabaseManager.addEvent(this, eventToAdd);
+			if (!spinnerRepetition.getSelectedItem().equals("Do not repeat")){
+				// set the RRULE to let googleCalendar display the view
+				eventToAdd.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), start, end);
+				// TODO: handle the personalize choice
+				eventToAdd.setStartingTime();
+				
+			}
 			
+			// finally add the event to the db 
+			DatabaseManager.addEvent(this, eventToAdd);
 		} else {
 			//Here we are updating an existing event
 			

@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.google.ical.values.DateValue;
+import com.google.ical.values.Frequency;
+import com.google.ical.values.RRule;
+import com.google.ical.values.Weekday;
+import com.google.ical.values.WeekdayNum;
+
 import android.location.Location;
 import android.text.format.Time;
 /**
@@ -103,6 +109,32 @@ public class EventDescriptionModel extends EventModel{
 		RRULE = rRULE;
 	}
 
+	/**
+	 * set the RRULE according to the selected item in the repetition spinner
+	 * The basic RRULE to use is composed by FREQ, WKST, BYDAY, UNTIL (if the event has an end)
+	 * To simplify the examples, the week always starts in monday (MO)
+	 * @param selectedItem
+	 */
+	
+	public void setRRULE(Object selectedItem, Time start, Time end){
+		CharSequence selection = (CharSequence)selectedItem;
+		if (selection.equals("Every Day")){
+			String FREQ = "DAILY";
+			String WKST = "MO";
+			String UNTIL = end.format2445();
+			RRULE = "FREQ=" + FREQ + ";"  + "UNTIL=" + UNTIL + ";" + "WKST=" + WKST;
+			System.out.println("My RRULE " + RRULE);
+		} else if (selection.equals("Every Week")){
+			
+		} else if (selection.equals("Every Month")){
+			
+		} else if (selection.equals("Every Year")){
+			
+		} else {
+			// TODO handle personalize choices
+		}
+	}
+	
 	public String getRDATE() {
 		return RDATE;
 	}
