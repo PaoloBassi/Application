@@ -1,5 +1,9 @@
 package it.unozerouno.givemetime.view.editor;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.UserKeyRing;
@@ -12,11 +16,6 @@ import it.unozerouno.givemetime.view.utilities.DayEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeStartPickerFragment;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -361,8 +360,7 @@ public class EventEditorActivity extends Activity{
 			EventCategory selectedCategory = DatabaseManager.getCategoryByName(categoryName);
 			// check if it is a default category
 			if (selectedCategory.isDefaultCategory()){
-				EventCategory category = new EventCategory(categoryName, selectedCategory.isDefault_movable(), selectedCategory.isDefault_donotdisturb());
-				newEvent.setCategory(category);
+				newEvent.setCategory(selectedCategory);
 			} else {
 				// TODO do other things with non default categories
 			}
@@ -373,6 +371,7 @@ public class EventEditorActivity extends Activity{
 			eventToAdd.setStartingTime();
 			//TODO: Here we are creating a new event on Calendar, so we have to ask the CalendarFetcher to create the new event 
 			DatabaseManager.addEvent(this, eventToAdd);
+			
 		} else {
 			//Here we are updating an existing event
 			
@@ -423,5 +422,5 @@ public class EventEditorActivity extends Activity{
 		spinnerEndTime.setText(CalendarUtils.formatHour(end.hour, end.minute));
 	}
 	
-
+	
 }

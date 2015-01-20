@@ -286,6 +286,7 @@ public final class DatabaseManager {
 				String addedEventId = results[0][0];
 				System.out.println("Event added with id " + addedEventId);
 				addEventInDatabase(addedEventId, newEvent);
+				
 			}
 
 		});
