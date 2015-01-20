@@ -1,9 +1,5 @@
 package it.unozerouno.givemetime.view.editor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.UserKeyRing;
@@ -16,6 +12,11 @@ import it.unozerouno.givemetime.view.utilities.DayEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeStartPickerFragment;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -422,5 +423,5 @@ public class EventEditorActivity extends Activity{
 		spinnerEndTime.setText(CalendarUtils.formatHour(end.hour, end.minute));
 	}
 	
-	
+
 }
