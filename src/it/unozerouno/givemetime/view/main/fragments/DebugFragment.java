@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.view.main.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.model.events.EventCategory;
 import it.unozerouno.givemetime.view.editor.LocationEditorActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
