@@ -279,6 +279,21 @@ public class EventEditorActivity extends Activity{
 				EventEditorActivity.this.finish();
 			}
 		});
+		
+		//Setting isMovable switch behaviour
+			switchIsMovable.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					// if all day events, disable all the others
+					 if (!switchIsMovable.isChecked()){
+						hideFragment(fragmentConstraints);
+					 } else {
+						 showFragment(fragmentConstraints);
+					 }
+					
+				}
+			});
 	}
 
 	/**
@@ -386,7 +401,7 @@ public class EventEditorActivity extends Activity{
 		FragmentManager fm = getFragmentManager();
 		fm.beginTransaction()
 		          .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-		          .show(fragmentLocations)
+		          .show(fragment)
 		          .commit();
 	}
 	

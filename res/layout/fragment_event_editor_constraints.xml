@@ -3,6 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
+
+    <fragment
+        android:id="@+id/constraint_default_fragment"
+        android:name="it.unozerouno.givemetime.view.editor.constraints.SingleConstraintFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
