@@ -26,25 +26,29 @@ import android.provider.Settings.System;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class SingleConstraintFragment extends Fragment {
 	TextView selectedDayText;
 	TextView selectedDateText;
 	TextView selectedTimeText;
-	Spinner daySpinner;
-	Spinner dateSpinner;
-	Spinner timeSpinner;
-	ArrayAdapter<String> spinnerAdapter; 
-	Button addBtn;
+	ToggleButton timeButton;
+	ToggleButton dateButton;
+	ToggleButton dayButton;
+	OnRemoveButtonClickedListener listener;
+	
 	Button removeBtn;
 	//Single constraints, they are copies of the ones retrieved from complex constraint
 	TimeConstraint timeConstraint;
@@ -56,150 +60,144 @@ public class SingleConstraintFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_constraint_single_fragment, container);
-		dateSpinner = (Spinner)view.findViewById(R.id.editor_constraint_single_spinner_date);
-		daySpinner = (Spinner)view.findViewById(R.id.editor_constraint_single_spinner_day);
-		timeSpinner = (Spinner)view.findViewById(R.id.editor_constraint_single_spinner_time);
-		addBtn = (Button) view.findViewById(R.id.editor_constraint_single_btn_add);
+		View view = inflater.inflate(R.layout.editor_constraint_single_fragment, null);
+		dateButton = (ToggleButton)view.findViewById(R.id.editor_constraint_single_button_date);
+		dayButton = (ToggleButton)view.findViewById(R.id.editor_constraint_single_button_day);
+		timeButton = (ToggleButton)view.findViewById(R.id.editor_constraint_single_button_time);
 		removeBtn = (Button) view.findViewById(R.id.editor_constraint_single_btn_remove);
 		selectedDayText= (TextView) view.findViewById(R.id.editor_constraint_single_selected_day);
 		selectedDateText= (TextView) view.findViewById(R.id.editor_constraint_single_selected_date);
 		selectedTimeText= (TextView) view.findViewById(R.id.editor_constraint_single_selected_time);
-		initializeSpinners();
+		if (complexConstraint != null) setConstraint(complexConstraint);
+		initializeButtons();
 		return view;
 	}
-	private void initializeSpinners(){
-		String[] values = {"Ever","Edit.."};
-		spinnerAdapter= new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item,values);
-		spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		dateSpinner.setAdapter(spinnerAdapter);
-		timeSpinner.setAdapter(spinnerAdapter);
-		daySpinner.setAdapter(spinnerAdapter);
-		
-		dateSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
+	
+	
+	public void setListener (OnRemoveButtonClickedListener listener){
+		this.listener = listener;
+	}
+	
+	private void initializeButtons(){
+		dateButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View view,
-					int position, long id) {
-				if(position==0){
-					dateConstraint = null;
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked){
+					showDateDialog();
 				}
-				if(position==1){
-					Time now = new Time();
-					now.setToNow();
-					
-					DoubleDatePickerDialog datePickerDialog = new DoubleDatePickerDialog(new DoubleDatePickerDialog.OnConstraintSelectedListener() {
-						
-						@Override
-						void onDateSelected(Time startTime, Time endTime) {
-							dateConstraint = new DateConstraint(startTime, endTime);
-							GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
-							updateText();
-						}
-
-						@Override
-						void dateNotSelected() {
-							dateSpinner.setSelection(0);							
-						}
-					});
-					datePickerDialog.show(getFragmentManager(), getTag());
+				else{
+					dateConstraint=null;
+					updateText();
+				}
 				
-				}
 			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				Toast.makeText(SingleConstraintFragment.this.getActivity(), "Nothing selected", Toast.LENGTH_SHORT).show();				
-			}
-
 		});
-		
-		timeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
+		dayButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View view,
-					int position, long id) {
-				if(position==0){
-					timeConstraint = null;
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked){
+					showDayDialog();
 				}
-				if(position==1){
-					Time now = new Time();
-					now.setToNow();
-					
-					DoubleTimePickerDialog timePickerDialog = new DoubleTimePickerDialog(new DoubleTimePickerDialog.OnConstraintSelectedListener() {
-						
-						@Override
-						void onTimeSelected(Time startTime, Time endTime) {
-							timeConstraint = new TimeConstraint(startTime, endTime);
-							GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
-							updateText();
-						}
-
-						@Override
-						void timeNotSelected() {
-							timeSpinner.setSelection(0);							
-						}
-					});
-					timePickerDialog.show(getFragmentManager(), getTag());
+				else{
+					dayConstraint=null;
+					updateText();
+				}
 				
-				}
 			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				Toast.makeText(SingleConstraintFragment.this.getActivity(), "Nothing selected", Toast.LENGTH_SHORT).show();				
-			}
-
 		});
-
-		daySpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
+		timeButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View view,
-					int position, long id) {
-				if(position==0){
-					dayConstraint = null;
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked){
+					showTimeDialog();
 				}
-				if(position==1){
-					
-					DoubleDayPickerDialog dayPickerDialog = new DoubleDayPickerDialog(new DoubleDayPickerDialog.OnConstraintSelectedListener() {
-						
-						@Override
-						void onDaySelected(int startDay, int endDay) {
-							dayConstraint = new DayConstraint(startDay, endDay);
-							GiveMeLogger.log("Got start: " + startDay + " end: " + endDay);
-							updateText();
-						}
-
-						@Override
-						void dayNotSelected() {
-							daySpinner.setSelection(0);							
-						}
-					});
-					dayPickerDialog.show(getFragmentManager(), getTag());
+				else{
+					timeConstraint=null;
+					updateText();
+				}
 				
-				}
 			}
-
+		});
+		removeBtn.setOnClickListener(new OnClickListener() {
+			
 			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				Toast.makeText(SingleConstraintFragment.this.getActivity(), "Nothing selected", Toast.LENGTH_SHORT).show();				
+			public void onClick(View v) {
+				listener.onRemoveButtonClicked(SingleConstraintFragment.this);				
 			}
-
 		});
 	}
 	
+	private void showDateDialog(){
+		DoubleDatePickerDialog datePickerDialog = new DoubleDatePickerDialog(new DoubleDatePickerDialog.OnConstraintSelectedListener() {
+			
+			@Override
+			void onDateSelected(Time startTime, Time endTime) {
+				dateConstraint = new DateConstraint(startTime, endTime);
+				GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
+				updateText();
+			}
+
+			@Override
+			void dateNotSelected() {
+				dateButton.setChecked(false);							
+			}
+		});
+		datePickerDialog.show(getFragmentManager(), getTag());
+	}
+	private void showDayDialog(){
+		DoubleDayPickerDialog dayPickerDialog = new DoubleDayPickerDialog(new DoubleDayPickerDialog.OnConstraintSelectedListener() {
+			
+			@Override
+			void onDaySelected(int startDay, int endDay) {
+				dayConstraint = new DayConstraint(startDay, endDay);
+				GiveMeLogger.log("Got start: " + startDay + " end: " + endDay);
+				updateText();
+			}
+
+			@Override
+			void dayNotSelected() {
+				dayButton.setChecked(false);						
+			}
+		});
+		dayPickerDialog.show(getFragmentManager(), getTag());
+	}
+	private void showTimeDialog(){
+
+		DoubleTimePickerDialog timePickerDialog = new DoubleTimePickerDialog(new DoubleTimePickerDialog.OnConstraintSelectedListener() {
+			
+			@Override
+			void onTimeSelected(Time startTime, Time endTime) {
+				timeConstraint = new TimeConstraint(startTime, endTime);
+				GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
+				updateText();
+			}
+
+			@Override
+			void timeNotSelected() {
+				timeButton.setChecked(false);							
+			}
+		});
+		timePickerDialog.show(getFragmentManager(), getTag());
+	}
+	
 	public void setConstraint(ComplexConstraint constraint){
+		if (constraint==null) complexConstraint = new ComplexConstraint();
 		this.complexConstraint = constraint;
 		for (Constraint currentConstraint : constraint.getConstraints()) {
 			if (currentConstraint instanceof DayConstraint){
 				dayConstraint = ((DayConstraint)currentConstraint).clone();
+				dayButton.setChecked(true);
 			}
 			if (currentConstraint instanceof DateConstraint){
 				dateConstraint = ((DateConstraint)currentConstraint).clone();
+				dateButton.setChecked(true);
 			}
 			if (currentConstraint instanceof TimeConstraint){
 				timeConstraint = ((TimeConstraint)currentConstraint).clone();
+				timeButton.setChecked(true);
 			}
 		}
 		updateText();
@@ -270,5 +268,7 @@ public class SingleConstraintFragment extends Fragment {
 	}
 	
 		
-	
+	public static abstract class OnRemoveButtonClickedListener{
+		public abstract void onRemoveButtonClicked(SingleConstraintFragment fragment);
+	}
 }

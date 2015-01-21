@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/constraint_container"
+    
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
-	
-    <fragment
-        android:id="@+id/constraint_default_fragment"
-        android:name="it.unozerouno.givemetime.view.editor.constraints.SingleConstraintFragment"
+
+    <LinearLayout
+    	android:id="@+id/constraint_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+    </LinearLayout>
 
 </LinearLayout>
