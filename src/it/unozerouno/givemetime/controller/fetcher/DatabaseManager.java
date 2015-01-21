@@ -340,7 +340,7 @@ public final class DatabaseManager {
 	 * @param eventToLoad
 	 * @return
 	 */
-	private EventDescriptionModel loadEventFromDatabase (EventDescriptionModel eventToLoad){
+	public static EventDescriptionModel loadEventFromDatabase (EventDescriptionModel eventToLoad){
 		int eventIdToLoad = Integer.parseInt(eventToLoad.getID());
 		List<ComplexConstraint> constraints;
 		String calendarId ="";

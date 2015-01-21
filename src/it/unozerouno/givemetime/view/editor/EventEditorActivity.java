@@ -63,14 +63,15 @@ public class EventEditorActivity extends Activity{
 	private Switch switchDoNotDisturb;
 	private Button buttonCancel;
 	private Button buttonSave;
-	private Time now = new Time();
 	private Time start;
 	private Time end;
 	private String categoryName;
 	private List<String> items; 
 	private EventCategory selectedCategory;
-	private EventDescriptionModel newEvent;
+	private EventDescriptionModel eventToEdit;
 	private EventInstanceModel eventToAdd;
+	private String eventID;
+	private String eventName;
 	
 	public void setStart(Time start) {
 		this.start = start;
@@ -108,7 +109,7 @@ public class EventEditorActivity extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.editor_edit_event);
-		// set the title
+		// set the title of the activity
 		editOrNew = getIntent().getStringExtra("EditOrNew");
 		if (editOrNew.equals("New")){
 			this.setTitle("New Event");
@@ -327,15 +328,29 @@ public class EventEditorActivity extends Activity{
 				end.hour = 0;
 			}
 			// create a description model in order to load the constraint fragment
-			newEvent = new EventDescriptionModel("", editEventTitle.getText().toString());
+			eventToEdit = new EventDescriptionModel("", editEventTitle.getText().toString());
 			// set data inside the spinner
 			setSpinnerData(start, end);
 			// get the constraint list associated to the event
-			fragmentConstraints.setConstraintList(newEvent.getConstraints());
+			fragmentConstraints.setConstraintList(eventToEdit.getConstraints());
 			
 		} else {
-			// if this activity is called for editing an event
-			editEventTitle.setText(getIntent().getStringExtra("Title"));
+			// retrieve the id of the event to be edited
+			eventID = getIntent().getStringExtra("EventID");
+			eventName = getIntent().getStringExtra("EventName");
+			// obtain the event description in the db
+			eventToEdit = DatabaseManager.loadEventFromDatabase(new EventDescriptionModel(eventID, eventName));
+			// set all the information obtained on the view
+			editEventTitle.setText(eventToEdit.getName());
+			editEventLocation.setText(eventToEdit.getPlace().getName());
+			spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
+			switchDeadline.setChecked(eventToEdit.getHasDeadline());
+			// check if the event has repetitions
+			if (eventToEdit.isRecursive()){
+				//TODO set spinner repetition with correct text
+			} else {
+				spinnerRepetition.setSelection(0); // it the no repetition choice
+			}
 			// check if it is an all day event
 			int i = getIntent().getIntExtra("AllDayEvent", 0);
 			boolean isAllDay;
@@ -352,15 +367,10 @@ public class EventEditorActivity extends Activity{
 			} else {
 				setSpinnerVisibility(View.GONE);
 			}
+			setSpinnerData(eventToEdit.getSeriesStartingDateTime(), eventToEdit.getSeriesEndingDateTime());
 			
-			// retrieve day and hour informations
-			now.setToNow();
-			long nowInMillis = now.toMillis(false);
-			long startTimeInMillis = getIntent().getLongExtra("StartTime", nowInMillis);
-			long endTimeInMillis = getIntent().getLongExtra("EndTime", nowInMillis);
-			start = CalendarUtils.longToTime(startTimeInMillis);
-			end = CalendarUtils.longToTime(endTimeInMillis);
-			setSpinnerData(start, end);
+			switchIsMovable.setChecked(eventToEdit.getIsMovable());
+			switchDoNotDisturb.setChecked(eventToEdit.getDoNotDisturb());
 		}
 	}
 	
@@ -369,16 +379,16 @@ public class EventEditorActivity extends Activity{
 		//Here update all data on the EventDescriptionModel and EventInstanceModel
 		if(editOrNew.equals("New")){
 			// set the (probably) new title, start and ending time of the event
-			newEvent.setName(editEventTitle.getText().toString());
-			newEvent.setSeriesStartingDateTime(start);
-			newEvent.setSeriesEndingDateTime(end);
+			eventToEdit.setName(editEventTitle.getText().toString());
+			eventToEdit.setSeriesStartingDateTime(start);
+			eventToEdit.setSeriesEndingDateTime(end);
 			
-			newEvent.setCalendarId(UserKeyRing.getCalendarId(this));
+			eventToEdit.setCalendarId(UserKeyRing.getCalendarId(this));
 			// retrieve the name of the category selected and the default data of the switch associated
 			selectedCategory = DatabaseManager.getCategoryByName(categoryName);
 			// check if it is a default category
 			if (selectedCategory.isDefaultCategory()){
-				newEvent.setCategory(selectedCategory);
+				eventToEdit.setCategory(selectedCategory);
 				switchDoNotDisturb.setChecked(selectedCategory.isDefault_donotdisturb());
 				switchIsMovable.setChecked(selectedCategory.isDefault_movable());
 			} else {
@@ -386,7 +396,7 @@ public class EventEditorActivity extends Activity{
 			}
 			// TODO: set all other data that we have
 			// create the relative instance of the Event
-			eventToAdd = new EventInstanceModel(newEvent, start, end);
+			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
 			// if the event is recursive, set the duration
 			if (!spinnerRepetition.getSelectedItem().equals("Do not repeat")){
 				// set the RRULE to let googleCalendar display the view
@@ -395,7 +405,7 @@ public class EventEditorActivity extends Activity{
 				eventToAdd.setStartingTime();
 			}
 			// set the constraint List inside the event
-			newEvent.setConstraints(fragmentConstraints.getConstraintList());
+			eventToEdit.setConstraints(fragmentConstraints.getConstraintList());
 			
 			// finally add the event to the db 
 			DatabaseManager.addEvent(this, eventToAdd);
