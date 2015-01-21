@@ -117,6 +117,13 @@ public class ComplexConstraint extends Constraint {
 		}
 		return constraintList;
 	}
-	
+	@Override
+	public String toString() {
+		StringBuffer string = new StringBuffer();
+		for (Constraint constraint : constraints) {
+			string.append(constraint.toString() + " ");
+		}
+		return string.toString();
+	}
 }
 

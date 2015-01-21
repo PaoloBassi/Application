@@ -46,10 +46,12 @@ public class SingleConstraintFragment extends Fragment {
 	ArrayAdapter<String> spinnerAdapter; 
 	Button addBtn;
 	Button removeBtn;
-	ComplexConstraint constraintToShow;
+	//Single constraints, they are copies of the ones retrieved from complex constraint
 	TimeConstraint timeConstraint;
 	DayConstraint dayConstraint;
 	DateConstraint dateConstraint;
+	//Constraint passed from EventEditor, or a new constraint to be created
+	ComplexConstraint complexConstraint;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,7 +66,6 @@ public class SingleConstraintFragment extends Fragment {
 		selectedDateText= (TextView) view.findViewById(R.id.editor_constraint_single_selected_date);
 		selectedTimeText= (TextView) view.findViewById(R.id.editor_constraint_single_selected_time);
 		initializeSpinners();
-		constraintToShow = new ComplexConstraint();
 		return view;
 	}
 	private void initializeSpinners(){
@@ -87,13 +88,13 @@ public class SingleConstraintFragment extends Fragment {
 					Time now = new Time();
 					now.setToNow();
 					
-					DoubleDatePickerDialog datePickerDialog = new DoubleDatePickerDialog(new OnConstraintSelectedListener() {
+					DoubleDatePickerDialog datePickerDialog = new DoubleDatePickerDialog(new DoubleDatePickerDialog.OnConstraintSelectedListener() {
 						
 						@Override
 						void onDateSelected(Time startTime, Time endTime) {
-							timeConstraint = new TimeConstraint(startTime, endTime);
+							dateConstraint = new DateConstraint(startTime, endTime);
 							GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
-							
+							updateText();
 						}
 
 						@Override
@@ -112,17 +113,106 @@ public class SingleConstraintFragment extends Fragment {
 			}
 
 		});
+		
+		timeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View view,
+					int position, long id) {
+				if(position==0){
+					timeConstraint = null;
+				}
+				if(position==1){
+					Time now = new Time();
+					now.setToNow();
+					
+					DoubleTimePickerDialog timePickerDialog = new DoubleTimePickerDialog(new DoubleTimePickerDialog.OnConstraintSelectedListener() {
+						
+						@Override
+						void onTimeSelected(Time startTime, Time endTime) {
+							timeConstraint = new TimeConstraint(startTime, endTime);
+							GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
+							updateText();
+						}
+
+						@Override
+						void timeNotSelected() {
+							timeSpinner.setSelection(0);							
+						}
+					});
+					timePickerDialog.show(getFragmentManager(), getTag());
+				
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				Toast.makeText(SingleConstraintFragment.this.getActivity(), "Nothing selected", Toast.LENGTH_SHORT).show();				
+			}
+
+		});
+
+		daySpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View view,
+					int position, long id) {
+				if(position==0){
+					dayConstraint = null;
+				}
+				if(position==1){
+					
+					DoubleDayPickerDialog dayPickerDialog = new DoubleDayPickerDialog(new DoubleDayPickerDialog.OnConstraintSelectedListener() {
+						
+						@Override
+						void onDaySelected(int startDay, int endDay) {
+							dayConstraint = new DayConstraint(startDay, endDay);
+							GiveMeLogger.log("Got start: " + startDay + " end: " + endDay);
+							updateText();
+						}
+
+						@Override
+						void dayNotSelected() {
+							daySpinner.setSelection(0);							
+						}
+					});
+					dayPickerDialog.show(getFragmentManager(), getTag());
+				
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				Toast.makeText(SingleConstraintFragment.this.getActivity(), "Nothing selected", Toast.LENGTH_SHORT).show();				
+			}
+
+		});
 	}
 	
 	public void setConstraint(ComplexConstraint constraint){
-		constraintToShow = constraint;
-		showConstraint();
+		this.complexConstraint = constraint;
+		for (Constraint currentConstraint : constraint.getConstraints()) {
+			if (currentConstraint instanceof DayConstraint){
+				dayConstraint = ((DayConstraint)currentConstraint).clone();
+			}
+			if (currentConstraint instanceof DateConstraint){
+				dateConstraint = ((DateConstraint)currentConstraint).clone();
+			}
+			if (currentConstraint instanceof TimeConstraint){
+				timeConstraint = ((TimeConstraint)currentConstraint).clone();
+			}
+		}
+		updateText();
 	}
+	
+	
+	
 	/**
-	 * This fills the ComplexConstraint with selected constraints 
+	 * Updates the constraints into the ComplexConstraint and returns it
+	 * @return
 	 */
-	private void updateConstraint(){
+	public ComplexConstraint getConstraint(){
+		
 		ArrayList<Constraint> constraintList = new ArrayList<Constraint>();
 		if (dayConstraint!=null){
 			constraintList.add(dayConstraint);
@@ -133,61 +223,52 @@ public class SingleConstraintFragment extends Fragment {
 		if (timeConstraint!=null){
 			constraintList.add(timeConstraint);
 		}
-		constraintToShow.setConstraints(constraintList);
-	}
-	
-	/**
-	 * Updates the constraints into the ComplexConstraint and returns it
-	 * @return
-	 */
-	public ComplexConstraint getConstraint(){
-		updateConstraint();
-		return constraintToShow;
-	}
-	
-	private void showConstraint(){
-		for (Constraint currentConstraint : constraintToShow.getConstraints()) {
-			if (currentConstraint instanceof DayConstraint){
-				DayConstraint constraint = (DayConstraint) currentConstraint;
-				int start = constraint.getStartingDay();
-				int end = constraint.getEndingDay();
-				//TODO: parse numbers to days
-				if (start == end){
-					selectedDayText.setText("On " + start);
-				} else {
-					selectedDayText.setText("From " + start + " to " + end);
-				}
-				
-			}
-			if (currentConstraint instanceof DateConstraint){
-				DateConstraint constraint = (DateConstraint) currentConstraint;
-				Calendar displayer = Calendar.getInstance();
-				Time start = constraint.getStartingDate();
-				Time end = constraint.getEndingDate();
-				displayer.setTimeInMillis(start.toMillis(false));
-				String dayStart = displayer.getDisplayName(Calendar.DATE, Calendar.SHORT, Locale.getDefault());
-				String monthStart = displayer.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault());
-				displayer.setTimeInMillis(end.toMillis(false));
-				
-				String dayEnd = displayer.getDisplayName(Calendar.DATE, Calendar.SHORT, Locale.getDefault());
-				String monthEnd = displayer.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault());
-				selectedDayText.setText("From " + monthStart + " "+ dayStart + " to " + monthEnd+ " " + dayEnd);
-			}
-			if (currentConstraint instanceof TimeConstraint){
-				TimeConstraint constraint = (TimeConstraint) currentConstraint;
-				Calendar displayer = Calendar.getInstance();
-				Time start = constraint.getStartingTime();
-				Time end = constraint.getEndingTime();
-				displayer.setTimeInMillis(start.toMillis(false));
-				String hourStart = displayer.getDisplayName(Calendar.HOUR, Calendar.SHORT, Locale.getDefault());
-				String minStart = displayer.getDisplayName(Calendar.MINUTE, Calendar.SHORT, Locale.getDefault());
-				displayer.setTimeInMillis(end.toMillis(false));
-				
-				String hourEnd = displayer.getDisplayName(Calendar.HOUR, Calendar.SHORT, Locale.getDefault());
-				String minEnd = displayer.getDisplayName(Calendar.MINUTE, Calendar.SHORT, Locale.getDefault());
-				selectedDayText.setText("From " + hourStart + " "+ minStart + " to " + hourEnd+ " " + minEnd);
-			}
+		if (complexConstraint == null){
+			complexConstraint=new ComplexConstraint();
 		}
-	};
+		complexConstraint.setConstraints(constraintList);
+		return complexConstraint;
+	}
+	
+	private void updateText(){
+		if (dayConstraint != null){
+		int start = dayConstraint.getStartingDay();
+		int end = dayConstraint.getEndingDay();
+		//TODO: parse numbers to days
+		if (start == end){
+			selectedDayText.setText("On " + start);
+		} else {
+			selectedDayText.setText("From " + start + " to " + end);
+		}
+		}
+		if(dateConstraint!=null){
+			Calendar displayer = Calendar.getInstance();
+			Time start = dateConstraint.getStartingDate();
+			Time end = dateConstraint.getEndingDate();
+			displayer.setTimeInMillis(start.toMillis(false));
+			String dayStart = displayer.getDisplayName(Calendar.DATE, Calendar.SHORT, Locale.getDefault());
+			String monthStart = displayer.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault());
+			displayer.setTimeInMillis(end.toMillis(false));
+			
+			String dayEnd = displayer.getDisplayName(Calendar.DATE, Calendar.SHORT, Locale.getDefault());
+			String monthEnd = displayer.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault());
+			selectedDayText.setText("From " + monthStart + " "+ dayStart + " to " + monthEnd+ " " + dayEnd);
+		}
+		if(timeConstraint != null){
+			Calendar displayer = Calendar.getInstance();
+			Time start = timeConstraint.getStartingTime();
+			Time end = timeConstraint.getEndingTime();
+			displayer.setTimeInMillis(start.toMillis(false));
+			String hourStart = displayer.getDisplayName(Calendar.HOUR, Calendar.SHORT, Locale.getDefault());
+			String minStart = displayer.getDisplayName(Calendar.MINUTE, Calendar.SHORT, Locale.getDefault());
+			displayer.setTimeInMillis(end.toMillis(false));
+			
+			String hourEnd = displayer.getDisplayName(Calendar.HOUR, Calendar.SHORT, Locale.getDefault());
+			String minEnd = displayer.getDisplayName(Calendar.MINUTE, Calendar.SHORT, Locale.getDefault());
+			selectedDayText.setText("From " + hourStart + " "+ minStart + " to " + hourEnd+ " " + minEnd);
+		}
+	}
+	
+		
 	
 }

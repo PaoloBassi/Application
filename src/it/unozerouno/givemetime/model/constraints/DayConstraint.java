@@ -42,6 +42,14 @@ public class DayConstraint extends Constraint {
 	public int getEndingDay() {
 		return endingDay;
 	}
-	
+	@Override
+	public String toString() {
+		return "from " + startingDay + " to " + endingDay;
+	}
+	@Override
+	public DayConstraint clone() {
+		DayConstraint copy = new DayConstraint(startingDay, endingDay);
+		return copy;
+	}
 	
 }

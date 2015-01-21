@@ -119,7 +119,13 @@ public class TimeConstraint extends Constraint{
 
 	@Override
 	public String toString() {
-		return "Start: " + startingTime + " End: " + endingTime;
+		return "from " + startingTime.hour +":" + startingTime.minute +  " to " +endingTime.hour+":"+endingTime.minute;
 	}
-	
+	@Override
+	public TimeConstraint clone() {
+		Time newStart = new Time(startingTime);
+		Time newEnd = new Time(endingTime);
+		TimeConstraint copy = new TimeConstraint(newStart, newEnd);
+		return copy;
+	}
 }

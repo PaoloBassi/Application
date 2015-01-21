@@ -62,6 +62,17 @@ public class DateConstraint extends Constraint{
 		return endingDate;
 	}
 	
-	
+	@Override
+	public String toString() {
+		return "from" + startingDate.monthDay + "/" + (startingDate.month+1) + "/" + startingDate.year +
+				"to" + endingDate.monthDay + "/" + (endingDate.month+1) + "/" + endingDate.year;
+	}
+	@Override
+	public DateConstraint clone() {
+		Time newStart = new Time(startingDate);
+		Time newEnd = new Time(endingDate);
+		DateConstraint copy = new DateConstraint(newStart, newEnd);
+		return copy;
+	}
 	
 }
