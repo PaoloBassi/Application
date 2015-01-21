@@ -41,7 +41,6 @@ import android.widget.TextView;
 public class EventEditorActivity extends Activity{
 	
 	private String editOrNew;
-	private EventInstanceModel eventToAdd;
 	private ScrollView scrollView;
 	private EditText editEventTitle;
 	private EditText editEventLocation;
@@ -70,6 +69,8 @@ public class EventEditorActivity extends Activity{
 	private String categoryName;
 	private List<String> items; 
 	private EventCategory selectedCategory;
+	private EventDescriptionModel newEvent;
+	private EventInstanceModel eventToAdd;
 	
 	public void setStart(Time start) {
 		this.start = start;
@@ -314,7 +315,6 @@ public class EventEditorActivity extends Activity{
 		//TODO: Here get the event passed by the calendarView.
 		if(editOrNew.equals("New")){
 			//If it is not present, this activity is used as "new event activity"
-			//Using editor as "newEventActivity"
 			editEventTitle.setText("New Event");
 			start = new Time();
 			start.setToNow();
@@ -326,8 +326,12 @@ public class EventEditorActivity extends Activity{
 			} else {
 				end.hour = 0;
 			}
+			// create a description model in order to load the constraint fragment
+			newEvent = new EventDescriptionModel("", editEventTitle.getText().toString());
 			// set data inside the spinner
 			setSpinnerData(start, end);
+			// get the constraint list associated to the event
+			fragmentConstraints.setConstraintList(newEvent.getConstraints());
 			
 		} else {
 			// if this activity is called for editing an event
@@ -364,7 +368,11 @@ public class EventEditorActivity extends Activity{
 		//TODO: Complete this function
 		//Here update all data on the EventDescriptionModel and EventInstanceModel
 		if(editOrNew.equals("New")){
-			EventDescriptionModel newEvent = new EventDescriptionModel("", editEventTitle.getText().toString(), start.toMillis(false), end.toMillis(false));
+			// set the (probably) new title, start and ending time of the event
+			newEvent.setName(editEventTitle.getText().toString());
+			newEvent.setSeriesStartingDateTime(start);
+			newEvent.setSeriesEndingDateTime(end);
+			
 			newEvent.setCalendarId(UserKeyRing.getCalendarId(this));
 			// retrieve the name of the category selected and the default data of the switch associated
 			selectedCategory = DatabaseManager.getCategoryByName(categoryName);
@@ -385,8 +393,9 @@ public class EventEditorActivity extends Activity{
 				eventToAdd.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), start, end);
 				// TODO: handle the personalize choice
 				eventToAdd.setStartingTime();
-				
 			}
+			// set the constraint List inside the event
+			newEvent.setConstraints(fragmentConstraints.getConstraintList());
 			
 			// finally add the event to the db 
 			DatabaseManager.addEvent(this, eventToAdd);

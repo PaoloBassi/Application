@@ -28,7 +28,7 @@ public class ConstraintsFragment extends Fragment{
 			
 		}
 	}
-	public List<ComplexConstraint> getConstrintList(){
+	public List<ComplexConstraint> getConstraintList(){
 		List<ComplexConstraint> newConstraintList = new ArrayList<ComplexConstraint>();
 		for (SingleConstraintFragment singleConstraintFragment : constraintFragments) {
 			ComplexConstraint newConstraint = singleConstraintFragment.getConstraint();
