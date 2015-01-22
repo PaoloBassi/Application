@@ -4,18 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <ScrollView
-        android:id="@+id/editor_edit_event_scroll"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="50"
-        android:paddingLeft="10dp"
-        android:paddingTop="10dp"
-        android:paddingRight="10dp" >
-
-        <LinearLayout
+     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <TextView
@@ -33,22 +24,55 @@
                 android:hint="Insert the Title" >
 
             </EditText>
-            
-			 <EditText
-			     android:id="@+id/editor_edit_text_location"
-			     android:layout_width="match_parent"
-			     android:layout_height="wrap_content"
-			     android:layout_margin="10dp"
-			     android:hint="Insert the Location" >
 
-            </EditText>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/editor_button_location"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:text="Set" />
+
+                <TextView
+                    android:id="@+id/editor_text_location"
+                    android:layout_width="248dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/button1"
+                    android:layout_alignBottom="@+id/button1"
+                    android:layout_alignParentLeft="true"
+                    android:layout_margin="10dp"
+                    android:layout_toLeftOf="@+id/button1"
+                    android:layout_weight="0.20"
+                    android:text="Location not set" />
+
+            </RelativeLayout>
 
 			 <fragment
 			     android:id="@+id/editor_edit_event_fragment_locations_container"
-			     android:name="it.unozerouno.givemetime.view.editor.CommonLocationFragment"
+			     android:name="it.unozerouno.givemetime.view.editor.LocationEditorFragment"
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content" />
+			 </LinearLayout>
+  <ScrollView
+        android:id="@+id/editor_edit_event_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="50"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp" >
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+            
 			 <Spinner 
 			     android:id="@+id/category_spinner"
 			     android:layout_width="match_parent"

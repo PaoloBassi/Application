@@ -2,11 +2,8 @@ package it.unozerouno.givemetime.view.main.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
-import it.unozerouno.givemetime.model.events.EventCategory;
-import it.unozerouno.givemetime.view.editor.LocationEditorActivity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,13 +41,7 @@ public class DebugFragment extends Fragment{
 		Button editCalendarBtn = (Button) v.findViewById(R.id.btn_calendar_view);
 		
 		
-		locationBtn.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-				Intent locationIntent =new Intent(DebugFragment.this.getActivity(), LocationEditorActivity.class);
-				startActivity(locationIntent);
-				}
-		});
+		
 		freetimeBtn.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

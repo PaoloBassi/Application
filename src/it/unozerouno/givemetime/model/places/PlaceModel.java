@@ -37,6 +37,7 @@ public class PlaceModel{
 		this.name = name;
 		this.address = address;
 		this.country = country;
+		openingTime = new ArrayList<ComplexConstraint>();
 	}
 	
 	public PlaceModel(PlaceResult placeResult) {
@@ -44,6 +45,7 @@ public class PlaceModel{
 		this.name = placeResult.getName();
 		this.address = placeResult.getAddress();
 		this.country = placeResult.getCountry();
+		openingTime = new ArrayList<ComplexConstraint>();
 	}
 	
 	

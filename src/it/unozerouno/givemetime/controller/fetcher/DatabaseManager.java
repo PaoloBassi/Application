@@ -440,7 +440,7 @@ public final class DatabaseManager {
 			protected void onPostExecute(PlaceModel result) {
 				super.onPostExecute(result);
 				addPlaceInDatabase(result);
-				listener.updateFinished();
+				listener.updateFinished(result);
 			}
 		};
 		placeFetcher.execute(newPlace);
