@@ -125,11 +125,20 @@ public class EventDescriptionModel extends EventModel{
 			RRULE = "FREQ=" + FREQ + ";"  + "UNTIL=" + UNTIL + ";" + "WKST=" + WKST;
 			System.out.println("My RRULE " + RRULE);
 		} else if (selection.equals("Every Week")){
-			
+			String FREQ = "WEEKLY";
+			String WKST = "MO";
+			String UNTIL = end.format2445();
+			RRULE = "FREQ=" + FREQ + ";"  + "UNTIL=" + UNTIL + ";" + "WKST=" + WKST;
 		} else if (selection.equals("Every Month")){
-			
+			String FREQ = "MONTHLY";
+			String WKST = "MO";
+			String UNTIL = end.format2445();
+			RRULE = "FREQ=" + FREQ + ";"  + "UNTIL=" + UNTIL + ";" + "WKST=" + WKST;
 		} else if (selection.equals("Every Year")){
-			
+			String FREQ = "YEARLY";
+			String WKST = "MO";
+			String UNTIL = end.format2445();
+			RRULE = "FREQ=" + FREQ + ";"  + "UNTIL=" + UNTIL + ";" + "WKST=" + WKST;
 		} else {
 			// TODO handle personalize choices
 		}
