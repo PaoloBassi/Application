@@ -45,7 +45,7 @@
 
 			 <fragment
 			     android:id="@+id/editor_edit_event_fragment_locations_container"
-			     android:name="it.unozerouno.givemetime.view.editor.CommonLocationFragment"
+			     android:name="it.unozerouno.givemetime.view.editor.LocationEditorFragment"
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content" />
 

@@ -29,8 +29,6 @@ public class CommonLocationFragment extends Fragment {
 	private ListView placeView;
 	private ArrayList<PlaceModel> placeList;
 	private LocationsListAdapter listAdapter;
-	private Button addBtn;
-	private Button editBtn;
 	
  @Override
 public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,21 +39,6 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	listAdapter = new LocationsListAdapter(getActivity(), R.layout.element_list_location, placeList);
 	placeView.setAdapter(listAdapter);
 
-	//Button Management
-	addBtn = (Button) view.findViewById(R.id.editor_edit_event_location_btn_add);
-	editBtn = (Button) view.findViewById(R.id.editor_edit_event_location_btn_edit);
-	addBtn.setOnClickListener(new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			// TODO open Location Editor	
-		}
-	});
-	editBtn.setOnClickListener(new OnClickListener() {
-		@Override
-		public void onClick(View v) {
-			// TODO open Location Editor	
-		}
-	});
 	
 	//Fetching known locations
 	fetchCommonLocations();

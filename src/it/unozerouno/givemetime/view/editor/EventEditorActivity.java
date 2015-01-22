@@ -14,6 +14,7 @@ import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
+import it.unozerouno.givemetime.view.editor.LocationEditorFragment.OnSelectedPlaceModelListener;
 import it.unozerouno.givemetime.view.utilities.DayEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
@@ -38,13 +39,13 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
-public class EventEditorActivity extends Activity{
+public class EventEditorActivity extends Activity implements OnSelectedPlaceModelListener{
 	
 	private String editOrNew;
 	private ScrollView scrollView;
 	private EditText editEventTitle;
 	private EditText editEventLocation;
-	private CommonLocationFragment fragmentLocations;
+	private LocationEditorFragment fragmentLocations;
 	private Switch switchDeadline;
 	private TextView textDeadLine;
 	private Switch switchAllDay;
@@ -129,7 +130,7 @@ public class EventEditorActivity extends Activity{
 		 
 		 editEventLocation = (EditText) findViewById(R.id.editor_edit_text_location);
 		 //TODO: get the fragment reference
-		 fragmentLocations = (CommonLocationFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_locations_container);
+		 fragmentLocations = (LocationEditorFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_locations_container);
 		 switchDeadline = (Switch) findViewById(R.id.editor_edit_event_switch_deadline);
 		 textDeadLine = (TextView) findViewById(R.id.editor_edit_event_text_deadline);
 		 
@@ -179,13 +180,7 @@ public class EventEditorActivity extends Activity{
 	private void setUiListeners(){
 		//TODO: Insert listeners for the ui
 		
-		//Passing this reference to the fragments
-		fragmentLocations.setPlaceOnclick(new LocationClickListener() {
-			@Override
-			public void doSomething(PlaceModel placeSelected) {
-				//TODO: Do something with clicked event
-			}
-		});
+		
 		
 		
 		//focusing on location will show the common location fragment
@@ -457,6 +452,12 @@ public class EventEditorActivity extends Activity{
 		spinnerEndDay.setText(end.monthDay + "/" + (end.month + 1) + "/" + end.year);
 		spinnerStartTime.setText(CalendarUtils.formatHour(start.hour, start.minute));
 		spinnerEndTime.setText(CalendarUtils.formatHour(end.hour, end.minute));
+	}
+
+	@Override
+	public void onSelectedPlaceModel(PlaceModel place) {
+		//TODO: Set here the placeModel
+		
 	}
 	
 	
