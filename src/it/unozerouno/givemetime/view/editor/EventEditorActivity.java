@@ -44,7 +44,8 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 	private String editOrNew;
 	private ScrollView scrollView;
 	private EditText editEventTitle;
-	private EditText editEventLocation;
+	private TextView textLocation;
+	private Button buttonLocation;
 	private LocationEditorFragment fragmentLocations;
 	private Switch switchDeadline;
 	private TextView textDeadLine;
@@ -73,6 +74,7 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 	private EventInstanceModel eventToAdd;
 	private String eventID;
 	private String eventName;
+	private PlaceModel selectedPlaceModel;
 	
 	public void setStart(Time start) {
 		this.start = start;
@@ -128,9 +130,11 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 		 scrollView = (ScrollView) findViewById(R.id.editor_edit_event_scroll);
 		 editEventTitle = (EditText) findViewById(R.id.editor_edit_event_text_title);
 		 
-		 editEventLocation = (EditText) findViewById(R.id.editor_edit_text_location);
-		 //TODO: get the fragment reference
+		 textLocation = (TextView) findViewById(R.id.editor_text_location);
+		 //get the fragment reference
 		 fragmentLocations = (LocationEditorFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_locations_container);
+		 buttonLocation = (Button) findViewById(R.id.editor_button_location);
+		 
 		 switchDeadline = (Switch) findViewById(R.id.editor_edit_event_switch_deadline);
 		 textDeadLine = (TextView) findViewById(R.id.editor_edit_event_text_deadline);
 		 
@@ -182,13 +186,10 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 		
 		
 		
-		
-		//focusing on location will show the common location fragment
-		//TODO: Change this listener, we have 2 choices: an autocompletion (with a button to add/edit locations) or make this a button and open a fragment that shows common locations.
-		editEventLocation.setOnClickListener(new OnClickListener() {
+		//Setting Location Button onClick
+		buttonLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//TODO: Show location fragment	
 				showFragment(fragmentLocations);
 			}
 		});
@@ -337,7 +338,7 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 			eventToEdit = DatabaseManager.loadEventFromDatabase(new EventDescriptionModel(eventID, eventName));
 			// set all the information obtained on the view
 			editEventTitle.setText(eventToEdit.getName());
-			editEventLocation.setText(eventToEdit.getPlace().getName());
+			textLocation.setText(eventToEdit.getPlace().getName());
 			spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
 			switchDeadline.setChecked(eventToEdit.getHasDeadline());
 			// check if the event has repetitions
@@ -417,11 +418,6 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 		//EventListFragment.getWeekViewInstance().notifyDatasetChanged();
 	}
 	
-	public void setSelectedPlaceModel(PlaceModel placeSelected){
-		//Hiding the fragment
-		hideFragment(fragmentLocations);
-		//TODO: Set the selected place
-	}
 	private void hideFragment(Fragment fragment){
 		FragmentManager fm = getFragmentManager();
 		fm.beginTransaction()
@@ -456,8 +452,10 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 
 	@Override
 	public void onSelectedPlaceModel(PlaceModel place) {
-		//TODO: Set here the placeModel
-		
+		textLocation.setText(place.getName());
+		hideFragment(fragmentLocations);
+		buttonLocation.setText("Edit");
+		selectedPlaceModel = place;
 	}
 	
 	

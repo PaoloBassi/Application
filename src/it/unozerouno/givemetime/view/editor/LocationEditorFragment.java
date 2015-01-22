@@ -67,12 +67,18 @@ public class LocationEditorFragment extends Fragment {
     }
 	
 	
-	private void addPlaceToFavourites(PlaceResult place){
+	private void addPlaceToFavourites(final PlaceResult place){
 		OnDatabaseUpdatedListener updateListener = new OnDatabaseUpdatedListener() {
 			@Override
-			protected void onUpdateFinished() {
+			protected void onUpdateFinished(Object updatedItem) {
 				//Tell the fragment to update the list
 				fragmentLocationList.fetchCommonLocations();
+				if(updatedItem != null && updatedItem instanceof PlaceModel){
+					PlaceModel newPlace = (PlaceModel) updatedItem;
+					//Selecting the new inserted element
+					mListener.onSelectedPlaceModel(newPlace);
+				}
+				
 			}
 		};
 		DatabaseManager.addPlaceAndFetchInfo(place, updateListener);
