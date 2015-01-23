@@ -101,6 +101,12 @@ public class TimeConstraint extends Constraint{
 			return (startingTime.before(normalizedNow)&&endingTime.after(normalizedNow));
 	}
 	
+	public Boolean isActive(Long when){
+		Time whenTime = new Time();
+		whenTime.set(when);
+		return isActive(whenTime);
+	}
+	
 	public Boolean isActive(int hour, int minute, int second){
 		Time when = new Time();
 		when.set(second, minute, hour, when.monthDay, when.month, when.year);
