@@ -25,14 +25,18 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
 
+	Toolbar toolbar;
+	
     // titles in the drawer
     private String[] titles;
     private DrawerLayout drawerLayout;
@@ -97,9 +101,15 @@ public class MainActivity extends Activity {
         drawerList.setAdapter(adapter);
         
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
-        // set the action bar icons
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+        // set the toolbar 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null){
+        	// set the toolbar as the action bar
+        	setSupportActionBar(toolbar);
+        	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        	getSupportActionBar().setHomeButtonEnabled(true);
+        }
+        
 
         // describe and acquire the drawer toggle
         drawerToggle = new ActionBarDrawerToggle(
@@ -114,7 +124,7 @@ public class MainActivity extends Activity {
             @Override
             public void onDrawerClosed(View drawerView) {
                 // when the drawer is closed, set the activity title in the action bar
-                getActionBar().setTitle(title);
+                //getActionBar().setTitle(title);
                 // create the call to onPrepareOptionMenu()
                 invalidateOptionsMenu();
             }
@@ -123,7 +133,7 @@ public class MainActivity extends Activity {
             @Override
             public void onDrawerOpened(View drawerView) {
                 // when the drawer is opened, set the activity drawer title in the action bar
-                getActionBar().setTitle(drawerTitle);
+                //getActionBar().setTitle(drawerTitle);
                 // create the call to onPrepareOptionMenu()
                 invalidateOptionsMenu();
             }
@@ -214,7 +224,7 @@ public class MainActivity extends Activity {
     @Override
     public void setTitle(CharSequence title) {
         this.title = title;
-        getActionBar().setTitle(this.title);
+        //getActionBar().setTitle(this.title);
     }
 
     // whenever we call the invalidateOptionMenu(), used to disable the action related to the content view

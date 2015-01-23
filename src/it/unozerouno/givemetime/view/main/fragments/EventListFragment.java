@@ -19,6 +19,8 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -32,6 +34,7 @@ import android.widget.Toast;
 
 public class EventListFragment extends Fragment implements MonthChangeListener, EventClickListener, EventLongPressListener{
 	
+	Toolbar toolbar;
 	ListView eventListView;
 	ArrayList<EventInstanceModel> eventList;
 	
@@ -63,6 +66,16 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 		
 		// set long press listeners for events
 		weekView.setEventLongPressListener(this);
+		
+		// set the toolbar 
+        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        if (toolbar != null){
+        	// set the toolbar as the action bar
+        	((ActionBarActivity) getActivity()).setSupportActionBar(toolbar);
+        	((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        	((ActionBarActivity) getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
+        }
+		
 		
 		// intialize event list
        eventList = new ArrayList<EventInstanceModel>();
