@@ -22,7 +22,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -109,37 +109,17 @@ public class MainActivity extends ActionBarActivity {
         	getSupportActionBar().setHomeButtonEnabled(true);
         }
         
-
-        // describe and acquire the drawer toggle
         drawerToggle = new ActionBarDrawerToggle(
-                this,                   // the host activity
-                drawerLayout,           // the drawerLayout
-                R.drawable.ic_drawer,   // drawer icon to replace the 'Up'
-                R.string.drawer_open,   // "open drawer" for accessibility
-                R.string.drawer_close   // "close drawer" for accessibility
-        ){
-
-            // called when the drawer is closed
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                // when the drawer is closed, set the activity title in the action bar
-                //getActionBar().setTitle(title);
-                // create the call to onPrepareOptionMenu()
-                invalidateOptionsMenu();
-            }
-
-            // called when the drawer is open
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                // when the drawer is opened, set the activity drawer title in the action bar
-                //getActionBar().setTitle(drawerTitle);
-                // create the call to onPrepareOptionMenu()
-                invalidateOptionsMenu();
-            }
-        };
-
+        		this,
+        		drawerLayout,
+        		toolbar,
+        		R.string.drawer_open,
+        		R.string.drawer_close);
+        
         // set the prepared drawer toggle as the drawer listener
         drawerLayout.setDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+        
 
         // if there is no savedInstanceState, start from the first useful Item
         if (savedInstanceState == null){

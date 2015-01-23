@@ -24,6 +24,8 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,7 +41,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
-public class EventEditorActivity extends Activity implements OnSelectedPlaceModelListener{
+public class EventEditorActivity extends ActionBarActivity implements OnSelectedPlaceModelListener{
 	
 	private String editOrNew;
 	private ScrollView scrollView;
@@ -75,6 +77,7 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 	private String eventID;
 	private String eventName;
 	private PlaceModel selectedPlaceModel;
+	private Toolbar toolbar;
 	
 	public void setStart(Time start) {
 		this.start = start;
@@ -126,6 +129,15 @@ public class EventEditorActivity extends Activity implements OnSelectedPlaceMode
 		getEventInfo();
 	}
 	private void getUiContent(){
+		
+		// set the toolbar 
+        toolbar = (Toolbar) findViewById(R.id.toolbar_edit_event);
+        if (toolbar != null){
+        	// set the toolbar as the action bar
+        	setSupportActionBar(toolbar);
+        	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        	getSupportActionBar().setHomeButtonEnabled(true);
+        }
 		
 		 scrollView = (ScrollView) findViewById(R.id.editor_edit_event_scroll);
 		 editEventTitle = (EditText) findViewById(R.id.editor_edit_event_text_title);
