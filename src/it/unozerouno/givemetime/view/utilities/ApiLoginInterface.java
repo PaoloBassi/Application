@@ -8,10 +8,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
+import android.gesture.GestureOverlayView;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -37,7 +39,6 @@ public class ApiLoginInterface extends FragmentActivity implements ConnectionCal
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.dialog_login);
 		initApiController();
 		showProgressBar();
@@ -46,6 +47,7 @@ public class ApiLoginInterface extends FragmentActivity implements ConnectionCal
 		 mResolvingError = savedInstanceState != null
 		            && savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
 	}
+    
     
     private void initApiController(){
 
@@ -160,6 +162,7 @@ public class ApiLoginInterface extends FragmentActivity implements ConnectionCal
         mResolvingError = false;
     }
 
+   
     /* A fragment to display an error dialog */
     public static class ErrorDialogFragment extends DialogFragment {
         public ErrorDialogFragment() { }

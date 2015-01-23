@@ -1,6 +1,7 @@
 package it.unozerouno.givemetime.controller;
 
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.controller.service.GiveMeTimeService;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.utilities.ApiKeys;
@@ -94,7 +95,9 @@ public final class StartUpFlow extends Fragment{
     	
     	
 		//5-If not already running, start the service
-		
+		GiveMeLogger.log("Starting Service");
+		Intent serviceIntent = new Intent(getActivity(),GiveMeTimeService.class);
+		getActivity().startService(serviceIntent);
     	
     	
 		//6-Propose service collected questions
