@@ -24,7 +24,6 @@ import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -86,7 +85,7 @@ public final class DatabaseManager {
 	 * @param end
 	 * @return
 	 */
-	public void getEventsInstances(Time start, Time end, Activity caller,
+	public void getEventsInstances(Time start, Time end, Context caller,
 			final EventListener<EventInstanceModel> eventListener) {
 
 		// fetch the event from the calendar provider
@@ -108,7 +107,10 @@ public final class DatabaseManager {
 							results[1], eventDescriptionMap);
 					newInstance.addListener(eventListener);
 					newInstance.setCreated();
-				} else {
+				}
+				else if (results[0] == Results.RESULT_OK) {
+					eventListener.loadingComplete();
+				}else {
 					// Unexpected result
 					System.out
 							.println("Got unexpected result from calendarFetcher");
@@ -216,7 +218,7 @@ public final class DatabaseManager {
 	 * Pulls all new events from Google Calendar and creates relative entries in
 	 * GiveMeTime database
 	 */
-	public static synchronized boolean synchronize(Activity caller) {
+	public static synchronized boolean synchronize(Context caller) {
 
 		// Fetching Events ID from CalendarProvider
 		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
@@ -249,7 +251,7 @@ public final class DatabaseManager {
 	 * @param caller
 	 * @param eventToUpdate
 	 */
-	public static void updateEvent(Activity caller,
+	public static void updateEvent(Context caller,
 			EventInstanceModel eventToUpdate) {
 		// Updating CalendarFetcher
 		CalendarFetcher updater = new CalendarFetcher(caller);
@@ -273,7 +275,7 @@ public final class DatabaseManager {
 	/**
 	 * Adds a new event into the db
 	 */
-	public static void addEvent(final Activity caller,
+	public static void addEvent(final Context caller,
 			final EventInstanceModel newEvent) {
 
 		CalendarFetcher updater = new CalendarFetcher(caller);

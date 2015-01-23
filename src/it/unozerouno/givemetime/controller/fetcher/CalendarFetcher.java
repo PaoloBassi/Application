@@ -15,6 +15,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -90,10 +91,10 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	
 	
 	private static int task = Actions.NO_ACTION;
-	Activity caller;
+	Context caller;
 	ProgressBar progressBar;
 	
-	public CalendarFetcher(Activity caller) {
+	public CalendarFetcher(Context caller) {
 		this.caller = caller;
 	}
 	
@@ -141,6 +142,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		case Actions.LIST_OF_EVENTS:
 			getEvents();
 			getInstances();
+			setResult(Results.RESULT_OK);
 			break;
 		case Actions.ADD_NEW_CALENDAR:
 			createCalendar();
@@ -424,7 +426,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 				cr.insert(uri, values);
 	}
 	
-	Activity getCaller(){return caller;}
+	Context getCaller(){return caller;}
 	
 	public static List<CalendarModel> getCalendarList(){
 		return calendarList;

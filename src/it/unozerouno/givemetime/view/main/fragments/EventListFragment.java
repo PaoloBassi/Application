@@ -80,9 +80,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						GiveMeLogger.log("New event arrived to View - " + newEvent.toString());
 							EventListFragment.this.eventList.add(newEvent);
-						weekView.notifyDatasetChanged();
 					}
 				});			
 			}
@@ -90,6 +88,19 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 			@Override
 			public void onEventChange(EventInstanceModel newEvent) {
 				// TODO: It's very unlikely that the event changes while watched, but this is the place for updates.
+			}
+
+			@Override
+			public void onLoadCompleted() {
+				//This is called from the Fetcher thread, so we had to swap to the UI thread
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						GiveMeLogger.log("Event Loading complete - refreshing event view");
+						weekView.notifyDatasetChanged();
+					}
+				});			
+				
 			}
 		};
         
