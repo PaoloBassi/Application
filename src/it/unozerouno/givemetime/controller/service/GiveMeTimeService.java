@@ -1,9 +1,21 @@
 package it.unozerouno.givemetime.controller.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.controller.fetcher.places.LocationFetcher;
+import it.unozerouno.givemetime.controller.fetcher.places.LocationFetcher.OnLocationReadyListener;
+import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
+import android.R;
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.IBinder;
 
 public class GiveMeTimeService extends IntentService{
@@ -24,7 +36,7 @@ public class GiveMeTimeService extends IntentService{
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		GiveMeLogger.log("Service started");
+		
 		//Calling back the IntentService onStartCommand for managing the life cycle
 		return super.onStartCommand(intent, flags, startId);
 	}
@@ -38,11 +50,67 @@ public class GiveMeTimeService extends IntentService{
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		// TODO Auto-generated method stub
-		
+		//TODO: put here the entire service flow
+		//This methods are meant for debug purpose only
+		serviceFlow();
+		getLocation();
 	}
 	
 	
+	private void showNotification(String message){
+		Notification noti = new Notification.Builder(getApplicationContext())
+        .setContentTitle("GiveMeTime")
+        .setContentText(message)
+        .setSmallIcon(R.drawable.ic_dialog_info)
+        .getNotification();
+		NotificationManager mNotificationManager =   (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.notify(0, noti);
+	}
+	/**
+	 * This method contains the whole flow of the service.
+	 */
+	private void serviceFlow(){
+		//Getting current active events
+		OnDatabaseUpdatedListener<ArrayList<EventInstanceModel>> listener = new OnDatabaseUpdatedListener<ArrayList<EventInstanceModel>>() {
+			@Override
+			protected void onUpdateFinished(
+					ArrayList<EventInstanceModel> activeEvents) {
+				//That's the list of current active events
+				if (activeEvents.isEmpty()){
+					//No events are active, so we suppose it is the free-time (please make checks about Work TimeTable, etc)	
+					showNotification("No active events");
+				} else {
+					//If there are active events, proceed with the flow
+					showNotification(activeEvents.size() + " events are active");
+				}
+			}
+		};
+		DatabaseManager.getActiveEvents(listener, getApplicationContext());
+	}
 	
+	/**
+	 * This function is made for debug purpose only, as the location requests are asynchronous and cannot be returned by this function directly
+	 */
+	private void getLocation(){
+		LocationFetcher locationFetcher = new LocationFetcher();
+		locationFetcher.getLocation(getApplicationContext(), new OnLocationReadyListener() {
+			
+			@Override
+			public void onConnectionFailed() {
+				showNotification("No connectivity for getting location");
+			}
+			
+			@Override
+			public void locationReady(Location location) {
+				if(location!=null){
+				showNotification("Got location! " + location.getLatitude() + " " + location.getLatitude());
+				}
+				else
+				{
+					showNotification("Unable to get Location");
+				}
+			} 
+		});
+	}
 	
 }

@@ -2,8 +2,12 @@ package it.unozerouno.givemetime.view.main.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.controller.service.GiveMeTimeService;
+import it.unozerouno.givemetime.controller.service.ServiceScheduler;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,12 +45,13 @@ public class DebugFragment extends Fragment{
 		Button editCalendarBtn = (Button) v.findViewById(R.id.btn_calendar_view);
 		
 		
-		
+		freetimeBtn.setText("Service Debug");
 		freetimeBtn.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-							
-									
+					GiveMeLogger.log("Starting Service");
+					Intent serviceIntent = new Intent(getActivity(),GiveMeTimeService.class);
+					getActivity().startService(serviceIntent);
 		}});
 		editCalendarBtn.setOnClickListener(new OnClickListener() {
 				@Override

@@ -11,6 +11,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -25,6 +26,7 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.plus.Account;
 import com.google.android.gms.plus.People.LoadPeopleResult;
 import com.google.android.gms.plus.Plus;
@@ -156,10 +158,13 @@ public class ApiController {
 							else
 							{	
 								PersonBuffer pbuffer = result.getPersonBuffer();
-								Person me = pbuffer.get(0);
+								if(pbuffer != null) {Person me = pbuffer.get(0);
+								if(me != null){
 							 	Name userName = me.getName();
 								UserKeyRing.setUserName(caller, userName.getGivenName());
 								UserKeyRing.setUserSurname(caller, userName.getFamilyName());
+								}
+								}
 							}		
 						}
 					});

@@ -1,8 +1,8 @@
 package it.unozerouno.givemetime.view.utilities;
 
-public abstract class OnDatabaseUpdatedListener {
-	protected abstract void onUpdateFinished(Object updatedItem);
-	public void updateFinished(Object updatedItem){
+public abstract class OnDatabaseUpdatedListener<ExpectedResult> {
+	protected abstract void onUpdateFinished(ExpectedResult updatedItem);
+	public void updateFinished(ExpectedResult updatedItem){
 		onUpdateFinished(updatedItem);
 	}
 }

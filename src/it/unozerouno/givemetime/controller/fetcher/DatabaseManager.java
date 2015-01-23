@@ -85,7 +85,7 @@ public final class DatabaseManager {
 	 * @param end
 	 * @return
 	 */
-	public void getEventsInstances(Time start, Time end, Context caller,
+	public static void getEventsInstances(Time start, Time end, Context caller,
 			final EventListener<EventInstanceModel> eventListener) {
 
 		// fetch the event from the calendar provider
@@ -129,7 +129,7 @@ public final class DatabaseManager {
 	 * @param eventResult
 	 * @return
 	 */
-	private EventDescriptionModel eventDescriptionToModel(String[] eventResult) {
+	private static EventDescriptionModel eventDescriptionToModel(String[] eventResult) {
 		// Returned Values: 0:Events._ID, 1:Events.TITLE, 2:Events.DTSTART,
 		// 3:Events.DTEND, 4:Events.EVENT_COLOR, 5:Events.RRULE, 6:Events.RDATE,
 		// 7: Events.ALL_DAY
@@ -193,7 +193,7 @@ public final class DatabaseManager {
 	 *            to associate to the instance
 	 * @return
 	 */
-	private EventInstanceModel eventInstanceToModel(String[] instanceResult,
+	private static EventInstanceModel eventInstanceToModel(String[] instanceResult,
 			SparseArray<EventDescriptionModel> eventLookupTable) {
 		int eventId = Integer.parseInt(instanceResult[0]);
 		Time startTime = new Time();
@@ -338,6 +338,47 @@ public final class DatabaseManager {
 	}
 
 	/**
+	 * Fetches all active events at this moment and returns it through the provided listener
+	 * @param listener listener in which onDatabaseUpdated(List<EventInstanceModel>) is called
+	 */
+	public static void getActiveEvents(final OnDatabaseUpdatedListener<ArrayList<EventInstanceModel>> listener, Context context){
+		Time start = new Time();
+		Time end = new Time();
+		final Time now = new Time();
+		now.setToNow();
+		start.setToNow();
+		end.setToNow();
+		end.set(59, 59, 23, end.monthDay, end.month, end.year);
+		final ArrayList<EventInstanceModel> eventList = new ArrayList<EventInstanceModel>();
+		EventListener<EventInstanceModel> fetcherListener = new EventListener<EventInstanceModel>() {
+
+			@Override
+			public void onEventChange(EventInstanceModel newEvent) {
+				
+			}
+
+			@Override
+			public void onEventCreation(EventInstanceModel newEvent) {
+				//If the event has start and end
+				if (newEvent.getStartingTime() != null && newEvent.getEndingTime() != null){
+					//And if now it is between start and end
+					if(newEvent.getStartingTime().toMillis(false)<= now.toMillis(false) && newEvent.getEndingTime().toMillis(false)>= now.toMillis(false)){
+						//Then add to List
+						eventList.add(newEvent);
+					}
+				}
+			}
+
+			@Override
+			public void onLoadCompleted() {
+				listener.updateFinished(eventList);
+			}
+		};
+		getEventsInstances(start, end, context, fetcherListener);
+		
+	}
+	
+	/**
 	 * This function fills the provided EventDescriptionModel with information present into GiveMeTime database.
 	 * @param eventToLoad
 	 * @return
@@ -453,7 +494,7 @@ public final class DatabaseManager {
 	 * 
 	 * @param newPlace
 	 */
-	private static void addPlaceInDatabase(PlaceModel newPlace) {
+	private synchronized static void addPlaceInDatabase(PlaceModel newPlace) {
 		// Now the place has all known infos
 
 		// Getting whole place data
@@ -468,7 +509,7 @@ public final class DatabaseManager {
 		Double longitude = newPlace.getLocation().getLongitude();
 		int visitCounter = newPlace.getVisitCounter();
 
-		// Insering Values is PlaceModel table
+		// Inserting Values in PlaceModel table
 		ContentValues values = new ContentValues();
 		values.put(DatabaseCreator.PLACE_ID, placeId);
 		values.put(DatabaseCreator.PLACE_NAME, name);

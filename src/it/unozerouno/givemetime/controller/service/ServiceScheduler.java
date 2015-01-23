@@ -31,7 +31,7 @@ public class ServiceScheduler extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+		if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")||intent.getAction().equals("it.unozerouno.givemetime.debug.GiveMeTimeDebug")) {
 			ServiceScheduler.context = context;
 			database = DatabaseManager.getInstance(context);
 			getTodayEvents();
@@ -143,7 +143,7 @@ public class ServiceScheduler extends BroadcastReceiver {
 		now.setToNow();
 		for (Long scheduleTime : dayHour) {
 			//If it's not sleep time and the schedule it's in the future
-			if((!sleepTime.isActive(scheduleTime)) && scheduleTime>now.toMillis(false) ){
+			if((sleepTime!=null&&(!sleepTime.isActive(scheduleTime))) && scheduleTime>now.toMillis(false) ){
 				//TODO: Maybe shuffle a bit the time
 				scheduleServiceAt(scheduleTime);
 			}
