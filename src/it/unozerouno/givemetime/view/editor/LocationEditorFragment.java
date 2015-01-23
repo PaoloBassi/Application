@@ -31,7 +31,7 @@ public class LocationEditorFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.editor_edit_locations, container);
-		fragmentLocationList= (CommonLocationFragment) getFragmentManager().findFragmentById(R.id.editor_edit_loactions_common);
+		fragmentLocationList= (CommonLocationFragment) getChildFragmentManager().findFragmentById(R.id.editor_edit_loactions_common);
 		  AutoCompleteTextView autoCompView = (AutoCompleteTextView) view.findViewById(R.id.editor_edit_locations_autocomplete);
 		  //Setting autocomplete  
 		  autoCompView.setAdapter(new PlacesAutoCompleteAdapter(getActivity(), R.layout.element_list_location));
