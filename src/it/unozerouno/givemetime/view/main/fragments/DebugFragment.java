@@ -5,6 +5,8 @@ import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +30,7 @@ public class DebugFragment extends Fragment{
 		setHasOptionsMenu(true);
 		View view = inflater.inflate(R.layout.fragment_debug_layout, container, false);
 		debugTextView = (TextView) view.findViewById(R.id.debug_textview);
+        
 		// get the db and set the categories
 		DatabaseManager.getInstance(getActivity());
         DatabaseManager.addDefaultCategories();

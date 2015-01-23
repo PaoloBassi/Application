@@ -102,11 +102,10 @@ public class MainActivity extends ActionBarActivity {
         
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
         // set the toolbar 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar_main_activity);
         if (toolbar != null){
         	// set the toolbar as the action bar
         	setSupportActionBar(toolbar);
-        	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         	getSupportActionBar().setHomeButtonEnabled(true);
         }
         
