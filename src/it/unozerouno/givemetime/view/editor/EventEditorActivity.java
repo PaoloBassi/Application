@@ -433,14 +433,14 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	private void hideFragment(Fragment fragment){
 		FragmentManager fm = getSupportFragmentManager();
 		fm.beginTransaction()
-		          .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+		          //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
 		          .hide(fragment)
 		          .commit();
 	}
 	private void showFragment(Fragment fragment){
 		FragmentManager fm = getSupportFragmentManager();
 		fm.beginTransaction()
-		          .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+		          //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
 		          .show(fragment)
 		          .commit();
 	}
