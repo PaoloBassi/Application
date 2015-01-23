@@ -1,7 +1,7 @@
 package it.unozerouno.givemetime.view.editor.constraints;
 
 import it.unozerouno.givemetime.R;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;

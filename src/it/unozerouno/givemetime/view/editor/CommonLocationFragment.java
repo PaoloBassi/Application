@@ -1,27 +1,19 @@
 package it.unozerouno.givemetime.view.editor;
 
+import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.model.places.PlaceModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.android.gms.internal.nu;
-
-import it.unozerouno.givemetime.R;
-import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
-import it.unozerouno.givemetime.model.CalendarModel;
-import it.unozerouno.givemetime.model.places.PlaceModel;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Context;
-import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 

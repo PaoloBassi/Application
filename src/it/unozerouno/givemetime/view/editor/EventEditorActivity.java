@@ -21,8 +21,8 @@ import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeStartPickerFragment;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
@@ -144,7 +144,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		 
 		 textLocation = (TextView) findViewById(R.id.editor_text_location);
 		 //get the fragment reference
-		 fragmentLocations = (LocationEditorFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_locations_container);
+		 fragmentLocations = (LocationEditorFragment) getSupportFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_locations_container);
 		 buttonLocation = (Button) findViewById(R.id.editor_button_location);
 		 
 		 switchDeadline = (Switch) findViewById(R.id.editor_edit_event_switch_deadline);
@@ -164,7 +164,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		 switchAllDay = (Switch) findViewById(R.id.editor_edit_event_switch_allday);
 		 switchIsMovable = (Switch) findViewById(R.id.editor_edit_event_switch_ismovable);
 		 switchDoNotDisturb = (Switch) findViewById(R.id.editor_edit_event_switch_donotdisturb);
-		 fragmentConstraints = (ConstraintsFragment) getFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_constraints_container);
+		 fragmentConstraints = (ConstraintsFragment) getSupportFragmentManager().findFragmentById(R.id.editor_edit_event_fragment_constraints_container);
 		 
 		 ArrayAdapter<CharSequence> spinnerAdapterRepetition = ArrayAdapter.createFromResource(getBaseContext(), R.array.Repetitions, android.R.layout.simple_spinner_item);
 		 spinnerAdapterRepetition.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -431,14 +431,14 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	}
 	
 	private void hideFragment(Fragment fragment){
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 		fm.beginTransaction()
 		          .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
 		          .hide(fragment)
 		          .commit();
 	}
 	private void showFragment(Fragment fragment){
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 		fm.beginTransaction()
 		          .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
 		          .show(fragment)

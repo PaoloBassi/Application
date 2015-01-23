@@ -1,14 +1,6 @@
 package it.unozerouno.givemetime.view.editor.constraints;
 
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
-
-import com.google.android.gms.internal.cu;
-import com.google.android.gms.internal.da;
-import com.google.android.gms.internal.di;
-
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.model.constraints.ComplexConstraint;
 import it.unozerouno.givemetime.model.constraints.Constraint;
@@ -16,28 +8,22 @@ import it.unozerouno.givemetime.model.constraints.DateConstraint;
 import it.unozerouno.givemetime.model.constraints.DayConstraint;
 import it.unozerouno.givemetime.model.constraints.TimeConstraint;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
-import it.unozerouno.givemetime.view.editor.constraints.DoubleDatePickerDialog.OnConstraintSelectedListener;
-import android.app.DatePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
-import android.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.provider.Contacts.SettingsColumns;
-import android.provider.Settings.System;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.DatePicker;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class SingleConstraintFragment extends Fragment {
@@ -145,7 +131,7 @@ public class SingleConstraintFragment extends Fragment {
 				dateButton.setChecked(false);							
 			}
 		});
-		datePickerDialog.show(getFragmentManager(), getTag());
+		datePickerDialog.show(getActivity().getFragmentManager(), getTag());
 	}
 	private void showDayDialog(){
 		DoubleDayPickerDialog dayPickerDialog = new DoubleDayPickerDialog(new DoubleDayPickerDialog.OnConstraintSelectedListener() {
@@ -162,7 +148,7 @@ public class SingleConstraintFragment extends Fragment {
 				dayButton.setChecked(false);						
 			}
 		});
-		dayPickerDialog.show(getFragmentManager(), getTag());
+		dayPickerDialog.show(getActivity().getFragmentManager(), getTag());
 	}
 	private void showTimeDialog(){
 
@@ -180,7 +166,7 @@ public class SingleConstraintFragment extends Fragment {
 				timeButton.setChecked(false);							
 			}
 		});
-		timePickerDialog.show(getFragmentManager(), getTag());
+		timePickerDialog.show(getActivity().getFragmentManager(), getTag());
 	}
 	
 	public void setConstraint(ComplexConstraint constraint){
