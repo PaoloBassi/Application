@@ -1,14 +1,15 @@
 package it.unozerouno.givemetime.controller.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.fetcher.places.LocationFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.LocationFetcher.OnLocationReadyListener;
+import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
+
+import java.util.ArrayList;
+
 import android.R;
 import android.app.IntentService;
 import android.app.Notification;
@@ -16,10 +17,10 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.IBinder;
 
 public class GiveMeTimeService extends IntentService{
 	private DatabaseManager database;
+	private static ArrayList<Integer> activeNotificationsId;
 	
 	
 	public GiveMeTimeService() {
@@ -32,6 +33,9 @@ public class GiveMeTimeService extends IntentService{
 		super.onCreate();
 		//Initializing components
 		database = DatabaseManager.getInstance(getApplication());
+		if(activeNotificationsId==null){
+			activeNotificationsId = new ArrayList<Integer>();
+		}
 	}
 	
 	@Override
@@ -52,7 +56,9 @@ public class GiveMeTimeService extends IntentService{
 	protected void onHandleIntent(Intent intent) {
 		//TODO: put here the entire service flow
 		//This methods are meant for debug purpose only
+		GiveMeLogger.log("Stanting the service Flow");
 		serviceFlow();
+		GiveMeLogger.log("Trying to get Location");
 		getLocation();
 	}
 	
@@ -64,7 +70,10 @@ public class GiveMeTimeService extends IntentService{
         .setSmallIcon(R.drawable.ic_dialog_info)
         .getNotification();
 		NotificationManager mNotificationManager =   (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		mNotificationManager.notify(0, noti);
+		int id= activeNotificationsId.size();
+		mNotificationManager.notify(id, noti);
+		activeNotificationsId.add(activeNotificationsId.size());
+		GiveMeLogger.log("Notification sent: "+ message );
 	}
 	/**
 	 * This method contains the whole flow of the service.
@@ -92,8 +101,8 @@ public class GiveMeTimeService extends IntentService{
 	 * This function is made for debug purpose only, as the location requests are asynchronous and cannot be returned by this function directly
 	 */
 	private void getLocation(){
-		LocationFetcher locationFetcher = new LocationFetcher();
-		locationFetcher.getLocation(getApplicationContext(), new OnLocationReadyListener() {
+		LocationFetcher.getInstance(getApplication());
+		LocationFetcher.getLastLocation(new OnLocationReadyListener() {
 			
 			@Override
 			public void onConnectionFailed() {
@@ -102,15 +111,9 @@ public class GiveMeTimeService extends IntentService{
 			
 			@Override
 			public void locationReady(Location location) {
-				if(location!=null){
 				showNotification("Got location! " + location.getLatitude() + " " + location.getLatitude());
-				}
-				else
-				{
-					showNotification("Unable to get Location");
-				}
 			} 
-		});
+		}, UserKeyRing.getLocationUpdateFrequency(getApplication()));
 	}
 	
 }

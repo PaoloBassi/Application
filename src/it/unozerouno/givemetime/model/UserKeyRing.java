@@ -1,6 +1,7 @@
 package it.unozerouno.givemetime.model;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -29,6 +30,9 @@ public final class UserKeyRing {
 	private static final String selectedCalendarId = "calendar_selected_id";
 	private static final String selectedCalendarName = "calendar_selected_name";
 	
+	//Service Related
+	private static final String serviceLocationUpdateFrequency = "service_location_update_frequency";
+	private static final String serviceLocationMaxAge = "service_location_max_age";
 	
 	
 	@SuppressLint("CommitPrefEdits") 
@@ -93,6 +97,19 @@ public final class UserKeyRing {
 		editor.commit();
 	}
 	
+	public static void setLocationUpdateFrequency(Context context, int updateFrequency) {
+		setSharedPreferences(context);
+		editor.putInt(serviceLocationUpdateFrequency, updateFrequency);
+		editor.commit();
+	}
+	
+	public static void getLocationMaxAge(Context context, int maximumLocationAge) {
+		setSharedPreferences(context);
+		editor.putInt(serviceLocationMaxAge, maximumLocationAge);
+		editor.commit();
+	}
+	
+	
 	
 	
 	
@@ -135,6 +152,15 @@ public final class UserKeyRing {
 		return prefs.getString(apiKeyPref, "");
 	}
 	
+	public static int getLocationUpdateFrequency(Context context) {
+		setSharedPreferences(context);
+		return prefs.getInt(serviceLocationUpdateFrequency, 2);
+	}
+	
+	public static int getLocationMaxAge(Context context) {
+		setSharedPreferences(context);
+		return prefs.getInt(serviceLocationMaxAge, 20);
+	}
 	
 	/**
 	 * Checks whether all crucial user variables are set properly.  
@@ -150,5 +176,6 @@ public final class UserKeyRing {
 		
 		return true;
 	}
+
 	
 }
