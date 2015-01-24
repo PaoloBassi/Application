@@ -134,7 +134,7 @@ public final class DatabaseManager {
 		// 3:Events.DTEND, 4:Events.EVENT_COLOR, 5:Events.RRULE, 6:Events.RDATE,
 		// 7: Events.ALL_DAY
 		// put each event inside a EventDescriptionModel
-		System.out.println("Fetched event: id - " + eventResult[0]
+		GiveMeLogger.log("Fetched event: id - " + eventResult[0]
 				+ " Title - " + eventResult[1] + "  Start: " + eventResult[2]
 				+ " End: " + eventResult[3] + " Color:" + eventResult[4]
 				+ " RRULE:" + eventResult[5] + " RDATE: " + eventResult[6]
@@ -233,7 +233,7 @@ public final class DatabaseManager {
 					DatabaseManager.getInstance(calendarFetcher.getCaller())
 							.createEmptyEventRow(calendarFetcher.getCaller(),
 									eventId);
-					System.out.println("Created in DB event with id: "
+					GiveMeLogger.log("Created in DB event with id: "
 							+ eventId + " RRULE: " + eventRRULE + " RDATE: "
 							+ eventRDATE);
 				}
@@ -261,9 +261,9 @@ public final class DatabaseManager {
 			@Override
 			public void onTaskResult(String[]... results) {
 				if (results[0] == Results.RESULT_OK) {
-					System.out.println("Event Update complete");
+					GiveMeLogger.log("Event Update complete");
 				} else {
-					System.out.println("Error during event update");
+					GiveMeLogger.log("Error during event update");
 				}
 
 			}
@@ -286,7 +286,7 @@ public final class DatabaseManager {
 			@Override
 			public void onTaskResult(String[]... results) {
 				String addedEventId = results[0][0];
-				System.out.println("Event added with id " + addedEventId);
+				GiveMeLogger.log("Event added with id " + addedEventId);
 				addEventInDatabase(addedEventId, newEvent);
 				
 			}
@@ -333,7 +333,7 @@ public final class DatabaseManager {
 		values.put(DatabaseCreator.FLAG_MOVABLE, isMovable);
 		
 		Long result = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_MODEL, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-		System.out.println("Updated GiveMeTime DB row: " + result);
+		GiveMeLogger.log("Updated GiveMeTime DB row: " + result);
 		
 	}
 
@@ -532,7 +532,7 @@ public final class DatabaseManager {
 		Long query = database.insertWithOnConflict(
 				DatabaseCreator.TABLE_PLACE_MODEL, null, values,
 				SQLiteDatabase.CONFLICT_REPLACE);
-		System.out.println("Inserted Location, added row: " + query);
+		GiveMeLogger.log("Inserted Location, added row: " + query);
 
 		addOpeningTime(newPlace);
 	}
@@ -712,7 +712,7 @@ public final class DatabaseManager {
 				}
 				result.close();
 			}
-				System.out.println("Added complex constraint with id " + complexConstraint.getId() + ", parent of a single event with id" + currentSimpleConstraintId );
+				GiveMeLogger.log("Added complex constraint with id " + complexConstraint.getId() + ", parent of a single event with id" + currentSimpleConstraintId );
 		}
 		return complexConstraintID;
 			
@@ -778,7 +778,7 @@ public final class DatabaseManager {
 			addSimpleConstraintRow(id, type, Integer.toString(dayStart), Integer.toString(dayEnd));
 			return id;
 		}
-		System.out.println("This function cannot parse this constraint");
+		GiveMeLogger.log("This function cannot parse this constraint");
 		return -1;
 	}
 	/**
@@ -795,7 +795,7 @@ public final class DatabaseManager {
 		values.put(DatabaseCreator.C_START, start);
 		values.put(DatabaseCreator.C_END, end);
 		Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_SIMPLE_CONSTRAINTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-		System.out.println("Added/Edited row " + query + "of SimpleConstraint table");
+		GiveMeLogger.log("Added/Edited row " + query + "of SimpleConstraint table");
 	}
 	
 	/**
@@ -871,7 +871,7 @@ public final class DatabaseManager {
 			fetchedConstraint.setId(id);
 			return fetchedConstraint;
 		}
-		System.out.println("This function cannot parse the constraint row in the db");
+		GiveMeLogger.log("This function cannot parse the constraint row in the db");
 		return null;
 	}
 
@@ -916,11 +916,11 @@ public final class DatabaseManager {
 			}
 		//Then delete the constraint
 		int rowsDeleted = database.delete(DatabaseCreator.TABLE_COMPLEX_CONSTRAINTS, DatabaseCreator.C_COMPLEX_ID + " = " + complexIdToRemove, null);
-		System.out.println("Deleted " + rowsDeleted + "comples constraints from db");
+		GiveMeLogger.log("Deleted " + rowsDeleted + "comples constraints from db");
 	}
 	private static synchronized void deleteSimpleConstraint(int idToRemove) {
 		int rowsDeleted = database.delete(DatabaseCreator.TABLE_SIMPLE_CONSTRAINTS, DatabaseCreator.C_SIMPLE_ID_CONSTRAINT + " = " + idToRemove, null);
-		System.out.println("Deleted " + rowsDeleted + "simple constraints from db");
+		GiveMeLogger.log("Deleted " + rowsDeleted + "simple constraints from db");
 	}
 	
 	/**
@@ -1002,7 +1002,7 @@ public final class DatabaseManager {
 				values.put(DatabaseCreator.OT_COMPLEX_CONSTRAINT, constraintId);
 				values.put(DatabaseCreator.OT_PLACE_ID, placeId);
 				database.insertWithOnConflict(DatabaseCreator.TABLE_OPENING_TIMES, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-				System.out.println("Added row in Opening Times table - Place: " + placeId + " Constraint: " + constraintId);
+				GiveMeLogger.log("Added row in Opening Times table - Place: " + placeId + " Constraint: " + constraintId);
 			}
 		
 	}
@@ -1043,7 +1043,7 @@ public final class DatabaseManager {
 		values.put(DatabaseCreator.ECO_ID_COMPLEX_CONSTRAINT, constraintId);
 		values.put(DatabaseCreator.ECO_ID_EVENT, eventId);
 		database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_CONSTRAINTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-		System.out.println("Added row in Event-Constraint table - Event: " + eventId + " Constraint: " + constraintId);
+		GiveMeLogger.log("Added row in Event-Constraint table - Event: " + eventId + " Constraint: " + constraintId);
 	}
 	}
 
@@ -1085,7 +1085,7 @@ public final class DatabaseManager {
 			
 			//TODO: Check if this update policy erases categories from the EVENT_MODEL table when they update
 			Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_CATEGORY, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-			System.out.println("Added default category row: " + query);
+			GiveMeLogger.log("Added default category row: " + query);
 		}
 		
 	}
@@ -1099,7 +1099,7 @@ public final class DatabaseManager {
 					
 					//TODO: Check if this update policy erases categories from the EVENT_MODEL table when they update
 					Long query = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_CATEGORY, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-					System.out.println("Added default constraint row: " + query);
+					GiveMeLogger.log("Added default constraint row: " + query);
 	}
 	
 	/**
@@ -1158,7 +1158,7 @@ public final class DatabaseManager {
 		String table = DatabaseCreator.TABLE_EVENT_CATEGORY;
 		String where = DatabaseCreator.ECA_NAME + " = " + "'" +categoryToDelete.getName() + "'";
 		int deleteQuery = database.delete(table, where, null);
-		System.out.println("Deleted " + deleteQuery + " category rows.");
+		GiveMeLogger.log("Deleted " + deleteQuery + " category rows.");
 	}
 	
 	    ///////////////////////////////
@@ -1246,7 +1246,7 @@ public final class DatabaseManager {
 					return (TimeConstraint)constraint;
 				}
 			}
-			System.out.println("No TimeConstraints found in sleeptime, maybe none has ben set?");
+			GiveMeLogger.log("No TimeConstraints found in sleeptime, maybe none has ben set?");
 			return null;
 			
 		}

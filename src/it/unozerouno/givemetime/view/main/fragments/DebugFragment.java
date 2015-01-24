@@ -5,6 +5,7 @@ import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.service.GiveMeTimeService;
 import it.unozerouno.givemetime.controller.service.ServiceScheduler;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
@@ -21,7 +22,7 @@ import android.widget.TextView;
 public class DebugFragment extends Fragment{
 	
 	private static TextView debugTextView;
-	
+	private static Activity activity;
 	public static final String ITEM_NAME = "item_name";
 	
 	public DebugFragment() {
@@ -39,6 +40,7 @@ public class DebugFragment extends Fragment{
 		DatabaseManager.getInstance(getActivity());
         DatabaseManager.addDefaultCategories();
 		setBtnOnclick(view);
+		activity=getActivity();
 		return view;
 	}
 	
@@ -79,10 +81,18 @@ public class DebugFragment extends Fragment{
         }
 	}
 	
-	public static void log(String msg){
-		if (debugTextView == null) return;
-		debugTextView.setText(msg);
-		return;
+	public static void log(final String msg){
+		if(activity!=null)
+		activity.runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (debugTextView == null) return;
+				debugTextView.append("\n" + msg);
+				return;
+			}
+		});
+		
 	}
 	
 	

@@ -46,8 +46,6 @@ public class SettingsFragment extends PreferenceFragment{
       debugFirstTime = (SwitchPreference) findPreference("debug_first_time");
       debugCalendarId = (Preference) findPreference("debug_user_selected_cal_id");  
       debugCalendarName = (Preference) findPreference("debug_user_selected_cal_name"); 
-      
-     
        
        //Setting values to show
        debugUserEmail.setSummary(UserKeyRing.getUserEmail(this.getActivity()));
