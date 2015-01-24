@@ -101,8 +101,8 @@ public final class LocationFetcher implements ConnectionCallbacks, OnConnectionF
 	    LocationRequest mLocationRequest = new LocationRequest();
 	    mLocationRequest.setInterval(UserKeyRing.getLocationUpdateFrequency(context)/*min*/*60/*sec*/*1000/*millis*/);
 	    //This is set in case the user is using an app such googleMaps, which makes location requests very frequently.
-	    //We announce we can handle an update every 120 seconds, we're not too greedy!
-	    mLocationRequest.setFastestInterval(5/*sec*/*1000/*millis*/);
+	    //We announce we can handle an update every 60 seconds, we're not too greedy!
+	    mLocationRequest.setFastestInterval(60/*sec*/*1000/*millis*/);
 	    mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 	    return mLocationRequest;
 	}

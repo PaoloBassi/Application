@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     
      <uses-sdk android:minSdkVersion="14"
@@ -101,7 +102,7 @@
            android:name="it.unozerouno.givemetime.controller.service.GiveMeTimeService"
            >
            </service>  
-           <receiver android:name="it.unozerouno.givemetime.constroller.service.ServiceScheduler"
+           <receiver android:name="it.unozerouno.givemetime.controller.service.ServiceScheduler"
                >
     <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED"></action>

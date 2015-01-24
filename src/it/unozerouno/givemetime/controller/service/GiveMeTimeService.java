@@ -111,7 +111,7 @@ public class GiveMeTimeService extends IntentService{
 			
 			@Override
 			public void locationReady(Location location) {
-				showNotification("Got location! " + location.getLatitude() + " " + location.getLatitude());
+				showNotification("Got location! " + location.getLatitude() + " " + location.getLongitude());
 			} 
 		}, UserKeyRing.getLocationUpdateFrequency(getApplication()));
 	}
