@@ -3,8 +3,10 @@ package it.unozerouno.givemetime.view.intro.fragments;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -22,20 +24,30 @@ import it.unozerouno.givemetime.R;
 
 public class WelcomeAndDisclaimer extends Fragment{
 
-    @Override
+	private ViewPager pager;
+	
+    public WelcomeAndDisclaimer(ViewPager pager) {
+		this.pager = pager;
+	}
+
+	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.welcome_and_disclaimer, container, false);
+
+        Button btnNext = (Button) rootView.findViewById(R.id.btn_next_first_page);
         
-        // prepare a blinking animation for the swipe suggestion
-        TextView swipeText = (TextView) rootView.findViewById(R.id.centerPoint);
+        btnNext.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				System.out.println("Inside Welcome " + pager.getCurrentItem());
+				pager.setCurrentItem(pager.getCurrentItem() + 1);
+				
+			}
+		});
         
-        Animation anim = new AlphaAnimation(0.0f, 1.0f);
-        anim.setDuration(1000);
-        anim.setStartOffset(20);
-        anim.setRepeatMode(Animation.REVERSE);
-        anim.setRepeatCount(Animation.INFINITE);
-        swipeText.startAnimation(anim);
+        ((ActionBarActivity)getActivity()).getSupportActionBar().setTitle("Welcome to GiveMeTime!");
 
         return rootView;
     }

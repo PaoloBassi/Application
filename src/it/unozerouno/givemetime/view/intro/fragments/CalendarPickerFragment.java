@@ -18,6 +18,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +33,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class CalendarPickerFragment extends Fragment {
+	
+	ViewPager pager;
 	ProgressBar progressBar;
 	ListView calendarListView;
 	ArrayList<CalendarModel> calendars;
@@ -38,6 +42,10 @@ public class CalendarPickerFragment extends Fragment {
 	CalendarFetcher listFetcher;
 	Button newCalendarButton, confirmCalendarButton;
 	DatabaseManager dbManager;
+	
+	public CalendarPickerFragment(ViewPager pager) {
+		this.pager = pager;
+	}
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -85,6 +93,7 @@ public class CalendarPickerFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				createNewCalendar();
+				
 			}
 		});
         
@@ -96,11 +105,13 @@ public class CalendarPickerFragment extends Fragment {
 			public void onClick(View v) {
 				// TODO get all events from google and put them inside the db
 				dbManager = DatabaseManager.getInstance(getActivity());
-				
+				System.out.println("Inside Welcome " + pager.getCurrentItem());
+				pager.setCurrentItem(pager.getCurrentItem() + 1);
 				
 				
 			}
 		});
+        
         
         
         return rootView;

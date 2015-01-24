@@ -3,6 +3,7 @@ package it.unozerouno.givemetime.view.intro.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,6 +37,8 @@ public class LastTutorialPage extends Fragment{
 			}
 		});
 
+        //((ActionBarActivity)getActivity()).getSupportActionBar().setTitle("Tells us something about your habits!");
+        
         return rootView;
     }
 }

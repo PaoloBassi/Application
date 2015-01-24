@@ -86,27 +86,12 @@
             android:gravity="bottom"
             android:orientation="horizontal" >
 
-            <Button
-                android:id="@+id/refreshButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/centerPoint"
-                android:text="@string/skipButton" />
-
-            <TextView
-                android:id="@+id/centerPoint"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:text="" />
 
             <Button
+                style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/continueButton"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_toRightOf="@+id/centerPoint"
                 android:text="@string/continueButton" />
         </RelativeLayout>
     </LinearLayout>

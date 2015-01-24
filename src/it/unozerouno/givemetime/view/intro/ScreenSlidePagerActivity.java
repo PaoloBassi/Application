@@ -16,10 +16,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.WindowManager;
 
-public class ScreenSlidePagerActivity extends FragmentActivity{
+public class ScreenSlidePagerActivity extends ActionBarActivity{
 
-    // number of pages to show
+	private Toolbar toolbar;
+
+	// number of pages to show
     private static final int NUM_PAGES = 3;
 
     // pager widget
@@ -41,10 +46,17 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
         	if (LoginPreferences.isDeviceOnline(this)){
 	            // set the layout
 	            setContentView(R.layout.activity_screen_slide);
+	            
+	            // set the toolbar 
+	            toolbar = (Toolbar) findViewById(R.id.toolbar_intro);
+	            if (toolbar != null){
+	            	// set the toolbar as the action bar
+	            	setSupportActionBar(toolbar);
+	            }
 	
 	            // instantiate the ViewPager and the adapter
 	            mPager = (ViewPager) findViewById(R.id.pager);
-	            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+	            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), mPager, toolbar);
 	            mPager.setAdapter(mPagerAdapter);
 	            // remove comment if you want to use the zoomOutPageTransformer animation
 	            // mPager.setPageTransformer(true, new ZoomOutPageTransformer());
@@ -76,8 +88,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
     public void onBackPressed() {
         if(mPager.getCurrentItem() == 0){
             super.onBackPressed();
-        } else {
-           mPager.setCurrentItem(mPager.getCurrentItem() - 1);
         }
     }
    
@@ -86,8 +96,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
     // adapter as an internal class
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter{
 
-        public ScreenSlidePagerAdapter(FragmentManager fm){
-            super(fm);
+    	private ViewPager pager;
+    	private Toolbar toolbar;
+    	
+        public ScreenSlidePagerAdapter(FragmentManager fm, ViewPager pager, Toolbar toolbar){
+        	super(fm);
+        	this.pager = pager;
+        	this.toolbar = toolbar;
         }
 
         @Override
@@ -95,9 +110,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
 
             // choose the right fragment to display
             switch (i){
-                case 0: return new WelcomeAndDisclaimer();
-                case 1: return new CalendarPickerFragment();
-                case 2: return new LastTutorialPage();
+                case 0: //toolbar.setTitle("Welcome to GiveMeTime!");
+                		return new WelcomeAndDisclaimer(pager);
+                case 1: //toolbar.setTitle("Pick the Calendar You Want!");
+                		return new CalendarPickerFragment(pager);
+                case 2: //toolbar.setTitle("Tells us something about your habits!");
+                		return new LastTutorialPage();
                 default: return null;
             }
 
@@ -111,4 +129,5 @@ public class ScreenSlidePagerActivity extends FragmentActivity{
             return NUM_PAGES;
         }
     }
+
 }
