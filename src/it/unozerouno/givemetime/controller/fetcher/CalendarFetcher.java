@@ -4,6 +4,7 @@ import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.utils.AsyncTaskWithListener;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 
@@ -186,22 +187,33 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		queryEndTime = end;
 	}
 		
+	private int eventId = -1;
+	public void setEventId(int eventId){
+	this.eventId = eventId;	
+	}
 	/**
-	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher
+	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher. If the setEventId() has not been called, or the given id is -1, all events are returned
 	 */
 	private void getEvents(){
+		
 		ContentResolver cr = caller.getContentResolver();
 		Uri eventURI = Events.CONTENT_URI;
 		
 		String[] eventInfoProjection = Projections.EVENT_INFOS;
-	
+		String whereCalendar = Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller);
+		String whereEventId = "";
+		if(eventId != -1 && eventId >= 0){
+			whereEventId = " AND " + Events._ID + " = " + eventId;
+		}
+		
+		
 		
 		//For Identifying as SyncAdapter, User must already be logged)
 		eventURI = asSyncAdapter(eventURI, UserKeyRing.getUserEmail(caller), "com.google");
 		
 		
 		// execute the query, get a Cursor back
-		Cursor eventCursor = cr.query(eventURI, eventInfoProjection, Events.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, Events._ID);
+		Cursor eventCursor = cr.query(eventURI, eventInfoProjection, whereCalendar + whereEventId , null, Events._ID);
 		
 		// step through the records
 		while(eventCursor.moveToNext()){
@@ -223,6 +235,11 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		//Fetching events Instances
 				ContentResolver cr = caller.getContentResolver();
 				String[] eventInstancesProjection = Projections.INSTANCES_INFOS;
+				String whereEventId = "";
+				if(eventId != -1 && eventId >= 0){
+					whereEventId = " AND " + Instances.EVENT_ID + " = " + eventId;
+				}
+				String whereCalendar = Instances.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller);
 				
 						// Construct the query with the desired date range.
 						Uri.Builder instancesUriBuilder = Instances.CONTENT_URI.buildUpon();
@@ -230,13 +247,13 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 						ContentUris.appendId(instancesUriBuilder, queryEndTime);
 						
 						
-						Cursor instanceCursor = cr.query(instancesUriBuilder.build(), eventInstancesProjection, Instances.CALENDAR_ID + " = " + UserKeyRing.getCalendarId(caller), null, Instances.EVENT_ID);
+						Cursor instanceCursor = cr.query(instancesUriBuilder.build(), eventInstancesProjection, whereCalendar + whereEventId, null, Instances.EVENT_ID);
 						while (instanceCursor.moveToNext()){
 							String[] eventInstance = new String[eventInstancesProjection.length];
 							for (int i = 0; i < eventInstance.length; i++) {
 								eventInstance[i] = instanceCursor.getString(i);
 							}
-							System.out.println("Got instance- Id: " + eventInstance[0]+ " Begin: " + eventInstance[1]+ " End: " + eventInstance[2]);
+							GiveMeLogger.log("Got instance- Id: " + eventInstance[0]+ " Begin: " + eventInstance[1]+ " End: " + eventInstance[2]);
 							setResult(Results.RESULT_TYPE_INSTANCE,eventInstance);
 						}
 						instanceCursor.close();
@@ -261,6 +278,15 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			setResult(result);
 		}
 		cur.close();
+	}
+	
+	private void getSingleEvent(){
+		if (eventId==-1) {
+			GiveMeLogger.log("Event Id not set! Aborting..");
+			return;
+		}
+		
+		
 	}
 	
 	private EventInstanceModel eventInstanceToUpdate;

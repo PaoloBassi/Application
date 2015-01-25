@@ -83,19 +83,41 @@ public class GiveMeTimeService extends IntentService{
 		OnDatabaseUpdatedListener<ArrayList<EventInstanceModel>> listener = new OnDatabaseUpdatedListener<ArrayList<EventInstanceModel>>() {
 			@Override
 			protected void onUpdateFinished(
+					
 					ArrayList<EventInstanceModel> activeEvents) {
 				//That's the list of current active events
 				if (activeEvents.isEmpty()){
-					//No events are active, so we suppose it is the free-time (please make checks about Work TimeTable, etc)	
+					//2a - No events are active, so we suppose it is the free-time (please make checks about Work TimeTable, etc)	
 					showNotification("No active events");
+						//TODO: Notification question(onFreeTime)
+						
+						//TODO: Get closest compatible task
+						//TODO: If answer is "doing nothing" then suggest the new task and move it
+											
+					
+					
+					
+					
 				} else {
-					//If there are active events, proceed with the flow
+					//2b- If there are active events, proceed with the flow
 					showNotification(activeEvents.size() + " events are active");
+					//TODO: Get Location
+					//TODO: If event location is null, OR is it far away from current, then store in db the new location
+					//TODO: if the event is DND, then store the question, else notify the question
+					
+					
+					
+					
+					
 				}
 			}
 		};
+		//1 - Get the active event 
 		DatabaseManager.getActiveEvents(listener, getApplicationContext());
 	}
+	
+	
+	
 	
 	/**
 	 * This function is made for debug purpose only, as the location requests are asynchronous and cannot be returned by this function directly

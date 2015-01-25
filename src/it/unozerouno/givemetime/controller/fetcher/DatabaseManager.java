@@ -14,6 +14,7 @@ import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.places.PlaceModel;
+import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
@@ -54,6 +55,7 @@ public final class DatabaseManager {
 		if (database == null || dbCreator == null) {
 			dbCreator = DatabaseCreator.createHelper(context);
 			database = dbCreator.getWritableDatabase();
+			GiveMeLogger.log("Database Path: "+ database.getPath() );
 		}
 	}
 
@@ -87,12 +89,24 @@ public final class DatabaseManager {
 	 */
 	public static void getEventsInstances(Time start, Time end, Context caller,
 			final EventListener<EventInstanceModel> eventListener) {
+			getEventsInstances(-1, start, end, caller, eventListener);
+	}
+	/**
+	 * return a list of EventInstanceModel in the specified range and with the specified Id.
+	 * If eventId == -1, all instances are given 
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static void getEventsInstances(int eventId, Time start, Time end, Context caller,
+			final EventListener<EventInstanceModel> eventListener) {
 
 		// fetch the event from the calendar provider
 		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
 		calendarFetcher.setAction(CalendarFetcher.Actions.LIST_OF_EVENTS);
 		calendarFetcher.setEventInstanceTimeQuery(start.toMillis(false),
 				end.toMillis(false));
+		if(eventId!=-1)	calendarFetcher.setEventId(eventId);
 		calendarFetcher.setListener(new TaskListener<String[]>(caller) {
 			SparseArray<EventDescriptionModel> eventDescriptionMap = new SparseArray<EventDescriptionModel>();
 
@@ -119,10 +133,9 @@ public final class DatabaseManager {
 			}
 
 		});
-
 		calendarFetcher.execute();
 	}
-
+	
 	/**
 	 * Converts a CalendarFetcher string into an EventDescriptionModel
 	 * Also loads GiveMeTime additional data, if present in database
@@ -399,9 +412,9 @@ public final class DatabaseManager {
 		Cursor eventCursor = database.query(table, projection, where, null, null, null, null);
 		while (eventCursor.moveToNext()){
 			calendarId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_CALENDAR));
-			doNotDisturb = ("1"==eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DO_NOT_DISTURB)));
-			hasDeadline = ("1"==eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DEADLINE)));
-			isMovable = ("1"==eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_MOVABLE)));
+			doNotDisturb = (eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DO_NOT_DISTURB)).equals("1"));
+			hasDeadline = (eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DEADLINE)).equals("1"));
+			isMovable = (eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_MOVABLE)).equals("1"));
 			categoryString = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_EVENT_CATEGORY));
 			placeId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_PLACE));
 		}
@@ -451,6 +464,8 @@ public final class DatabaseManager {
 
 	}
 
+	
+	
 	// ///////////////////
 	//
 	// Location management
@@ -1380,6 +1395,19 @@ public final class DatabaseManager {
 			return null;
 		}
 		
+		public static void generateMissingDataQuestions(Context context, OnDatabaseUpdatedListener<ArrayList<OptimizingQuestion>> listener){
+			String table= DatabaseCreator.TABLE_EVENT_MODEL;
+			String[] projection = {DatabaseCreator.ID_EVENT_PROVIDER};
+			String where = DatabaseCreator.ID_EVENT_CATEGORY + " = " + "null" ;
+			//TODO: Finish this
+			
+			Cursor eventCursor = database.query(table, projection, where, null, null, null, null);
+			while (eventCursor.moveToNext()){
+			}
+			eventCursor.close();
+			
+			
+		}
 		
 	// /////////////////////////////
 	//
