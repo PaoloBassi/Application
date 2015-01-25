@@ -203,15 +203,15 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
         Intent editIntent = new Intent(this.getActivity(), EventEditorActivity.class);
         // tell the activity that it is an edit call
         editIntent.putExtra("EditOrNew", "Edit"); 
-        // pass to the edit only the ID and the name
+        // pass to the edit the fundamental infos
         editIntent.putExtra("EventID", event.getEvent().getID());
         editIntent.putExtra("EventName", event.getEvent().getName());
+        // add magic number to ensure that the event is correctly fetched
+        editIntent.putExtra("StartTime", event.getEvent().getSeriesStartingDateTime().toMillis(false) + 10000);
+        editIntent.putExtra("EndTime", event.getEvent().getSeriesEndingDateTime().toMillis(false) - 10000);
         
         
         editIntent.putExtra("Title", event.getEvent().getName());
-        // TODO retrieve location info
-        editIntent.putExtra("StartTime", event.getStartingTime().toMillis(false));
-        editIntent.putExtra("EndTime", event.getEndingTime().toMillis(false));
         // TODO has deadline and other fields
         editIntent.putExtra("AllDayEvent", event.getEvent().isAllDayEvent());
         editIntent.putExtra("Duration", event.getEvent().getDuration());

@@ -12,9 +12,12 @@ import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.events.EventCategory;
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
+import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.editor.LocationEditorFragment.OnSelectedPlaceModelListener;
+import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.utilities.DayEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
@@ -78,6 +81,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	private String eventName;
 	private PlaceModel selectedPlaceModel;
 	private Toolbar toolbar;
+	private EventListener<EventInstanceModel> eventListener;
 	
 	public void setStart(Time start) {
 		this.start = start;
@@ -121,6 +125,46 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			this.setTitle("New Event");
 		} else {
 			this.setTitle("Edit Event");
+			// load all the events infos from provider
+			final String ID = getIntent().getStringExtra("EventID");
+			long startTimeinMillis = getIntent().getLongExtra("Start Time", 0);
+			long endTimeinMillis = getIntent().getLongExtra("Ending Time", 0);
+			final Time startTime = new Time();
+			startTime.set(startTimeinMillis);
+			final Time endTime = new Time();
+			endTime.set(endTimeinMillis);
+			
+	        eventListener = new EventListener<EventInstanceModel>() {
+				
+				@Override
+				public void onEventCreation(final EventInstanceModel newEvent) {
+					//This is called from the Fetcher thread, so we had to swap to the UI thread
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							// save the information of the longPressed event given by the provider
+							if (newEvent.getEvent().getID().equals(ID)){
+								eventID = ID;
+								eventName = newEvent.getEvent().getName();
+								start = startTime;
+								end = endTime;
+							}
+						}
+					});			
+				}
+				
+				@Override
+				public void onEventChange(EventInstanceModel newEvent) {
+					// TODO: It's very unlikely that the event changes while watched, but this is the place for updates.
+				}
+
+				@Override
+				public void onLoadCompleted() {
+					//This is called from the Fetcher thread, so we had to swap to the UI thread		
+				}
+			};
+			// fetch the event instances searching for the edit event
+			DatabaseManager.getEventsInstances(Integer.parseInt(eventID), startTime, endTime, this, eventListener);
 		}
 		getUiContent();
 		setUiListeners();
@@ -128,6 +172,8 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		hideFragment(fragmentConstraints);
 		getEventInfo();
 	}
+	
+	
 	private void getUiContent(){
 		
 		// set the toolbar 
@@ -343,11 +389,15 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			fragmentConstraints.setConstraintList(eventToEdit.getConstraints());
 			
 		} else {
-			// retrieve the id of the event to be edited
-			eventID = getIntent().getStringExtra("EventID");
-			eventName = getIntent().getStringExtra("EventName");
-			// obtain the event description in the db
-			eventToEdit = DatabaseManager.loadEventFromDatabase(new EventDescriptionModel(eventID, eventName));
+			// Event Edit 
+			
+			// get the ID and name of the chosen event
+			String Id = getIntent().getStringExtra("EventID");
+			String name = getIntent().getStringExtra("EventName");
+			eventToEdit = new EventDescriptionModel(Id, name);
+			System.out.println("id of event selected: " + eventToEdit.getID());
+			System.out.println("start time: " + eventToEdit.getSeriesStartingDateTime());
+			System.out.println("end time: " + eventToEdit.getSeriesEndingDateTime());
 			// set all the information obtained on the view
 			editEventTitle.setText(eventToEdit.getName());
 			textLocation.setText(eventToEdit.getPlace().getName());
@@ -404,6 +454,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			}
 			// TODO: set all other data that we have
 			// create the relative instance of the Event
+			System.out.println("ma qui li setti start e end?" + start +" "+  end);
 			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
 			// if the event is recursive, set the duration
 			if (!spinnerRepetition.getSelectedItem().equals("Do not repeat")){
@@ -420,6 +471,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		} else {
 			//Here we are updating an existing event
 			
+
 			//Updating data about event description
 			//eventToEdit.getEvent().setUpdated();
 			//Updating data about instance?
@@ -468,6 +520,8 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		hideFragment(fragmentLocations);
 		buttonLocation.setText("Edit");
 		selectedPlaceModel = place;
+		// attach the selected place model to the event to add or edit in the UI
+		eventToEdit.setPlace(selectedPlaceModel);
 	}
 	
 	
