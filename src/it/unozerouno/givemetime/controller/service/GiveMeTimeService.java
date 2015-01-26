@@ -40,7 +40,6 @@ public class GiveMeTimeService extends IntentService{
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		
 		//Calling back the IntentService onStartCommand for managing the life cycle
 		return super.onStartCommand(intent, flags, startId);
 	}
@@ -91,7 +90,7 @@ public class GiveMeTimeService extends IntentService{
 					showNotification("No active events");
 						//TODO: Notification question(onFreeTime)
 						
-						//TODO: Get closest compatible task
+						//TODO: Get closest compatible task (in case of positive answer)
 						//TODO: If answer is "doing nothing" then suggest the new task and move it
 											
 					
