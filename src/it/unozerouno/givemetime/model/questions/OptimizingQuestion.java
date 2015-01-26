@@ -47,7 +47,17 @@ public class OptimizingQuestion extends QuestionModel{
 		this.missingConstraints = missingConstraints;
 	}
 	
-	
+	@Override
+	public boolean equals(Object o) {
+		if(!(o instanceof OptimizingQuestion)) return false;
+		OptimizingQuestion other = (OptimizingQuestion) o;
+		if (this.getEvent().equals(other.getEvent()) && 
+				this.isMissingCategory() == other.isMissingCategory() &&
+				this.isMissingConstraints() == other.isMissingConstraints() &&
+				this.isMissingPlace() == other.isMissingPlace()
+				) return true;
+		return false;
+	}
 	
 	
 	

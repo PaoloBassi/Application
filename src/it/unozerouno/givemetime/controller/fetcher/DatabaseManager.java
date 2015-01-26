@@ -147,11 +147,6 @@ public final class DatabaseManager {
 		// 3:Events.DTEND, 4:Events.EVENT_COLOR, 5:Events.RRULE, 6:Events.RDATE,
 		// 7: Events.ALL_DAY
 		// put each event inside a EventDescriptionModel
-		GiveMeLogger.log("Fetched event: id - " + eventResult[0]
-				+ " Title - " + eventResult[1] + "  Start: " + eventResult[2]
-				+ " End: " + eventResult[3] + " Color:" + eventResult[4]
-				+ " RRULE:" + eventResult[5] + " RDATE: " + eventResult[6]
-				+ " ALL_DAY: " + eventResult[7]);
 		// prepare the model
 		String id = eventResult[0];
 		String title = eventResult[1];
@@ -1403,19 +1398,50 @@ public final class DatabaseManager {
 			return null;
 		}
 		
-		public static void generateMissingDataQuestions(Context context, OnDatabaseUpdatedListener<ArrayList<OptimizingQuestion>> listener){
-			String table= DatabaseCreator.TABLE_EVENT_MODEL;
-			String[] projection = {DatabaseCreator.ID_EVENT_PROVIDER};
-			String where = DatabaseCreator.ID_EVENT_CATEGORY + " = " + "null" ;
-			//TODO: Finish this
-			
-			Cursor eventCursor = database.query(table, projection, where, null, null, null, null);
-			while (eventCursor.moveToNext()){
-			}
-			eventCursor.close();
-			
-			
+		public static void generateMissingDataQuestions(final Context context, final OnDatabaseUpdatedListener<SparseArray<OptimizingQuestion>> listener){
+			Time now = new Time();
+			now.setToNow();
+			Time end = new Time();
+			long ninetyDaysMillis = 1000*60*60*24*90;
+			end.set(now.toMillis(false)+ninetyDaysMillis);
+			final SparseArray<OptimizingQuestion> questions = new SparseArray<OptimizingQuestion>();
+			//Getting results from getEventInstances
+			EventListener<EventInstanceModel> eventResults = new EventListener<EventInstanceModel>() {
+				@Override
+				public void onLoadCompleted() {
+				listener.updateFinished(questions);
+				}
+				@Override
+				public void onEventCreation(EventInstanceModel newEvent) {
+					//Parsing the event and getting the question
+					GiveMeLogger.log("Analizing event data");
+					EventDescriptionModel event = newEvent.getEvent();
+					boolean missingCategory = false;
+					boolean missingPlace = false;
+					boolean missingConstraints = false;
+					if (event.getCategory() == null){
+						missingCategory = true;
+					}
+					if(event.getPlace() == null || event.getPlace().getPlaceId()==null){
+						missingPlace=true;
+					}
+					if(event.getIsMovable() && event.getConstraints().isEmpty()){
+						missingConstraints =true;
+					}
+					//Generating new question for the event
+					if(missingCategory||missingPlace||missingConstraints){
+					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints);
+					questions.put(Integer.parseInt(event.getID()), newQuestion);
+					}
+				}
+				@Override
+				public void onEventChange(EventInstanceModel newEvent) {
+				}
+			};
+			getEventsInstances(now, end, context, eventResults);
 		}
+		
+		
 		
 	// /////////////////////////////
 	//

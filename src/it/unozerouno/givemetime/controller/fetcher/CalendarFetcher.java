@@ -253,7 +253,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 							for (int i = 0; i < eventInstance.length; i++) {
 								eventInstance[i] = instanceCursor.getString(i);
 							}
-							GiveMeLogger.log("Got instance- Id: " + eventInstance[0]+ " Begin: " + eventInstance[1]+ " End: " + eventInstance[2]);
 							setResult(Results.RESULT_TYPE_INSTANCE,eventInstance);
 						}
 						instanceCursor.close();
