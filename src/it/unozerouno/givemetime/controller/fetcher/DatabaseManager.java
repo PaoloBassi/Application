@@ -240,11 +240,10 @@ public final class DatabaseManager {
 					String eventId = event[0];
 					String eventRRULE = event[1];
 					String eventRDATE = event[2];
-					String eventLocation = event[4];
-					DatabaseManager.getInstance(caller).createNewEventRow(caller,eventId, eventLocation);
+					DatabaseManager.getInstance(caller).createNewEventRow(caller,eventId);
 					
 					GiveMeLogger.log("Created in DB event with id: "+ eventId + " RRULE: " + eventRRULE + " RDATE: "
-							+ eventRDATE + " location: " + eventLocation);
+							+ eventRDATE);
 				}
 			}
 
@@ -453,27 +452,14 @@ public final class DatabaseManager {
 	 *            the id fetcher in the provider
 	 */
 
-	private void createNewEventRow(Context context, String eventId, final String placeId) {
+	private void createNewEventRow(Context context, String eventId) {
 		String calId = UserKeyRing.getCalendarId(context);
 		final String table = DatabaseCreator.TABLE_EVENT_MODEL;
 		final ContentValues values = new ContentValues();
 		values.put(DatabaseCreator.ID_CALENDAR, Integer.parseInt(calId));
 		values.put(DatabaseCreator.ID_EVENT_PROVIDER, Integer.parseInt(eventId));
-		
-		if(placeId != null && placeId != "" && placeId != "null" && !isPlaceInDb(placeId)){
-			//If a place is set on google calendar event, we first store it into the database
-			addPlaceAndFetchInfo(new PlaceResult(placeId, ""), new OnDatabaseUpdatedListener<PlaceModel>() {
-				@Override
-				protected void onUpdateFinished(PlaceModel updatedItem) {
-					// Here the place is already stored into database, so we proceed to event storage
-					values.put(DatabaseCreator.ID_PLACE, updatedItem.getPlaceId());
-					database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				}
-			});
-		} else{
-			//If no location is set on google event, we simply proceed to storing new event row
 		database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-		}
+	
 	}
 
 	
@@ -689,12 +675,7 @@ public final class DatabaseManager {
 		return places;
 	}
 	
-	public static boolean isPlaceInDb(String placeId){
-		String table = DatabaseCreator.TABLE_PLACE_MODEL;
-		String where = DatabaseCreator.PLACE_ID + "=" + "'"+placeId+"'";
-	//TODO: finish this
-		return true;
-	}
+	
 
 	// ///////////////////////
 	//
