@@ -82,11 +82,24 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 		public static String[] CALENDAR_ID_NAME_PROJ = {Calendars._ID, Calendars.NAME};
 		public static String[] CALENDAR_ID_OWNER_NAME_COLOUR = {Calendars._ID, Calendars.OWNER_ACCOUNT, Calendars.NAME, Calendars.CALENDAR_COLOR};
 		//Event related
-		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE, Events.DURATION};
+		public static String[] EVENT_ID_RRULE_RDATE = {Events._ID,Events.RRULE,Events.RDATE, Events.DURATION, Events.EVENT_LOCATION};
 		public static String[] EVENT_ID_TITLE = {Events._ID, Events.TITLE};
 		public static String[] EVENT_INFOS = {Events._ID, Events.TITLE, Events.DTSTART, Events.DTEND, Events.EVENT_COLOR, Events.RRULE, Events.RDATE, Events.ALL_DAY}; //When changing this remember to update both fetching and updating
 		public static String[] INSTANCES_INFOS = {Instances.EVENT_ID, Instances.BEGIN, Instances.END};
 		//...
+		
+		public static int getIndex(String[] projection, String coloumn) {
+			int counter = 0;
+			for (String currentColoumn : projection) {
+				if (currentColoumn == coloumn)
+					return counter;
+				else {
+					counter++;
+				}
+			}
+			return -1;
+		}
+	
 	}
 
 	

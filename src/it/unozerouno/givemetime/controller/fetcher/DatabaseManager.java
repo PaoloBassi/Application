@@ -32,6 +32,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Events;
 import android.text.format.Time;
 import android.util.SparseArray;
 
@@ -226,7 +228,7 @@ public final class DatabaseManager {
 	 * Pulls all new events from Google Calendar and creates relative entries in
 	 * GiveMeTime database
 	 */
-	public static synchronized boolean synchronize(Context caller) {
+	public static synchronized boolean synchronize(final Context caller) {
 
 		// Fetching Events ID from CalendarProvider
 		final CalendarFetcher calendarFetcher = new CalendarFetcher(caller);
@@ -238,12 +240,11 @@ public final class DatabaseManager {
 					String eventId = event[0];
 					String eventRRULE = event[1];
 					String eventRDATE = event[2];
-					DatabaseManager.getInstance(calendarFetcher.getCaller())
-							.createEmptyEventRow(calendarFetcher.getCaller(),
-									eventId);
-					GiveMeLogger.log("Created in DB event with id: "
-							+ eventId + " RRULE: " + eventRRULE + " RDATE: "
-							+ eventRDATE);
+					String eventLocation = event[4];
+					DatabaseManager.getInstance(caller).createNewEventRow(caller,eventId, eventLocation);
+					
+					GiveMeLogger.log("Created in DB event with id: "+ eventId + " RRULE: " + eventRRULE + " RDATE: "
+							+ eventRDATE + " location: " + eventLocation);
 				}
 			}
 
@@ -444,27 +445,35 @@ public final class DatabaseManager {
 	}
 
 	/**
-	 * At the beginning of the flow, adds in the EventDescriptionModel an EMPTY
-	 * row for each event found in the provider
+	 * Called at application startup. It inserts a new row into GMT database, with the eventId as primary key
+	 * it also fetches, if present, the location stored on GoogleCalendar event and populates the corresponding table
 	 * 
 	 * @param context
 	 * @param eventId
 	 *            the id fetcher in the provider
 	 */
 
-	private void createEmptyEventRow(Context context, String eventId) {
+	private void createNewEventRow(Context context, String eventId, final String placeId) {
 		String calId = UserKeyRing.getCalendarId(context);
-		String CREATE_NEW_EMPTY_EVENT = "INSERT INTO "
-				+ DatabaseCreator.TABLE_EVENT_MODEL + " ("
-				+ DatabaseCreator.ID_CALENDAR + ", "
-				+ DatabaseCreator.ID_EVENT_PROVIDER + ") " + "SELECT '"
-				+ Integer.parseInt(calId) + "', '" + Integer.parseInt(eventId)
-				+ "' " + "WHERE NOT EXISTS (" + "SELECT * FROM "
-				+ DatabaseCreator.TABLE_EVENT_MODEL + " WHERE "
-				+ DatabaseCreator.ID_CALENDAR + " = '" + calId + "' AND "
-				+ DatabaseCreator.ID_EVENT_PROVIDER + " = '" + eventId + "'); ";
-		database.execSQL(CREATE_NEW_EMPTY_EVENT);
-
+		final String table = DatabaseCreator.TABLE_EVENT_MODEL;
+		final ContentValues values = new ContentValues();
+		values.put(DatabaseCreator.ID_CALENDAR, Integer.parseInt(calId));
+		values.put(DatabaseCreator.ID_EVENT_PROVIDER, Integer.parseInt(eventId));
+		
+		if(placeId != null && placeId != "" && placeId != "null" && !isPlaceInDb(placeId)){
+			//If a place is set on google calendar event, we first store it into the database
+			addPlaceAndFetchInfo(new PlaceResult(placeId, ""), new OnDatabaseUpdatedListener<PlaceModel>() {
+				@Override
+				protected void onUpdateFinished(PlaceModel updatedItem) {
+					// Here the place is already stored into database, so we proceed to event storage
+					values.put(DatabaseCreator.ID_PLACE, updatedItem.getPlaceId());
+					database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+				}
+			});
+		} else{
+			//If no location is set on google event, we simply proceed to storing new event row
+		database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+		}
 	}
 
 	
@@ -474,6 +483,8 @@ public final class DatabaseManager {
 	// Location management
 	//
 	// ///////////////////
+	
+	
 
 	/**
 	 * Fetch more informations about Place result and store data into the
@@ -486,7 +497,7 @@ public final class DatabaseManager {
 	 *            Listener to notify
 	 */
 	public static void addPlaceAndFetchInfo(PlaceResult placeResult,
-			final OnDatabaseUpdatedListener listener) {
+			final OnDatabaseUpdatedListener<PlaceModel> listener) {
 		PlaceModel newPlace = new PlaceModel(placeResult);
 
 		AsyncTask<PlaceModel, Void, PlaceModel> placeFetcher = new AsyncTask<PlaceModel, Void, PlaceModel>() {
@@ -676,6 +687,13 @@ public final class DatabaseManager {
 		}
 		cursor.close();
 		return places;
+	}
+	
+	public static boolean isPlaceInDb(String placeId){
+		String table = DatabaseCreator.TABLE_PLACE_MODEL;
+		String where = DatabaseCreator.PLACE_ID + "=" + "'"+placeId+"'";
+	//TODO: finish this
+		return true;
 	}
 
 	// ///////////////////////
@@ -1402,7 +1420,7 @@ public final class DatabaseManager {
 			Time now = new Time();
 			now.setToNow();
 			Time end = new Time();
-			long ninetyDaysMillis = 1000*60*60*24*90;
+			long ninetyDaysMillis = (long)1000*(long)60*(long)60*(long)24*(long)90;
 			end.set(now.toMillis(false)+ninetyDaysMillis);
 			final SparseArray<OptimizingQuestion> questions = new SparseArray<OptimizingQuestion>();
 			//Getting results from getEventInstances
