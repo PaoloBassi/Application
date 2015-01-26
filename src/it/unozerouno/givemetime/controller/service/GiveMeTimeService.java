@@ -56,7 +56,7 @@ public class GiveMeTimeService extends IntentService{
 	protected void onHandleIntent(Intent intent) {
 		//TODO: put here the entire service flow
 		//This methods are meant for debug purpose only
-		GiveMeLogger.log("Stanting the service Flow");
+		GiveMeLogger.log("Starting the service Flow");
 		serviceFlow();
 		GiveMeLogger.log("Trying to get Location");
 		getLocation();

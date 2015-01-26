@@ -411,12 +411,20 @@ public final class DatabaseManager {
 		String where = DatabaseCreator.ID_EVENT_PROVIDER +" = " + eventIdToLoad;
 		Cursor eventCursor = database.query(table, projection, where, null, null, null, null);
 		while (eventCursor.moveToNext()){
-			calendarId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_CALENDAR));
-			doNotDisturb = (eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DO_NOT_DISTURB)).equals("1"));
-			hasDeadline = (eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DEADLINE)).equals("1"));
-			isMovable = (eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_MOVABLE)).equals("1"));
-			categoryString = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_EVENT_CATEGORY));
-			placeId = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_PLACE));
+			//Fetching strings from db
+			String calendarIdDB = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_CALENDAR));
+			String dndDB = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DO_NOT_DISTURB));
+			String hasDeadLineDB = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_DEADLINE));
+			String isMovableDB = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.FLAG_MOVABLE));
+			String categoryDB = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_EVENT_CATEGORY));
+			String placeIdDB = eventCursor.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.ID_PLACE));
+			//Converting into actual types
+			calendarId = calendarIdDB;
+			if(dndDB != null) doNotDisturb = dndDB.equals("1");
+			if(hasDeadLineDB != null) hasDeadline = hasDeadLineDB.equals("1");
+			if(isMovableDB != null) isMovable = isMovableDB.equals("1");
+			categoryString = categoryDB;
+			placeId = placeIdDB;
 		}
 		eventCursor.close();
 		
