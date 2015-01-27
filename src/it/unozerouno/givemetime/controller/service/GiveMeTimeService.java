@@ -97,11 +97,6 @@ public class GiveMeTimeService extends IntentService{
 					//2b- If there are active events, proceed with the flow
 					GiveMeLogger.log(activeEvents.size() + " events are active");
 					flowIfActiveEvents(activeEvents);
-					
-					
-					
-					
-					
 				}
 			}
 		};

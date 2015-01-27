@@ -14,15 +14,17 @@ import android.os.AsyncTask;
  * @param <Result>
  * @see AsyncTask, {@link AsyncTaskWithListener}
  */
-public abstract class AsyncTaskWithListener <Params, Progress, Result>  extends AsyncTask<Params, Progress, Result>{
-	private ArrayList<TaskListener<Result>> taskListeners = new ArrayList<TaskListener<Result>>();
-	public void setListener(TaskListener<Result> listener){
-		taskListeners.add(listener);
+public abstract class AsyncTaskWithListener <Params, Progress, ResultType>  extends AsyncTask<Params, Progress, ResultType>{
+	//private ArrayList<TaskListener<Result>> taskListeners = new ArrayList<TaskListener<Result>>();
+	TaskListener<ResultType> listener;
+	public void setListener(TaskListener<ResultType> listener){
+	//	taskListeners.add(listener);
+		this.listener = listener;
 	}
-	public void setResult(Result... results){
-		for (TaskListener<Result> listener : taskListeners) {
-			listener.onTaskResult(results);
-		}
-		
+	public void setResult(ResultType... results){
+//		for (TaskListener<ResultType> listener : taskListeners) {
+//			listener.onTaskResult(results);
+//		}
+		listener.onTaskResult(results);
 	}
 }

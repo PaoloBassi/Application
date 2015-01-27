@@ -100,7 +100,7 @@ public final class DatabaseManager {
 	 * @param end
 	 * @return
 	 */
-	public static void getEventsInstances(int eventId, Time start, Time end, Context caller,
+	public synchronized static void getEventsInstances(int eventId, Time start, Time end, Context caller,
 			final EventListener<EventInstanceModel> eventListener) {
 
 		// fetch the event from the calendar provider
@@ -238,12 +238,8 @@ public final class DatabaseManager {
 			public void onTaskResult(String[]... results) {
 				for (String[] event : results) {
 					String eventId = event[0];
-					String eventRRULE = event[1];
-					String eventRDATE = event[2];
+					GiveMeLogger.log("EVENT id: " + eventId);
 					DatabaseManager.getInstance(caller).createNewEventRow(caller,eventId);
-					
-					GiveMeLogger.log("Created in DB event with id: "+ eventId + " RRULE: " + eventRRULE + " RDATE: "
-							+ eventRDATE);
 				}
 			}
 
