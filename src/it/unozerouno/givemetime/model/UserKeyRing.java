@@ -33,6 +33,7 @@ public final class UserKeyRing {
 	//Service Related
 	private static final String serviceLocationUpdateFrequency = "service_location_update_frequency";
 	private static final String serviceLocationMaxAge = "service_location_max_age";
+	private static final String serviceLocationMaxDist = "service_location_max_dist";
 	
 	
 	@SuppressLint("CommitPrefEdits") 
@@ -103,9 +104,14 @@ public final class UserKeyRing {
 		editor.commit();
 	}
 	
-	public static void getLocationMaxAge(Context context, int maximumLocationAge) {
+	public static void setLocationMaxAge(Context context, int maximumLocationAge) {
 		setSharedPreferences(context);
 		editor.putInt(serviceLocationMaxAge, maximumLocationAge);
+		editor.commit();
+	}
+	public static void setLocationMaxDistTolerance(Context context, float maximumLocationDist) {
+		setSharedPreferences(context);
+		editor.putFloat(serviceLocationMaxDist, maximumLocationDist);
 		editor.commit();
 	}
 	
@@ -161,6 +167,10 @@ public final class UserKeyRing {
 		setSharedPreferences(context);
 		return prefs.getInt(serviceLocationMaxAge, 20);
 	}
+	public static float getLocationMaxDistTolerance(Context context) {
+		setSharedPreferences(context);
+		return prefs.getFloat(serviceLocationMaxDist, 1000f);
+	}
 	
 	/**
 	 * Checks whether all crucial user variables are set properly.  
@@ -176,6 +186,8 @@ public final class UserKeyRing {
 		
 		return true;
 	}
+
+	
 
 	
 }

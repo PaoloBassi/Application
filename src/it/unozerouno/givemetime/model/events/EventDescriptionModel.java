@@ -260,7 +260,23 @@ public class EventDescriptionModel extends EventModel{
 	}
 	
 	public Location getLocation(){
-		return place.getLocation();
+		if(place != null) return place.getLocation();
+		return null;
+	}
+	/**
+	 * Return true if the event can be moved at the given time.
+	 * If "when" is null, then the current time is used
+	 * Note that this method is based on constraints, so even if the event is scheduled at the given time, the method will return false if no constraint are specified for that time
+	 * @param when
+	 * @return
+	 */
+	public boolean isFeasible(Time when){
+		if(!isMovable) return false;
+		for (ComplexConstraint complexConstraint : constraints) {
+			if(when == null && complexConstraint.isActive()) return true;
+			if (when != null && complexConstraint.isActive(when)) return true;
+		}
+		return false;
 	}
 	
 	@Override

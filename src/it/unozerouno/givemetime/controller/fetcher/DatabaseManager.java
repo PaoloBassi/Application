@@ -1413,7 +1413,6 @@ public final class DatabaseManager {
 				@Override
 				public void onEventCreation(EventInstanceModel newEvent) {
 					//Parsing the event and getting the question
-					GiveMeLogger.log("Analizing event data");
 					EventDescriptionModel event = newEvent.getEvent();
 					boolean missingCategory = false;
 					boolean missingPlace = false;
