@@ -1428,7 +1428,9 @@ public final class DatabaseManager {
 					}
 					//Generating new question for the event
 					if(missingCategory||missingPlace||missingConstraints){
-					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints);
+					Time now = new Time();
+					now.setToNow();
+					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints, now);
 					questions.put(Integer.parseInt(event.getID()), newQuestion);
 					}
 				}

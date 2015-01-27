@@ -17,17 +17,15 @@ import android.text.format.Time;
 public class LocationMismatchQuestion extends QuestionModel{
 	private EventInstanceModel event;
 	private Location locationWhenGenerated;
-	private Time generationTime;
 	private PlaceModel place;
 	
 	
 
 	public LocationMismatchQuestion(Context context, EventInstanceModel event,
 			Location locationWhenGenerated, Time generationTime) {
-		super(context);
+		super(context,generationTime);
 		this.event = event;
 		this.locationWhenGenerated = locationWhenGenerated;
-		this.generationTime = generationTime;
 	}
 
 
