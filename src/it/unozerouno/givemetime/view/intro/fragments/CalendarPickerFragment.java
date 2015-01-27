@@ -86,17 +86,6 @@ public class CalendarPickerFragment extends Fragment {
         //Log the user in
         login();
         
-        //Setting new calendar button onClick
-        newCalendarButton = (Button) rootView.findViewById(R.id.calendar_list_new_btn);
-        newCalendarButton.setEnabled(false);
-        newCalendarButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				createNewCalendar();
-				
-			}
-		});
-        
         // set the button confirming the selection of the db
         confirmCalendarButton = (Button) rootView.findViewById(R.id.continueButton);
         confirmCalendarButton.setOnClickListener(new OnClickListener() {
@@ -177,7 +166,6 @@ public class CalendarPickerFragment extends Fragment {
 				CalendarPickerFragment.this.getActivity().runOnUiThread(new Runnable(){
 			        public void run(){
 			        	CalendarPickerFragment.this.listAdapter.notifyDataSetChanged();
-			        	CalendarPickerFragment.this.newCalendarButton.setEnabled(true);
 			        }
 			    });
 				}				

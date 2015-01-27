@@ -46,8 +46,6 @@ public class WelcomeAndDisclaimer extends Fragment{
 				
 			}
 		});
-        
-        ((ActionBarActivity)getActivity()).getSupportActionBar().setTitle("Welcome to GiveMeTime!");
 
         return rootView;
     }

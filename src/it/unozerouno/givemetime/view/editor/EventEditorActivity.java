@@ -127,8 +127,8 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			this.setTitle("Edit Event");
 			// load all the events infos from provider
 			final String ID = getIntent().getStringExtra("EventID");
-			long startTimeinMillis = getIntent().getLongExtra("Start Time", 0);
-			long endTimeinMillis = getIntent().getLongExtra("Ending Time", 0);
+			long startTimeinMillis = getIntent().getLongExtra("StartTime", 0);
+			long endTimeinMillis = getIntent().getLongExtra("EndTime", 0);
 			final Time startTime = new Time();
 			startTime.set(startTimeinMillis);
 			final Time endTime = new Time();
@@ -138,19 +138,54 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				
 				@Override
 				public void onEventCreation(final EventInstanceModel newEvent) {
-					//This is called from the Fetcher thread, so we had to swap to the UI thread
+					
 					runOnUiThread(new Runnable() {
+						
 						@Override
 						public void run() {
-							// save the information of the longPressed event given by the provider
-							if (newEvent.getEvent().getID().equals(ID)){
-								eventID = ID;
-								eventName = newEvent.getEvent().getName();
-								start = startTime;
-								end = endTime;
+							
+							// when found, assign the corresponding event
+							eventToEdit = newEvent.getEvent();
+							// retrieve all data in order to display them on screen
+							
+							editEventTitle.setText(eventToEdit.getName());
+							if (eventToEdit.getPlace() == null){
+								textLocation.setText("Location not set");
+							} else {
+								textLocation.setText(eventToEdit.getPlace().getName());
 							}
+							spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
+							switchDeadline.setChecked(eventToEdit.getHasDeadline());
+							// check if the event has repetitions
+							if (eventToEdit.isRecursive()){
+								//TODO set spinner repetition with correct text
+							} else {
+								spinnerRepetition.setSelection(0); // it the no repetition choice
+							}
+							// check if it is an all day event
+							int i = getIntent().getIntExtra("AllDayEvent", 0);
+							boolean isAllDay;
+							if (i == 1){
+								isAllDay = true;
+							} else {
+								isAllDay = false;
+							}
+							switchAllDay.setChecked(isAllDay);
+							
+							// if all day events, disable all the others
+							if (!switchAllDay.isChecked()){
+								setSpinnerVisibility(View.VISIBLE);
+							} else {
+								setSpinnerVisibility(View.GONE);
+							}
+							setSpinnerData(eventToEdit.getSeriesStartingDateTime(), eventToEdit.getSeriesEndingDateTime());
+							
+							switchIsMovable.setChecked(eventToEdit.getIsMovable());
+							switchDoNotDisturb.setChecked(eventToEdit.getDoNotDisturb());
+							// TODO Auto-generated method stub
+							
 						}
-					});			
+					});
 				}
 				
 				@Override
@@ -164,12 +199,15 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				}
 			};
 			// fetch the event instances searching for the edit event
-			DatabaseManager.getEventsInstances(Integer.parseInt(eventID), startTime, endTime, this, eventListener);
+			System.out.println("start: " + startTime.hour + " " + startTime.minute + " " + startTime.second);
+			System.out.println("end: " + endTime.hour + " " + endTime.minute + " " + endTime.second);
+			DatabaseManager.getEventsInstances(Integer.parseInt(ID), startTime, endTime, this, eventListener);
 		}
 		getUiContent();
 		setUiListeners();
 		hideFragment(fragmentLocations);
 		hideFragment(fragmentConstraints);
+
 		getEventInfo();
 	}
 	
@@ -391,44 +429,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		} else {
 			// Event Edit 
 			
-			// get the ID and name of the chosen event
-			String Id = getIntent().getStringExtra("EventID");
-			String name = getIntent().getStringExtra("EventName");
-			eventToEdit = new EventDescriptionModel(Id, name);
-			System.out.println("id of event selected: " + eventToEdit.getID());
-			System.out.println("start time: " + eventToEdit.getSeriesStartingDateTime());
-			System.out.println("end time: " + eventToEdit.getSeriesEndingDateTime());
-			// set all the information obtained on the view
-			editEventTitle.setText(eventToEdit.getName());
-			textLocation.setText(eventToEdit.getPlace().getName());
-			spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
-			switchDeadline.setChecked(eventToEdit.getHasDeadline());
-			// check if the event has repetitions
-			if (eventToEdit.isRecursive()){
-				//TODO set spinner repetition with correct text
-			} else {
-				spinnerRepetition.setSelection(0); // it the no repetition choice
-			}
-			// check if it is an all day event
-			int i = getIntent().getIntExtra("AllDayEvent", 0);
-			boolean isAllDay;
-			if (i == 1){
-				isAllDay = true;
-			} else {
-				isAllDay = false;
-			}
-			switchAllDay.setChecked(isAllDay);
 			
-			// if all day events, disable all the others
-			if (!switchAllDay.isChecked()){
-				setSpinnerVisibility(View.VISIBLE);
-			} else {
-				setSpinnerVisibility(View.GONE);
-			}
-			setSpinnerData(eventToEdit.getSeriesStartingDateTime(), eventToEdit.getSeriesEndingDateTime());
-			
-			switchIsMovable.setChecked(eventToEdit.getIsMovable());
-			switchDoNotDisturb.setChecked(eventToEdit.getDoNotDisturb());
 		}
 	}
 	
@@ -454,7 +455,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			}
 			// TODO: set all other data that we have
 			// create the relative instance of the Event
-			System.out.println("ma qui li setti start e end?" + start +" "+  end);
+			
 			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
 			// if the event is recursive, set the duration
 			if (!spinnerRepetition.getSelectedItem().equals("Do not repeat")){
