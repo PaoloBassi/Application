@@ -46,6 +46,46 @@ public class LocationMismatchQuestion extends QuestionModel{
 		}
 		return place;
 	}
+
+
+
+
+
+
+
+	public EventInstanceModel getEvent() {
+		return event;
+	}
+
+
+
+
+
+
+
+	public void setEvent(EventInstanceModel event) {
+		this.event = event;
+	}
+
+
+
+
+
+
+
+	public Location getLocationWhenGenerated() {
+		return locationWhenGenerated;
+	}
+
+
+
+
+
+
+
+	public void setLocationWhenGenerated(Location locationWhenGenerated) {
+		this.locationWhenGenerated = locationWhenGenerated;
+	}
 	
 	
 }
