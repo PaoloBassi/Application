@@ -1,5 +1,7 @@
 package it.unozerouno.givemetime.model.questions;
 
+import it.unozerouno.givemetime.controller.fetcher.places.LocationFetcher;
+import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
@@ -16,6 +18,7 @@ public class LocationMismatchQuestion extends QuestionModel{
 	private EventInstanceModel event;
 	private Location locationWhenGenerated;
 	private Time generationTime;
+	private PlaceModel place;
 	
 	
 
@@ -33,9 +36,17 @@ public class LocationMismatchQuestion extends QuestionModel{
 
 
 
-
-	public void getPlaceModel(OnDatabaseUpdatedListener<PlaceModel> result){
-		//TODO: Implement this
+	/**
+	 * Retrieve the nearest placemodel from the coordinates in which this question has been generated.
+	 * Note that if the placemodel is still unknown, it will be fetched from PlacesAPI
+	 * @return
+	 */
+	public PlaceModel getPlaceModel(){
+		if (place == null){
+			//We still don't know anything about the coordinates
+			place = PlaceFetcher.getPlaceModelFromLocation(locationWhenGenerated);
+		}
+		return place;
 	}
 	
 	
