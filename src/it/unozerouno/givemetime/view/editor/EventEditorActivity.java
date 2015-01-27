@@ -135,7 +135,6 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			endTime.set(endTimeinMillis);
 			
 	        eventListener = new EventListener<EventInstanceModel>() {
-				
 				@Override
 				public void onEventCreation(final EventInstanceModel newEvent) {
 					//This is called from the Fetcher thread, so we had to swap to the UI thread

@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.model.questions;
 
 import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import android.content.Context;
+import android.text.format.Time;
 
 /**
  * This type of question is made when there are events with missing information
@@ -15,8 +16,8 @@ public class OptimizingQuestion extends QuestionModel{
 	private boolean missingConstraints; //If event is marked as movable but no constraints are defined
 	public OptimizingQuestion(Context context, EventDescriptionModel event,
 			boolean missingPlace, boolean missingCategory,
-			boolean missingConstraints) {
-		super(context);
+			boolean missingConstraints, Time generationTime) {
+		super(context, generationTime);
 		this.event = event;
 		this.missingPlace = missingPlace;
 		this.missingCategory = missingCategory;

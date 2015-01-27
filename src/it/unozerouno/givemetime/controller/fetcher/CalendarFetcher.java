@@ -104,7 +104,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 
 	
 	
-	private static int task = Actions.NO_ACTION;
+	private int task = Actions.NO_ACTION;
 	Context caller;
 	ProgressBar progressBar;
 	
@@ -145,7 +145,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	}
 	
 	@Override
-	protected String[] doInBackground(String... projection) {
+	protected synchronized String[] doInBackground(String... projection) {
 		switch (task) {
 		case Actions.NO_ACTION:
 			break;
@@ -207,7 +207,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 	/**
 	 * Fetch event list and returns each result to the Task Listener attached to CalendarFetcher. If the setEventId() has not been called, or the given id is -1, all events are returned
 	 */
-	private void getEvents(){
+	private synchronized void getEvents(){
 		
 		ContentResolver cr = caller.getContentResolver();
 		Uri eventURI = Events.CONTENT_URI;

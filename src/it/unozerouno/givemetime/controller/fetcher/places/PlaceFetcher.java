@@ -32,6 +32,7 @@ public final class PlaceFetcher {
 	private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 	private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
 	private static final String TYPE_DETAILS = "/details";
+	private static final String TYPE_SEARCH = "/nearbysearch";
 	private static final String OUT_JSON = "/json";
 
 
@@ -176,7 +177,66 @@ public final class PlaceFetcher {
 		return placeWithInfo;
 	}
 	
-	
+	public static PlaceModel getPlaceModelFromLocation(Location location){
+		PlaceModel placeModel = null;
+		
+
+	    HttpURLConnection conn = null;
+	    StringBuilder jsonResults = new StringBuilder();
+	    try {
+	        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
+	        sb.append("?key=" + ApiKeys.getKey());
+	        sb.append("&location=" +Double.toString(location.getLatitude())+Double.toString(location.getLongitude()));
+	        sb.append("&radius=50");
+	        sb.append("&type=route");
+	        URL url = new URL(sb.toString());
+	        conn = (HttpURLConnection) url.openConnection();
+	        InputStreamReader in = new InputStreamReader(conn.getInputStream());
+
+	        // Load the results into a StringBuilder
+	        int read;
+	        char[] buff = new char[1024];
+	        while ((read = in.read(buff)) != -1) {
+	            jsonResults.append(buff, 0, read);
+	        }
+	    } catch (MalformedURLException e) {
+	        Log.e(LOG_TAG, "Error processing Places API URL", e);
+	        return placeModel;
+	    } catch (IOException e) {
+	        Log.e(LOG_TAG, "Error connecting to Places API", e);
+	        return placeModel;
+	    } finally {
+	        if (conn != null) {
+	            conn.disconnect();
+	        }
+	    }
+	    ArrayList<PlaceResult> resultList = new ArrayList<PlaceResult>();
+	    try {
+	        // Create a JSON object hierarchy from the results
+	        JSONObject jsonObj = new JSONObject(jsonResults.toString());
+	        JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
+
+	        // Extract the Place descriptions from the results
+	        resultList = new ArrayList<PlaceResult>(predsJsonArray.length());
+	        String status = jsonObj.getString("status");
+	        if(status.equals("OK")){
+	        for (int i = 0; i < predsJsonArray.length(); i++) {
+	        	PlaceResult newResult = new PlaceResult(predsJsonArray.getJSONObject(i),status);
+	        	resultList.add(newResult);
+	        }
+	        }
+	    } catch (JSONException e) {
+	        Log.e(LOG_TAG, "Cannot process JSON results", e);
+	    }
+	    //Now we have the models for the results. Let's get the first, if any, and return it
+	    if(!resultList.isEmpty()){
+	    	placeModel = new PlaceModel(resultList.get(0));
+	    	placeModel = getAdditionalInfo(placeModel);
+	    } else {
+	    	return null;
+	    }
+	    return placeModel;
+	}
 	
 	
 	/**

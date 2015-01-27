@@ -1,6 +1,8 @@
 package it.unozerouno.givemetime.model.questions;
 
+import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import android.content.Context;
+import android.text.format.Time;
 
 /**
  * This type of service-generated question is made when the user is apparently not engaged in any event
@@ -8,10 +10,9 @@ import android.content.Context;
  *
  */
 public class FreeTimeQuestion extends QuestionModel{
-
-	public FreeTimeQuestion(Context context) {
-		super(context);
-		// TODO Auto-generated constructor stub
+	
+	public FreeTimeQuestion(Context context, Time generationTime, EventInstanceModel closestEvent) {
+		super(context, generationTime);
 	}
 
 }

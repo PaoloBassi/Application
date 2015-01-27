@@ -100,7 +100,7 @@ public final class DatabaseManager {
 	 * @param end
 	 * @return
 	 */
-	public static void getEventsInstances(int eventId, Time start, Time end, Context caller,
+	public synchronized static void getEventsInstances(int eventId, Time start, Time end, Context caller,
 			final EventListener<EventInstanceModel> eventListener) {
 
 		// fetch the event from the calendar provider
@@ -238,12 +238,8 @@ public final class DatabaseManager {
 			public void onTaskResult(String[]... results) {
 				for (String[] event : results) {
 					String eventId = event[0];
-					String eventRRULE = event[1];
-					String eventRDATE = event[2];
+					GiveMeLogger.log("EVENT id: " + eventId);
 					DatabaseManager.getInstance(caller).createNewEventRow(caller,eventId);
-					
-					GiveMeLogger.log("Created in DB event with id: "+ eventId + " RRULE: " + eventRRULE + " RDATE: "
-							+ eventRDATE);
 				}
 			}
 
@@ -1413,7 +1409,6 @@ public final class DatabaseManager {
 				@Override
 				public void onEventCreation(EventInstanceModel newEvent) {
 					//Parsing the event and getting the question
-					GiveMeLogger.log("Analizing event data");
 					EventDescriptionModel event = newEvent.getEvent();
 					boolean missingCategory = false;
 					boolean missingPlace = false;
@@ -1429,7 +1424,9 @@ public final class DatabaseManager {
 					}
 					//Generating new question for the event
 					if(missingCategory||missingPlace||missingConstraints){
-					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints);
+					Time now = new Time();
+					now.setToNow();
+					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints, now);
 					questions.put(Integer.parseInt(event.getID()), newQuestion);
 					}
 				}
