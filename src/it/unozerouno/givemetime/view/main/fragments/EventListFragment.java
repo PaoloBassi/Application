@@ -207,8 +207,8 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
         editIntent.putExtra("EventID", event.getEvent().getID());
         editIntent.putExtra("EventName", event.getEvent().getName());
         // add magic number to ensure that the event is correctly fetched
-        editIntent.putExtra("StartTime", event.getEvent().getSeriesStartingDateTime().toMillis(false) + 10000);
-        editIntent.putExtra("EndTime", event.getEvent().getSeriesEndingDateTime().toMillis(false) - 10000);
+        editIntent.putExtra("StartTime", event.getEvent().getSeriesStartingDateTime().toMillis(false) - (long)10000);
+        editIntent.putExtra("EndTime", event.getEvent().getSeriesEndingDateTime().toMillis(false) + (long)10000);
         
         
         editIntent.putExtra("Title", event.getEvent().getName());

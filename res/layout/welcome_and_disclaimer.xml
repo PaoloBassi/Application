@@ -11,7 +11,6 @@
         android:layout_width="fill_parent"
         android:padding="5dp"
         android:layout_height="fill_parent"
-        android:divider="?android:dividerHorizontal"
         android:showDividers="middle"
         >
         
@@ -25,6 +24,11 @@
             android:gravity="top"
             android:text="@string/firstPage"
             />
+        
+        <View
+    		android:layout_width="fill_parent"
+    		android:layout_height="1dip"
+   			android:background="?android:attr/actionBarDivider" />
         
         <RelativeLayout
             android:layout_width="fill_parent"
