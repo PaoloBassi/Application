@@ -22,10 +22,13 @@ import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
+import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.android.gms.internal.lo;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -1411,17 +1414,38 @@ public final class DatabaseManager {
 			
 			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_ID + " = " + question.getId(),null);
 		}
-		public static List<QuestionModel> getQuestions(){
-			List<QuestionModel> questions = new ArrayList<QuestionModel>();
+		public static ArrayList<QuestionModel> getQuestions(final Context context){
+			ArrayList<QuestionModel> questions = new ArrayList<QuestionModel>();
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
-			String[] projection = DatabaseCreator.Projections.QUESTIONS;
+			final String[] projection = DatabaseCreator.Projections.QUESTIONS;
 			Cursor results = database.query(table, projection, null, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
 			while (results.moveToNext()){
-				//TODO: Finish this
+				 int questionId = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
+				String questionDate = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_DATE_TIME));
+				 String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
+				if(questionType == null) continue;
+				 int questionEventId= results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_EVENT_ID));
+				 String questionLongitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LONGITUDE));
+				 String questionLatitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LATITUDE));
 				
-				
+				 Time questionTime = new Time();
+				 questionTime.set(Long.parseLong(questionDate));
+						if(questionType.equals("FreeTimeQuestion")){
+							FreeTimeQuestion freeTimeQuestion = new FreeTimeQuestion(context, questionTime, null);
+							freeTimeQuestion.setId(questionId);
+							freeTimeQuestion.setEventId(questionEventId);
+							questions.add(freeTimeQuestion);
+						}
+						else if (questionType.equals("LocationMismatchQuestion")) {
+							Location generatedLocation = new  Location("GMT");
+							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
+							generatedLocation.setLatitude(Double.parseDouble(questionLongitude));
+							LocationMismatchQuestion locationMismatchQuestion = new LocationMismatchQuestion(context, null,generatedLocation, questionTime);
+							locationMismatchQuestion.setId(questionId);
+							locationMismatchQuestion.setEventId(questionEventId);
+							questions.add(locationMismatchQuestion);
+						}
 			}
-			
 			results.close();
 			return questions;
 		}
@@ -1481,7 +1505,7 @@ public final class DatabaseManager {
 	/**
 	 * This helper class creates the GiveMeTime database
 	 * 
-	 * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com> Paolo Bassi
+	 * @author Paolo Bassi
 	 * 
 	 */
 	private static class DatabaseCreator extends SQLiteOpenHelper {

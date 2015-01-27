@@ -7,6 +7,7 @@ public abstract class QuestionModel {
 	private Context context;
 	private Time generationTime;
 	private int id;
+	private int eventId;
 	
 	
 	
@@ -17,6 +18,20 @@ public abstract class QuestionModel {
 		this.context = context;
 		this.generationTime = generationTime;
 	}
+	
+	
+
+	public int getEventId() {
+		return eventId;
+	}
+
+
+
+	public void setEventId(int eventId) {
+		this.eventId = eventId;
+	}
+
+
 
 	public Context getContext() {
 		return context;
