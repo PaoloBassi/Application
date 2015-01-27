@@ -21,6 +21,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.text.format.Time;
 
 public class GiveMeTimeService extends IntentService{
@@ -61,9 +62,8 @@ public class GiveMeTimeService extends IntentService{
 		//TODO: put here the entire service flow
 		//This methods are meant for debug purpose only
 		GiveMeLogger.log("Starting the service Flow");
-		serviceFlow();
+				serviceFlow();
 	}
-	
 	
 	private void showNotification(String message){
 		Notification noti = new Notification.Builder(getApplicationContext())
@@ -130,7 +130,7 @@ public class GiveMeTimeService extends IntentService{
 							Time now = new Time();
 							now.setToNow();
 							LocationMismatchQuestion question = new LocationMismatchQuestion(getApplication(), currentActiveEvent, location, now);
-							showNotification("Is " + currentActiveEvent.getEvent().getName() + " at " + location.getLatitude()+","+location.getLongitude()+"?");
+							showNotification("Found possible location for " + currentActiveEvent.getEvent().getName());
 							//TODO: Notify a LocationMismatch question - is your event @ location?
 							
 						}
