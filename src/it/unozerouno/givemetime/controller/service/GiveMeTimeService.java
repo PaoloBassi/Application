@@ -9,7 +9,9 @@ import it.unozerouno.givemetime.model.constraints.TimeConstraint;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
+import it.unozerouno.givemetime.model.questions.QuestionModel;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.questions.QuestionActivity;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 
 import java.util.ArrayList;
@@ -18,10 +20,13 @@ import android.R;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
 
 public class GiveMeTimeService extends IntentService{
@@ -53,13 +58,11 @@ public class GiveMeTimeService extends IntentService{
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		// TODO Free any resources or save the collected data
-
+		//Free any resources or save the collected data
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		//TODO: put here the entire service flow
 		//This methods are meant for debug purpose only
 		GiveMeLogger.log("Starting the service Flow");
 				serviceFlow();
@@ -124,15 +127,17 @@ public class GiveMeTimeService extends IntentService{
 							now.setToNow();
 							LocationMismatchQuestion question = new LocationMismatchQuestion(getApplication(), currentActiveEvent, location, now);
 							showNotification("Storing a new LocationMismatchQuestion");
-							//TODO: Store a LocationMismatch question - is your event @ location?
+							long questionId = DatabaseManager.addQuestion(question);
+							GiveMeLogger.log("Stored a locationMismatch question with id:" + questionId);
 							
 						}else{
 							Time now = new Time();
 							now.setToNow();
 							LocationMismatchQuestion question = new LocationMismatchQuestion(getApplication(), currentActiveEvent, location, now);
-							showNotification("Found possible location for " + currentActiveEvent.getEvent().getName());
-							//TODO: Notify a LocationMismatch question - is your event @ location?
-							
+							long questionId = DatabaseManager.addQuestion(question);
+							GiveMeLogger.log("Showing locationMismatch question with id:" + questionId);
+							showQuestion(questionId, question, "Found possible location for " + currentActiveEvent.getEvent().getName());
+						
 						}
 					} else
 					{
@@ -143,25 +148,60 @@ public class GiveMeTimeService extends IntentService{
 								Time now = new Time();
 								now.setToNow();
 								LocationMismatchQuestion question = new LocationMismatchQuestion(getApplication(), currentActiveEvent, location, now);
-								showNotification("Storing a new LocationMismatchQuestion");
-								//TODO: Store a LocationMismatch question - were you actually doing "event" @ location?
+								long questionId = DatabaseManager.addQuestion(question);
+								GiveMeLogger.log("Stored a locationMismatch question with id:" + questionId);
 							}else{
 								Time now = new Time();
 								now.setToNow();
 								LocationMismatchQuestion question = new LocationMismatchQuestion(getApplication(), currentActiveEvent, location, now);
 								showNotification("Are you doing " + currentActiveEvent.getEvent().getName() + " at " + location.getLatitude()+","+location.getLongitude()+"?");
 								//TODO: Notify a LocationMismatch question - were you actually doing "event" @ location?
-
+								long questionId = DatabaseManager.addQuestion(question);
+								GiveMeLogger.log("Showing locationMismatch question with id:" + questionId);
+								showQuestion(questionId, question, "Are you at " + currentActiveEvent.getEvent().getName() + "?");
 							}
 						} else {
 							GiveMeLogger.log("User is at the scheduled event");
 						}
 					}
 				}
-			} 
+			}
+			
+			
 		}, UserKeyRing.getLocationUpdateFrequency(getApplication()));
 	}
 	
+	private void showQuestion(long questionId, QuestionModel question, String message) {
+		NotificationCompat.Builder mBuilder =
+		        new NotificationCompat.Builder(this)
+				.setSmallIcon(it.unozerouno.givemetime.R.drawable.ic_launcher)
+		        .setContentTitle("GiveMeTime")
+		        .setContentText(message);
+		// Creates an explicit intent for an Activity in your app
+		Intent resultIntent = new Intent(this, QuestionActivity.class);
+		resultIntent.putExtra(QuestionActivity.QUESTION_ID, questionId);
+		
+		// The stack builder object will contain an artificial back stack for the
+		// started Activity.
+		// This ensures that navigating backward from the Activity leads out of
+		// your application to the Home screen.
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		// Adds the back stack for the Intent (but not the Intent itself)
+		stackBuilder.addParentStack(QuestionActivity.class);
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent =
+		        stackBuilder.getPendingIntent(
+		            0,
+		            PendingIntent.FLAG_UPDATE_CURRENT
+		        );
+		mBuilder.setContentIntent(resultPendingIntent);
+		NotificationManager mNotificationManager =
+		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		// mId allows you to update the notification later on.
+		mNotificationManager.notify(0, mBuilder.build());
+		
+	} 
 	private void flowIfNoActiveEvents(){
 		//Getting current Location
 				LocationFetcher.getInstance(getApplication());
@@ -187,7 +227,9 @@ public class GiveMeTimeService extends IntentService{
 									Time now = new Time();
 									now.setToNow();
 									FreeTimeQuestion question = new FreeTimeQuestion(getApplicationContext(), now, closestEvent);
-									//TODO: Propose this event if not sleepTime
+									long questionId = DatabaseManager.addQuestion(question);
+									GiveMeLogger.log("Showing locationMismatch question with id:" + questionId);
+									showQuestion(questionId, question, "Maybe you could do " + closestEvent.getEvent().getName() + "?");
 									
 								}else{
 									//TODO: There are any feasible events to be done now

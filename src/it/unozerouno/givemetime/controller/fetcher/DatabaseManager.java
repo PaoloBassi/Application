@@ -1387,8 +1387,13 @@ public final class DatabaseManager {
 		//
 		// /////////////////////////////		
 	
-		public static void addQuestion(QuestionModel question){
-			if(question==null) return;
+		/**
+		 * Add a question model into the database. If no id is set, a new id will be given instead
+		 * @param question
+		 * @return the id of new generated question
+		 */
+		public static synchronized long addQuestion(QuestionModel question){
+			if(question==null) return -1;
 			ContentValues values = new ContentValues();
 			if(question.getId() != -1) values.put(DatabaseCreator.QUESTION_ID, question.getId());
 			values.put(DatabaseCreator.QUESTION_DATE_TIME, question.getGenerationTime().toMillis(false));
@@ -1406,7 +1411,8 @@ public final class DatabaseManager {
 				values.put(DatabaseCreator.QUESTION_USER_LONGITUDE, locationMismatchQuestion.getLocationWhenGenerated().getLongitude());
 			}
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
-			database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+			long rowId = database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+			return rowId;
 		}
 		public static void removeQuestion(QuestionModel question){
 			if (question == null) return;
@@ -1414,7 +1420,15 @@ public final class DatabaseManager {
 			
 			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_ID + " = " + question.getId(),null);
 		}
-		public static ArrayList<QuestionModel> getQuestions(final Context context){
+		
+		/**
+		 * Returns a list of questions that are stored into the database.
+		 * NOTE THAT returned questions have NO EVENT MODEL ASSOCIATED, but only their id.
+		 * To rebuild the proper question model you should first fetch the event pointed by that id
+		 * @param context
+		 * @return
+		 */
+		public static synchronized ArrayList<QuestionModel> getQuestions(final Context context){
 			ArrayList<QuestionModel> questions = new ArrayList<QuestionModel>();
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
 			final String[] projection = DatabaseCreator.Projections.QUESTIONS;
@@ -1437,20 +1451,69 @@ public final class DatabaseManager {
 							questions.add(freeTimeQuestion);
 						}
 						else if (questionType.equals("LocationMismatchQuestion")) {
-							Location generatedLocation = new  Location("GMT");
+							Location generatedLocation = new Location("GMT");
 							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
 							generatedLocation.setLatitude(Double.parseDouble(questionLongitude));
 							LocationMismatchQuestion locationMismatchQuestion = new LocationMismatchQuestion(context, null,generatedLocation, questionTime);
 							locationMismatchQuestion.setId(questionId);
 							locationMismatchQuestion.setEventId(questionEventId);
 							questions.add(locationMismatchQuestion);
-						}
+						} else continue;
 			}
 			results.close();
 			return questions;
 		}
 		
-		public static void generateMissingDataQuestions(final Context context, final OnDatabaseUpdatedListener<SparseArray<OptimizingQuestion>> listener){
+		/**
+		 * Returns a list of questions that are stored into the database.
+		 * NOTE THAT returned questions have NO EVENT MODEL ASSOCIATED, but only their id.
+		 * To rebuild the proper question model you should first fetch the event pointed by that id
+		 * @param context
+		 * @return
+		 */
+		public static synchronized QuestionModel getQuestion(final Context context, int questionId){
+			QuestionModel question = null;
+			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
+			final String[] projection = DatabaseCreator.Projections.QUESTIONS;
+			
+			String where = DatabaseCreator.QUESTION_ID + " = " + questionId;
+			
+			Cursor results = database.query(table, projection, where, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
+			while (results.moveToNext()){
+				 int questionIdReturned = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
+				String questionDate = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_DATE_TIME));
+				 String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
+				if(questionType == null) continue;
+				 int questionEventId= results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_EVENT_ID));
+				 String questionLongitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LONGITUDE));
+				 String questionLatitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LATITUDE));
+				
+				 Time questionTime = new Time();
+				 questionTime.set(Long.parseLong(questionDate));
+						if(questionType.equals("FreeTimeQuestion")){
+							FreeTimeQuestion freeTimeQuestion = new FreeTimeQuestion(context, questionTime, null);
+							freeTimeQuestion.setId(questionId);
+							freeTimeQuestion.setEventId(questionEventId);
+						}
+						else if (questionType.equals("LocationMismatchQuestion")) {
+							Location generatedLocation = new Location("GMT");
+							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
+							generatedLocation.setLatitude(Double.parseDouble(questionLongitude));
+							LocationMismatchQuestion locationMismatchQuestion = new LocationMismatchQuestion(context, null,generatedLocation, questionTime);
+							locationMismatchQuestion.setId(questionId);
+							locationMismatchQuestion.setEventId(questionEventId);
+						}
+			}
+			results.close();
+			return question;
+		}
+		
+		/**
+		 * This function analyzes all the events in the next three months and generates corresponding questions about missing data
+		 * @param context
+		 * @param listener results are returned here
+		 */
+		public static synchronized void generateMissingDataQuestions(final Context context, final OnDatabaseUpdatedListener<SparseArray<OptimizingQuestion>> listener){
 			Time now = new Time();
 			now.setToNow();
 			Time end = new Time();
