@@ -8,11 +8,17 @@ import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
-import android.app.Activity;
+import it.unozerouno.givemetime.view.questions.fragments.FreeTimeFragment;
+import it.unozerouno.givemetime.view.questions.fragments.FreeTimeFragment.OnFreeTimeQuestionResponse;
+import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragment;
+import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragment.OnLocationMismatchQuestionResponse;
+import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.text.format.Time;
+import android.widget.Toast;
 
-public class QuestionActivity extends Activity{
+public class QuestionActivity extends ActionBarActivity implements OnLocationMismatchQuestionResponse, OnFreeTimeQuestionResponse{
 	QuestionModel question;
 	FreeTimeQuestion freeTimeQuestion;
 	LocationMismatchQuestion locationMismatchQuestion;
@@ -43,6 +49,8 @@ public class QuestionActivity extends Activity{
 				@Override
 				public void onLoadCompleted() {
 					questionEvent = resultEvent;
+					
+					
 					loadQuestionProperties();
 				}
 				
@@ -73,24 +81,90 @@ public class QuestionActivity extends Activity{
 		if (question instanceof FreeTimeQuestion){
 			freeTimeQuestion = (FreeTimeQuestion) question;
 			freeTimeQuestion.setClosestEvent(questionEvent);
+			freeTimeFlow();
 		}
 		if (question instanceof LocationMismatchQuestion){
 			locationMismatchQuestion = (LocationMismatchQuestion) question;
 			locationMismatchQuestion.setEvent(questionEvent);
-			questionPlace = locationMismatchQuestion.getPlaceModel();
+			//Now we have fetched the question related event. We still need to get its location:
+			locationMismatchQuestion.buildPlaceModel(new OnDatabaseUpdatedListener<PlaceModel>() {
+				
+				@Override
+				protected void onUpdateFinished(PlaceModel questionPlaceModel) {
+					//Only when we have also the PlaceModel we can continue with the flow
+					questionPlace = questionPlaceModel;
+					locationMismatchFlow();
+				}
+			});
 		}
 	}
 	/**
 	 * This is the flow when the question is for a location Mismatch
 	 */
 	private void locationMismatchFlow(){
-		
+		if(questionPlace == null){
+			//Something gone wrong with reverse geocoding
+			Toast.makeText(getApplicationContext(), "No suitable Places near your location", Toast.LENGTH_LONG).show();
+		}
+		LocationMismatchFragment locationMismatchFragment = new LocationMismatchFragment();
+		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,locationMismatchFragment,"locationMismatchFragment").commit();
 	}
 	
 	/**
 	 * This is the flow when the question is for a freeTime suggestion
 	 */
 	private void freeTimeFlow(){
+		FreeTimeFragment freeTimeFragment = new FreeTimeFragment();
+		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,freeTimeFragment,"freeTimeFragment").commit();
+	
+	}
+	
+	@Override
+	public FreeTimeQuestion loadFreeTimeQuestion() {
+		if(question instanceof FreeTimeQuestion) return (FreeTimeQuestion) question;
+		finish();
+		return null;
+	}
+	@Override
+	public void onUpdateClicked(FreeTimeQuestion question) {
+		// TODO Update event
+		finish();
+	}
+	@Override
+	public void onCancelClicked(FreeTimeQuestion question) {
+		DatabaseManager.removeQuestion(question);
+		finish();
+	}
+	@Override
+	public void onCreateClicked(FreeTimeQuestion question) {
+		// TODO open New Event Activity
 		
 	}
+	@Override
+	public LocationMismatchQuestion loadLocationMismatchQuestion() {
+		if(question instanceof LocationMismatchQuestion) return (LocationMismatchQuestion) question;
+		finish();
+		return null;
+	}
+	@Override
+	public void onUpdateClicked(LocationMismatchQuestion question) {
+		// TODO Update Event
+		finish();
+	}
+	@Override
+	public void onCancelClicked(LocationMismatchQuestion question) {
+		DatabaseManager.removeQuestion(question);
+		finish();
+		
+	}
+	@Override
+	public void onCreateClicked(LocationMismatchQuestion question) {
+		// TODO open New Event Activity
+		
+	}
+	
+	
+	
+	
+	
 }

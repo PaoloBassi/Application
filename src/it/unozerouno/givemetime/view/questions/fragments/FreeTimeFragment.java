@@ -2,6 +2,7 @@ package it.unozerouno.givemetime.view.questions.fragments;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
+import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -21,18 +22,22 @@ public class FreeTimeFragment  extends Fragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_edit_locations, container);
+		View view = inflater.inflate(R.layout.question_free_time, container, false);
 		getUI(view);
 		return view;
 	}
 	
+	@Override
+	public void onStart() {
+		super.onStart();
+		 loadQuestion();
+	}
 	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
         try {
             mListener = (OnFreeTimeQuestionResponse) activity;
-            loadQuestion();
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnFreeTimeQuestionResponse");
         }
@@ -57,6 +62,23 @@ public class FreeTimeFragment  extends Fragment{
 		eventSuggestion.setText(question.getClosestEvent().getEvent().getName());
 	}
 	public interface OnFreeTimeQuestionResponse {
+		/**
+		 * Called from the fragment when it tries to load a question
+		 * @return
+		 */
 		FreeTimeQuestion loadFreeTimeQuestion();
+		/**
+		 * Called when the user decides to update the location of the question into the event
+		 * @param question
+		 */
+		void onUpdateClicked(FreeTimeQuestion question);
+		/**
+		 * Called when the user decides to do not make any action
+		 */
+		void onCancelClicked(FreeTimeQuestion question);
+		/**
+		 * Called when the user decides to make a new event because it was not attending specified event
+		 */
+		void onCreateClicked(FreeTimeQuestion question);
 	}
 }

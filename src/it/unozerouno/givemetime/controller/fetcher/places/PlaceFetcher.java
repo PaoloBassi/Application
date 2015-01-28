@@ -184,9 +184,9 @@ public final class PlaceFetcher {
 	    HttpURLConnection conn = null;
 	    StringBuilder jsonResults = new StringBuilder();
 	    try {
-	        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_AUTOCOMPLETE + OUT_JSON);
+	        StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_SEARCH + OUT_JSON);
 	        sb.append("?key=" + ApiKeys.getKey());
-	        sb.append("&location=" +Double.toString(location.getLatitude())+Double.toString(location.getLongitude()));
+	        sb.append("&location=" +Double.toString(location.getLatitude())+","+Double.toString(location.getLongitude()));
 	        sb.append("&radius=50");
 	        sb.append("&type=route");
 	        URL url = new URL(sb.toString());
@@ -214,15 +214,17 @@ public final class PlaceFetcher {
 	    try {
 	        // Create a JSON object hierarchy from the results
 	        JSONObject jsonObj = new JSONObject(jsonResults.toString());
-	        JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
+	        JSONArray resultJsonArray = jsonObj.getJSONArray("results");
 
 	        // Extract the Place descriptions from the results
-	        resultList = new ArrayList<PlaceResult>(predsJsonArray.length());
+	        resultList = new ArrayList<PlaceResult>(resultJsonArray.length());
 	        String status = jsonObj.getString("status");
 	        if(status.equals("OK")){
-	        for (int i = 0; i < predsJsonArray.length(); i++) {
-	        	PlaceResult newResult = new PlaceResult(predsJsonArray.getJSONObject(i),status);
+	        for (int i = 0; i < resultJsonArray.length(); i++) {
+	        	if (resultJsonArray.getJSONObject(i).has("place_id")){
+	        	PlaceResult newResult = new PlaceResult(resultJsonArray.getJSONObject(i),status);
 	        	resultList.add(newResult);
+	        	}
 	        }
 	        }
 	    } catch (JSONException e) {
@@ -264,14 +266,16 @@ public final class PlaceFetcher {
 		
 		public PlaceResult(JSONObject jsonObject, String requestStatus) throws JSONException{
 			this.status = requestStatus;
-			this.description=jsonObject.getString("description");
-			this.placeID = jsonObject.getString("place_id");
+			if(jsonObject.has("place_id"))this.placeID = jsonObject.getString("place_id");
+			if(jsonObject.has("description"))this.description=jsonObject.getString("description");
+			if(jsonObject.has("terms")){
 			JSONArray resultTerms = jsonObject.getJSONArray("terms");
 			terms = new ArrayList<String>();
 			for (int i = 0; i < resultTerms.length(); i++) {
 				terms.add(resultTerms.getJSONObject(i).getString("value"));
 			}
 			parseTerms();
+			}
 		}
 		
 		

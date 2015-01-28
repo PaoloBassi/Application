@@ -504,6 +504,30 @@ public final class DatabaseManager {
 		};
 		placeFetcher.execute(newPlace);
 	}
+	
+	/**
+	 * This function get a Location (mainly a Longitude/Latitude pair) and retrives the associated PlaceModel.
+	 * The type of Place returned is likely to be a road (see {@link PlaceFetcher})
+	 * @param location
+	 * @param resultListener
+	 */
+	public static void getPlaceModelFromLocation(Location location, final OnDatabaseUpdatedListener<PlaceModel> resultListener){
+		AsyncTask<Location, Void, PlaceModel> locationToPlaceConverter = new AsyncTask<Location, Void, PlaceModel>() {
+
+			@Override
+			protected PlaceModel doInBackground(Location... location) {
+				return PlaceFetcher.getPlaceModelFromLocation(location[0]);
+			}
+
+			@Override
+			protected void onPostExecute(PlaceModel result) {
+				super.onPostExecute(result);
+				addPlaceInDatabase(result);
+				resultListener.updateFinished(result);
+			}
+		};
+		locationToPlaceConverter.execute(location);
+		}
 
 	/**
 	 * Store a placeModel into the database
@@ -1475,7 +1499,7 @@ public final class DatabaseManager {
 			QuestionModel question = null;
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
 			final String[] projection = DatabaseCreator.Projections.QUESTIONS;
-			
+			GiveMeLogger.log("database path is: " + database.getPath());
 			String where = DatabaseCreator.QUESTION_ID + " = " + questionId;
 			
 			Cursor results = database.query(table, projection, where, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
@@ -1494,14 +1518,16 @@ public final class DatabaseManager {
 							FreeTimeQuestion freeTimeQuestion = new FreeTimeQuestion(context, questionTime, null);
 							freeTimeQuestion.setId(questionId);
 							freeTimeQuestion.setEventId(questionEventId);
+							question = freeTimeQuestion;
 						}
 						else if (questionType.equals("LocationMismatchQuestion")) {
 							Location generatedLocation = new Location("GMT");
 							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
-							generatedLocation.setLatitude(Double.parseDouble(questionLongitude));
+							generatedLocation.setLongitude(Double.parseDouble(questionLongitude));
 							LocationMismatchQuestion locationMismatchQuestion = new LocationMismatchQuestion(context, null,generatedLocation, questionTime);
 							locationMismatchQuestion.setId(questionId);
 							locationMismatchQuestion.setEventId(questionEventId);
+							question = locationMismatchQuestion;
 						}
 			}
 			results.close();

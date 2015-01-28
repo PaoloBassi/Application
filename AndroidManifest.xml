@@ -95,6 +95,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+         <activity
+            android:name="it.unozerouno.givemetime.view.questions.QuestionActivity"
+            android:label="GiveMeTime Question"
+            >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
        <service 
            android:enabled="true"
            android:exported="false"

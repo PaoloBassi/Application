@@ -76,7 +76,7 @@ public final class LocationFetcher implements ConnectionCallbacks, OnConnectionF
 			buildGoogleApiClient(context);
 		}
 		//Since a listener is waiting for a location and we still don't have it, we have just registered for a new Update (see "onConnected" callback)
-		GiveMeLogger.log("Waiting for a response");
+		GiveMeLogger.log("Waiting for a Location response");
 		}
 	
 	/**

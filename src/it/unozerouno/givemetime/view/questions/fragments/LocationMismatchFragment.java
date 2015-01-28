@@ -1,12 +1,16 @@
 package it.unozerouno.givemetime.view.questions.fragments;
 
+
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.model.events.EventInstanceModel;
+import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,20 +22,28 @@ public class LocationMismatchFragment extends Fragment{
 	TextView questionLocationText;
 	Button updateButton;
 	Button cancelButton;
-	Button refuseButton;
+	Button createButton;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.question_locationmismatch, container);
+		View view = inflater.inflate(R.layout.question_locationmismatch, container, false);
 		getUI(view);
 		return view;
 	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		 loadQuestion();
+	}
+	
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
         try {
             mListener = (OnLocationMismatchQuestionResponse) activity;
-            loadQuestion();
+            
+           
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnLocationMismatchQuestionResponse");
         }
@@ -46,23 +58,63 @@ public class LocationMismatchFragment extends Fragment{
 		questionLocationText = (TextView) view.findViewById(R.id.question_location_mismatch_question_location);
 		updateButton = (Button) view.findViewById(R.id.question_location_btn_update);
 		cancelButton = (Button) view.findViewById(R.id.question_location_btn_cancel);
-		refuseButton = (Button) view.findViewById(R.id.question_location_btn_refuse);
+		createButton = (Button) view.findViewById(R.id.question_location_btn_create);
 	}
 	
 	/**
 	 * Gets the question from parent activity and fills the ui with proper data
 	 */
 	private void loadQuestion(){
-		LocationMismatchQuestion question = mListener.loadLocationMismatchQuestion();
+		final LocationMismatchQuestion question = mListener.loadLocationMismatchQuestion();
 		if(question.getEvent().getEvent().getPlace() == null){
-			//TODO: Event has no place set, show the proper UI (hide buttons, etc)
+			//Event has no place set, show the proper UI (hide buttons, etc)
+			eventNameText.setText(R.string.location_not_set);
+			createButton.setEnabled(false);
 		} else {
-			//TODO: Event has place set
+			//Event has place set
+			eventNameText.setText(question.getEvent().getEvent().getPlace().getName());
 		}
+		questionLocationText.setText(question.getPlace().getName());
+		
+		//Setting buttons onClick
+		cancelButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mListener.onCancelClicked(question);
+			}
+		});
+		updateButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mListener.onUpdateClicked(question);
+			}
+		});
+		createButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mListener.onCreateClicked(question);
+			}
+		});
 	}
 	
 	public interface OnLocationMismatchQuestionResponse {
+		/**
+		 * Called from the fragment when it tries to load a question
+		 * @return
+		 */
 		LocationMismatchQuestion loadLocationMismatchQuestion();
-		
+		/**
+		 * Called when the user decides to update the location of the question into the event
+		 * @param question
+		 */
+		void onUpdateClicked(LocationMismatchQuestion question);
+		/**
+		 * Called when the user decides to do not make any action
+		 */
+		void onCancelClicked(LocationMismatchQuestion question);
+		/**
+		 * Called when the user decides to make a new event because it was not attending specified event
+		 */
+		void onCreateClicked(LocationMismatchQuestion question);
 	}
 }

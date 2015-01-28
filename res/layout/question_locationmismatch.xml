@@ -83,14 +83,14 @@
          android:layout_width="142dp"
          android:layout_height="wrap_content"
          android:layout_weight="0.50"
-         android:text="I was at event location" />
+         android:text="Cancel" />
 
  </LinearLayout>
 
  <Button
-     android:id="@+id/question_location_btn_refuse"
+     android:id="@+id/question_location_btn_create"
      android:layout_width="match_parent"
      android:layout_height="wrap_content"
-     android:text="I wasn&apos;t at the event" />
+     android:text="I was at another event" />
 
 </LinearLayout>
