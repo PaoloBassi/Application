@@ -145,6 +145,10 @@ public final class PlaceFetcher {
 		        String phoneNumber = result.getString("international_phone_number");
 		        placeWithInfo.setPhoneNumber(phoneNumber);
 		        }
+		        if (result.has("name")){ 
+			        String name = result.getString("name");
+			        placeWithInfo.setName(name);;
+			        }
 		        
 		        if (result.has("geometry")){ 
 		        	  JSONObject geometry = result.getJSONObject("geometry");

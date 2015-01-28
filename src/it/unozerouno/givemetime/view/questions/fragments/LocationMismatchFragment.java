@@ -68,13 +68,19 @@ public class LocationMismatchFragment extends Fragment{
 		final LocationMismatchQuestion question = mListener.loadLocationMismatchQuestion();
 		if(question.getEvent().getEvent().getPlace() == null){
 			//Event has no place set, show the proper UI (hide buttons, etc)
-			eventNameText.setText(R.string.location_not_set);
+			eventPlaceText.setText(R.string.location_not_set);
 			createButton.setEnabled(false);
 		} else {
 			//Event has place set
-			eventNameText.setText(question.getEvent().getEvent().getPlace().getName());
+			eventPlaceText.setText(question.getEvent().getEvent().getPlace().getName());
 		}
-		questionLocationText.setText(question.getPlace().getName());
+		eventNameText.setText(question.getEvent().getEvent().getName());
+		String placeName = question.getPlace().getName();
+		if(placeName == null){
+			placeName = question.getPlace().getFormattedAddress();
+		}
+		
+		questionLocationText.setText(placeName);
 		
 		//Setting buttons onClick
 		cancelButton.setOnClickListener(new OnClickListener() {
