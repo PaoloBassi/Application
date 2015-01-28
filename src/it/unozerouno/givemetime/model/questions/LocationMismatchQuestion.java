@@ -1,5 +1,6 @@
 package it.unozerouno.givemetime.model.questions;
 
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.fetcher.places.LocationFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
@@ -39,12 +40,86 @@ public class LocationMismatchQuestion extends QuestionModel{
 	 * Note that if the placemodel is still unknown, it will be fetched from PlacesAPI
 	 * @return
 	 */
-	public PlaceModel getPlaceModel(){
+	public void buildPlaceModel(final OnDatabaseUpdatedListener<PlaceModel> resultListener){
 		if (place == null){
-			//We still don't know anything about the coordinates
-			place = PlaceFetcher.getPlaceModelFromLocation(locationWhenGenerated);
+			//If the place is still unknown then we have to fetch it asynchronously from DatabaseManager (thus PlaceFetcher)
+			OnDatabaseUpdatedListener<PlaceModel> placeModelConverter = new OnDatabaseUpdatedListener<PlaceModel>() {
+				@Override
+				protected void onUpdateFinished(PlaceModel placeModel) {
+					//When the placemodel is ready we store it and notify back to caller
+					setPlace(placeModel);
+					resultListener.updateFinished(placeModel);
+				}
+			};
+			DatabaseManager.getPlaceModelFromLocation(locationWhenGenerated, placeModelConverter);
+		}else{
+			//If the place is still present we simply notify it back
+			resultListener.updateFinished(place);
 		}
+	}
+
+
+	
+
+
+  
+	/**
+	 * Return the STORED placemodel associated with this question.
+	 * NOTE THAT if you havn't previously called "buildPlaceModel" this function will return null, so call it only when you are sure that this question contains a model
+	 * @return
+	 */
+	public PlaceModel getPlace() {
 		return place;
+	}
+
+
+
+
+
+
+
+	public void setPlace(PlaceModel place) {
+		this.place = place;
+	}
+
+
+
+
+
+
+
+	public EventInstanceModel getEvent() {
+		return event;
+	}
+
+
+
+
+
+
+
+	public void setEvent(EventInstanceModel event) {
+		this.event = event;
+	}
+
+
+
+
+
+
+
+	public Location getLocationWhenGenerated() {
+		return locationWhenGenerated;
+	}
+
+
+
+
+
+
+
+	public void setLocationWhenGenerated(Location locationWhenGenerated) {
+		this.locationWhenGenerated = locationWhenGenerated;
 	}
 	
 	

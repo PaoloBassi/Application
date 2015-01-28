@@ -10,9 +10,19 @@ import android.text.format.Time;
  *
  */
 public class FreeTimeQuestion extends QuestionModel{
+	EventInstanceModel closestEvent;
 	
 	public FreeTimeQuestion(Context context, Time generationTime, EventInstanceModel closestEvent) {
 		super(context, generationTime);
+		this.closestEvent = closestEvent;
+	}
+
+	public EventInstanceModel getClosestEvent() {
+		return closestEvent;
+	}
+
+	public void setClosestEvent(EventInstanceModel closestEvent) {
+		this.closestEvent = closestEvent;
 	}
 
 }

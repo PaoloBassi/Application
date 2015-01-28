@@ -34,7 +34,8 @@
     <string name="place_autocomplete_key_outdated">Your application is outdated. Please update it on Play Store or send us an email if the error persists.</string>
     <string name="editor_constraints_datepicker_title">Date Constraints</string>
     <string name="editor_constraints_timepicker_title">Time Constraints</string>
-     <string name="editor_constraints_daypicker_title">Week Day Constraints</string>
+    <string name="editor_constraints_daypicker_title">Week Day Constraints</string>
+    <string name="location_not_set">None</string>
 	<string-array name="Repetitions">
 	    <item>Do not repeat</item>
 	    <item>Every Day</item>
@@ -43,4 +44,5 @@
 	    <item>Every Year</item>
 	    <item>Personalize</item>
 	</string-array>
+	
 </resources>

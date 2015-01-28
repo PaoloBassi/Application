@@ -25,7 +25,6 @@ public class ConstraintsFragment extends Fragment{
 		View view = inflater.inflate(R.layout.fragment_event_editor_constraints, container);
 		constraintFragments = new ArrayList<SingleConstraintFragment>();
 		header = new ConstraintHeaderFragment();
-		
 		getFragmentManager().beginTransaction().add(R.id.constraint_container,header,"header").commit();
 		header.setOnAddButtonOnClick(new OnClickListener() {
 			

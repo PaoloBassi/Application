@@ -111,15 +111,23 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+         <activity
+            android:name="it.unozerouno.givemetime.view.questions.QuestionActivity"
+            android:label="GiveMeTime Question"
+            >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
        <service 
            android:enabled="true"
            android:exported="false"
            android:label="GiveMeTime Service"
            android:name="it.unozerouno.givemetime.controller.service.GiveMeTimeService"
            >
-           </service>  
-           <receiver android:name="it.unozerouno.givemetime.controller.service.ServiceScheduler"
-               >
+        </service>  
+           
+    <receiver android:name="it.unozerouno.givemetime.controller.service.ServiceScheduler">
     <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED"></action>
     </intent-filter>
