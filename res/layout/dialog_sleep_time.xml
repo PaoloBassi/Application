@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:orientation="vertical" >
+
+    <LinearLayout 
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:padding="10dp"
+    	android:orientation="vertical">
+    
+	
+	    <Switch
+			android:id="@+id/home_switch_sleep_time"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:checked="true"
+			android:text="Standard (23:00 to 07:00)" />
+    
+    </LinearLayout>
+    
+    <LinearLayout
+	     android:layout_width="match_parent"
+	     android:layout_height="wrap_content" >
+
+	     <TextView
+	         android:id="@+id/home_start_day_textview"
+	         android:layout_width="match_parent"
+	         android:layout_height="match_parent"
+	         android:layout_weight="1"
+	         android:gravity="center"
+	         android:layout_margin="10dp"
+	         android:enabled="false"
+	         android:text="Wake up at:" />
+
+	     <TextView
+	         android:id="@+id/home_end_day_textview"
+	         android:layout_width="match_parent"
+	         android:layout_height="match_parent"
+	         android:layout_weight="1"
+	         android:gravity="center"
+	         android:layout_margin="10dp"
+	         android:enabled="false"
+	         android:text="Go to sleep at:" />
+	</LinearLayout>
+			
+	<LinearLayout
+	     android:layout_width="match_parent"
+	     android:layout_height="wrap_content" >
+
+	     <TextView
+	         style="@android:style/Widget.DeviceDefault.Light.Spinner"
+	         android:id="@+id/home_spinner_start_day"
+	         android:layout_width="match_parent"
+	         android:layout_height="match_parent"
+	         android:layout_margin="10dp"
+	         android:enabled="false"
+	         android:layout_weight="1" />
+
+	     <TextView
+	         style="@android:style/Widget.DeviceDefault.Light.Spinner"
+	         android:id="@+id/home_spinner_end_day"
+	         android:layout_width="match_parent"
+	         android:layout_height="match_parent"
+	         android:layout_margin="10dp"
+	         android:enabled="false"
+	         android:layout_weight="1" />
+	</LinearLayout>
+	
+	<View
+	     android:layout_marginTop="10dp"
+	     android:layout_marginBottom="10dp"
+         android:layout_width="fill_parent"
+         android:layout_height="1dp"
+         android:background="#c0c0c0"/>
+	
+	
+	<RelativeLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="50dp">	   
+	    <Button
+	        android:id="@+id/btnCancel"
+	       style="?android:attr/buttonBarButtonStyle"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:layout_alignParentLeft="true"
+	    	android:layout_toLeftOf="@+id/spaceInCenter"
+	    	android:text="Cancel">
+		</Button>
+		
+	    <View 
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_centerInParent="true"
+	        android:id="@+id/spaceInCenter"/>
+	    
+		<Button
+		    android:id="@+id/btnConfirm"
+	    	style="?android:attr/buttonBarButtonStyle" 
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:layout_alignParentRight="true"
+	    	android:layout_toRightOf="@+id/spaceInCenter"
+	    	android:text="Confirm">
+		</Button>
+	</RelativeLayout>
+	
+
+    
+
+
+</LinearLayout>

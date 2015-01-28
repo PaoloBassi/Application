@@ -17,6 +17,7 @@ import android.widget.EditText;
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.view.intro.HomeLocationDialogActivity;
+import it.unozerouno.givemetime.view.intro.HomeSleepDialogActivity;
 import it.unozerouno.givemetime.view.main.MainActivity;
 
 public class LastTutorialPage extends Fragment{
@@ -28,6 +29,7 @@ public class LastTutorialPage extends Fragment{
         
         Button continueButton = (Button) rootView.findViewById(R.id.continueButton);
         Button btnHomeLocation = (Button) rootView.findViewById(R.id.btnHomeLocation);
+        Button btnSleep = (Button) rootView.findViewById(R.id.btnSleepTime);
         
         btnHomeLocation.setOnClickListener(new OnClickListener() {
 			
@@ -38,6 +40,16 @@ public class LastTutorialPage extends Fragment{
 				
 			}
 		});
+        
+        btnSleep.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent(getActivity(), HomeSleepDialogActivity.class);
+				startActivity(intent);
+			}
+		});
+        
         
         
         continueButton.setOnClickListener(new OnClickListener() {

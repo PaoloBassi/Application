@@ -103,6 +103,14 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+        <activity 
+            android:name="it.unozerouno.givemetime.view.intro.HomeSleepDialogActivity"
+            android:label="Set Sleep Time"
+            android:theme="@android:style/Theme.Holo.Dialog">
+            <intent-filter >
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
        <service 
            android:enabled="true"
            android:exported="false"
