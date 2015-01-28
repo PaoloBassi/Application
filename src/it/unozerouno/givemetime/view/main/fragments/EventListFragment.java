@@ -17,6 +17,7 @@ import java.util.List;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Outline;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -28,7 +29,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -52,6 +56,19 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 		setHasOptionsMenu(true);
 		
 		View view = inflater.inflate(R.layout.fragment_event_list, container, false);
+		
+		// get reference to the add button
+		ImageButton btnNewEvent = (ImageButton) view.findViewById(R.id.add_button);
+		
+		btnNewEvent.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent addEvent = new Intent(getActivity(), EventEditorActivity.class);
+				addEvent.putExtra("EditOrNew", "New");
+				startActivity(addEvent);
+			}
+		});
 		
 		// get a reference to the week view in the layout
 		weekView = (WeekView)view.findViewById(R.id.weekView);

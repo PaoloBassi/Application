@@ -1,5 +1,9 @@
 package it.unozerouno.givemetime.view.intro.fragments;
 
+import com.google.android.gms.drive.internal.GetDriveIdFromUniqueIdentifierRequest;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,8 +13,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.view.intro.HomeLocationDialogActivity;
 import it.unozerouno.givemetime.view.main.MainActivity;
 
 public class LastTutorialPage extends Fragment{
@@ -20,12 +26,21 @@ public class LastTutorialPage extends Fragment{
 
         ViewGroup rootView = (ViewGroup)inflater.inflate(R.layout.last_tutorial_page, container, false);
         
+        Button continueButton = (Button) rootView.findViewById(R.id.continueButton);
+        Button btnHomeLocation = (Button) rootView.findViewById(R.id.btnHomeLocation);
+        
+        btnHomeLocation.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), HomeLocationDialogActivity.class);
+				startActivity(intent);
+				
+			}
+		});
         
         
-        
-        Button btn = (Button) rootView.findViewById(R.id.continueButton);
-        
-        btn.setOnClickListener(new OnClickListener() {
+        continueButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {

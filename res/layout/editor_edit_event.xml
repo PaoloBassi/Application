@@ -34,6 +34,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="10dp"
                 android:orientation="horizontal" >
 
                 <Button
@@ -47,7 +48,7 @@
 
                 <TextView
                     android:id="@+id/editor_text_location"
-                    android:layout_width="248dp"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@+id/button1"
                     android:layout_alignBottom="@+id/button1"

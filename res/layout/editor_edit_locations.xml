@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     android:orientation="vertical" >
 
     <TextView
@@ -21,17 +22,26 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
+            android:paddingTop="10dp"
             android:hint="Search for a location here" >
 
             <requestFocus />
         </AutoCompleteTextView>
     </LinearLayout>
 
+    <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dip"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:background="?android:attr/actionBarDivider"/>
+    
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Most frequent Locations"
+        android:paddingTop="10dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -39,6 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Select the Event Location"
+        android:paddingTop="10dp"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <fragment

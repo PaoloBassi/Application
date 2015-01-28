@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fragment
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/home_location_fragment_locations_container"
+	android:name="it.unozerouno.givemetime.view.editor.LocationEditorFragment"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content" />
