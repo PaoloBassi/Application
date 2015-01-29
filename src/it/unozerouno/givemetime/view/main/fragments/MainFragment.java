@@ -14,6 +14,8 @@ import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
+import it.unozerouno.givemetime.model.questions.QuestionModel.OnQuestionGenerated;
+import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.questions.QuestionActivity;
 import it.unozerouno.givemetime.view.utilities.SwipeDismissListViewTouchListener;
 import it.unozerouno.givemetime.view.utilities.SwipeDismissListViewTouchListener.DismissCallbacks;
@@ -34,7 +36,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainFragment extends Fragment{
+public class MainFragment extends Fragment implements OnQuestionGenerated{
 	ListView questionList;
 	ArrayList<Intent> questionIntents;
 	QuestionIntentAdapter adapter;
@@ -51,18 +53,26 @@ public class MainFragment extends Fragment{
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadQuestionList();
+		GiveMeLogger.log("Generating missing data questions");
+		DatabaseManager.getInstance(getActivity());
+		DatabaseManager.generateMissingDataQuestions(getActivity(), this);
 	}
 	
-	private void setUpQuestionList(){
+	private synchronized void setUpQuestionList(){
 		adapter = new QuestionIntentAdapter(getActivity(), R.layout.element_list_questions, questionIntents);
 		 questionList.setAdapter(adapter);
 		  SwipeDismissListViewTouchListener touchListener =
 				         new SwipeDismissListViewTouchListener(questionList, new DismissCallbacks() {
-		                      public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+		                      public synchronized void onDismiss(ListView listView, int[] reverseSortedPositions) {
 		                          for (int position : reverseSortedPositions) {
-		                              adapter.remove(adapter.getItem(position));
-		                              //TODO: Here delete the swiped element
+		                        	  GiveMeLogger.log("Removing item " + position + " adapter has " + adapter.getCount() + " and array has " + questionIntents.size() );
+		                        	//Deleting swiped question
+		                              Intent questionIntent = adapter.getItem(position);
+		                              int questionId = questionIntent.getIntExtra(QuestionModel.QUESTION_ID, -1);
+		                              DatabaseManager.removeQuestion(questionId);
+		                        	  adapter.remove(adapter.getItem(position));
+		                              GiveMeLogger.log("Removed item " + position + " adapter has " + adapter.getCount() + " and array has " + questionIntents.size() );
+		                              
 		                          }
 		                         adapter.notifyDataSetChanged();
 		                     }
@@ -85,12 +95,13 @@ public class MainFragment extends Fragment{
 		});
 	}
 	
-	private void loadQuestionList(){
-		adapter.notifyDataSetInvalidated();
+	private synchronized void reloadQuestionList(){
+		 GiveMeLogger.log("Reloading list, array has " + questionIntents.size() + " and adapter has " + adapter.getCount() );
 		questionIntents.clear();
 		DatabaseManager.getInstance(getActivity());
 		questionIntents.addAll(DatabaseManager.getQuestions(getActivity(), QuestionActivity.class));
 		adapter.notifyDataSetChanged();
+		GiveMeLogger.log("Reloaded list, now array has " + questionIntents.size() + " and adapter has " + adapter.getCount() );
 	}
 	
 	
@@ -161,4 +172,17 @@ public class MainFragment extends Fragment{
 			        }
 			    }
 	    }
+
+
+	@Override
+	public void onQuestionGenerated() {
+		getActivity().runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				reloadQuestionList();
+			}
+		});
+		
+	}
 }
