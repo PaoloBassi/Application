@@ -149,6 +149,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 							eventToEdit = newEvent.getEvent();
 							// retrieve all data in order to display them on screen
 							
+							// set the start and end variables to startTime and EndTime for update 
+							start = startTime;
+							end = endTime;
+							
 							editEventTitle.setText(eventToEdit.getName());
 							if (eventToEdit.getPlace() == null){
 								textLocation.setText("Location not set");
@@ -183,7 +187,6 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 							
 							switchIsMovable.setChecked(eventToEdit.getIsMovable());
 							switchDoNotDisturb.setChecked(eventToEdit.getDoNotDisturb());
-							// TODO Auto-generated method stub
 							
 						}
 					});
@@ -488,15 +491,13 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			}
 			// TODO: set all other data that we have
 			// create the relative instance of the Event
-			
 			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
 			// if the event is recursive, set the duration
-			if (!spinnerRepetition.getSelectedItem().equals("Do not repeat")){
-				// set the RRULE to let googleCalendar display the view
-				eventToAdd.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), start, end);
-				// TODO: handle the personalize choice
-				eventToAdd.setStartingTime();
-			}
+			// set the RRULE to let googleCalendar display the view
+			eventToAdd.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), start, end);
+			// duration is an empty string
+			eventToAdd.setStartingTime();
+			
 			// set the constraint List inside the event
 			eventToEdit.setConstraints(fragmentConstraints.getConstraintList());
 			
@@ -504,7 +505,8 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			DatabaseManager.addEvent(this, eventToAdd);
 		} else {
 			//Here we are updating an existing event
-			//DatabaseManager.updateEvent(EventEditorActivity.this, new EventInstanceModel(eventToEdit, start, end));
+			// start and end are correctly set during the fetch, line 153-154
+			DatabaseManager.updateEvent(EventEditorActivity.this, new EventInstanceModel(eventToEdit, start, end));
 			
 		}
 		//EventListFragment.getWeekViewInstance().notifyDatasetChanged();

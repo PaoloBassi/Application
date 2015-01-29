@@ -139,10 +139,12 @@ public class EventDescriptionModel extends EventModel{
 			String WKST = "MO";
 			String UNTIL = end.format2445();
 			RRULE = "FREQ=" + FREQ + ";"  + "UNTIL=" + UNTIL + ";" + "WKST=" + WKST;
-		} else {
-			// TODO handle personalize choices
+		} else if (selection.equals("Do not repeat")){
+			// there is no repetition of the event, RRULE and RDATE set to null
+			RRULE = null;
+			RDATE = null;
 		}
-	}
+	}  
 	
 	public String getRDATE() {
 		return RDATE;
