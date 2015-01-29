@@ -18,6 +18,7 @@ import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
+import it.unozerouno.givemetime.model.questions.QuestionModel.OnQuestionGenerated;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
@@ -1453,6 +1454,7 @@ public final class DatabaseManager {
 			if(questionId == -1) return;
 			
 			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_ID + " = " + questionId,null);
+			GiveMeLogger.log("Removed question " + questionId);
 		}
 		
 		/**
@@ -1545,12 +1547,17 @@ public final class DatabaseManager {
 			return question;
 		}
 		
+		private static synchronized void wipeOldMissingDataQuestions(){
+			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_TYPE + " = " + "'" + OptimizingQuestion.TYPE + "'",null);
+			GiveMeLogger.log("Old questions wiped");
+		}
+		
 		/**
 		 * This function analyzes all the events in the next three months and generates corresponding questions about missing data
 		 * @param context
 		 * @param listener results are returned here
 		 */
-		public static synchronized void generateMissingDataQuestions(final Context context){
+		public static synchronized void generateMissingDataQuestions(final Context context, final OnQuestionGenerated listener){
 			Time now = new Time();
 			now.setToNow();
 			Time end = new Time();
@@ -1568,6 +1575,7 @@ public final class DatabaseManager {
 						addQuestion(question);
 					}
 					GiveMeLogger.log("Missing data generation complete");
+					listener.onQuestionGenerated();
 				}
 				@Override
 				public void onEventCreation(EventInstanceModel newEvent) {
@@ -1598,6 +1606,10 @@ public final class DatabaseManager {
 				public void onEventChange(EventInstanceModel newEvent) {
 				}
 			};
+			//Wiping old OptimizingQuestion in DB so they cannot duplicate
+			wipeOldMissingDataQuestions();
+			//Fetching the events on which building the questions
+			GiveMeLogger.log("Starting missing question generation");
 			getEventsInstances(now, end, context, eventResults);
 		}
 		

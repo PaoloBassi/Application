@@ -95,9 +95,7 @@ public final class StartUpFlow extends Fragment{
 		
     	
     	
-		//4-Collect new data from service (questions, etc)
-		GiveMeLogger.log("Generating missing data questions");
-		DatabaseManager.generateMissingDataQuestions(getActivity());
+		
 		
     	
 		//5-If not already running, start the service
