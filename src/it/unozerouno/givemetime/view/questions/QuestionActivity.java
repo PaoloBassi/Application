@@ -132,7 +132,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCancelClicked(FreeTimeQuestion question) {
-		DatabaseManager.removeQuestion(question);
+		DatabaseManager.removeQuestion(question.getId());
 		finish();
 	}
 	@Override
@@ -153,7 +153,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCancelClicked(LocationMismatchQuestion question) {
-		DatabaseManager.removeQuestion(question);
+		DatabaseManager.removeQuestion(question.getId());
 		finish();
 		
 	}

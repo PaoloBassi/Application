@@ -23,6 +23,7 @@ import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
+import it.unozerouno.givemetime.view.questions.QuestionActivity;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 
 import java.util.ArrayList;
@@ -30,8 +31,10 @@ import java.util.List;
 
 import com.google.android.gms.internal.lo;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -1438,54 +1441,41 @@ public final class DatabaseManager {
 			long rowId = database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 			return rowId;
 		}
-		public static void removeQuestion(QuestionModel question){
-			if (question == null) return;
-			if(question.getId() == -1) return;
+		public static void removeQuestion(int questionId){
+			if(questionId == -1) return;
 			
-			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_ID + " = " + question.getId(),null);
+			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_ID + " = " + questionId,null);
 		}
 		
 		/**
-		 * Returns a list of questions that are stored into the database.
+		 * Returns a list of Intent that starts activities relative 
 		 * NOTE THAT returned questions have NO EVENT MODEL ASSOCIATED, but only their id.
 		 * To rebuild the proper question model you should first fetch the event pointed by that id
 		 * @param context
 		 * @return
 		 */
-		public static synchronized ArrayList<QuestionModel> getQuestions(final Context context){
-			ArrayList<QuestionModel> questions = new ArrayList<QuestionModel>();
+		public static synchronized ArrayList<Intent> getQuestions(final Context context, Class<Activity> questionActivity){
+			ArrayList<Intent> questionIntents = new ArrayList<Intent>();
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
-			final String[] projection = DatabaseCreator.Projections.QUESTIONS;
+			final String[] projection = {DatabaseCreator.QUESTION_ID,DatabaseCreator.QUESTION_TYPE};
 			Cursor results = database.query(table, projection, null, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
+			
 			while (results.moveToNext()){
-				 int questionId = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
-				String questionDate = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_DATE_TIME));
-				 String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
-				if(questionType == null) continue;
-				 int questionEventId= results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_EVENT_ID));
-				 String questionLongitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LONGITUDE));
-				 String questionLatitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LATITUDE));
 				
-				 Time questionTime = new Time();
-				 questionTime.set(Long.parseLong(questionDate));
-						if(questionType.equals("FreeTimeQuestion")){
-							FreeTimeQuestion freeTimeQuestion = new FreeTimeQuestion(context, questionTime, null);
-							freeTimeQuestion.setId(questionId);
-							freeTimeQuestion.setEventId(questionEventId);
-							questions.add(freeTimeQuestion);
+				int questionId = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
+				String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
+				if(questionType == null) {
+					GiveMeLogger.log("Invalid question found in DB, removing");
+					removeQuestion(questionId);
+					continue;
+				}
+				if(questionType.equals("FreeTimeQuestion") || questionType.equals("LocationMismatchQuestion")){
+							Intent questionIntent = new Intent(context,questionActivity);
+							questionIntent.putExtra(QuestionActivity.QUESTION_ID, questionId);
 						}
-						else if (questionType.equals("LocationMismatchQuestion")) {
-							Location generatedLocation = new Location("GMT");
-							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
-							generatedLocation.setLatitude(Double.parseDouble(questionLongitude));
-							LocationMismatchQuestion locationMismatchQuestion = new LocationMismatchQuestion(context, null,generatedLocation, questionTime);
-							locationMismatchQuestion.setId(questionId);
-							locationMismatchQuestion.setEventId(questionEventId);
-							questions.add(locationMismatchQuestion);
-						} else continue;
 			}
 			results.close();
-			return questions;
+			return questionIntents;
 		}
 		
 		/**
@@ -1516,7 +1506,7 @@ public final class DatabaseManager {
 				 questionTime.set(Long.parseLong(questionDate));
 						if(questionType.equals("FreeTimeQuestion")){
 							FreeTimeQuestion freeTimeQuestion = new FreeTimeQuestion(context, questionTime, null);
-							freeTimeQuestion.setId(questionId);
+							freeTimeQuestion.setId(questionIdReturned);
 							freeTimeQuestion.setEventId(questionEventId);
 							question = freeTimeQuestion;
 						}
@@ -1525,7 +1515,7 @@ public final class DatabaseManager {
 							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
 							generatedLocation.setLongitude(Double.parseDouble(questionLongitude));
 							LocationMismatchQuestion locationMismatchQuestion = new LocationMismatchQuestion(context, null,generatedLocation, questionTime);
-							locationMismatchQuestion.setId(questionId);
+							locationMismatchQuestion.setId(questionIdReturned);
 							locationMismatchQuestion.setEventId(questionEventId);
 							question = locationMismatchQuestion;
 						}
