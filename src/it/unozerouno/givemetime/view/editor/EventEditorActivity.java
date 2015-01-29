@@ -23,7 +23,9 @@ import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeStartPickerFragment;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
@@ -285,7 +287,11 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		buttonLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showFragment(fragmentLocations);
+				if (fragmentLocations.isHidden()) {
+					showFragment(fragmentLocations);
+				} else {
+					hideFragment(fragmentLocations);
+				}
 			}
 		});
 		
@@ -356,12 +362,42 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					switchIsMovable.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_movable());
 				} else {
 					// TODO creation of new category
+					spinnerCategory.setSelection(0);
+					new AlertDialog.Builder(EventEditorActivity.this)
+						.setTitle("Option Not Available")
+						.setMessage("This option is not available in the free version. Purchase the pro version in order to create you own personalized categories!")
+						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+								
+							}
+						}).show();
 				}
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		switchDeadline.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				if(switchDeadline.isChecked()) {
+					// TODO disable other options
+					textDeadLine.setText("This event has an active deadline");
+					spinnerRepetition.setSelection(0);
+					setSpinnerVisibility(2);
+					switchIsMovable.setChecked(false);
+				} else {
+					textDeadLine.setText("This event has no deadline");
+					setSpinnerVisibility(0);
+				}
 				
 			}
 		});
@@ -426,9 +462,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			fragmentConstraints.setConstraintList(eventToEdit.getConstraints());
 			
 		} else {
-			// Event Edit 
-			
-			
+			// Event Edit with listener in onCreate
 		}
 	}
 	
@@ -470,13 +504,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			DatabaseManager.addEvent(this, eventToAdd);
 		} else {
 			//Here we are updating an existing event
-			
-
-			//Updating data about event description
-			//eventToEdit.getEvent().setUpdated();
-			//Updating data about instance?
-			//eventToEdit.setUpdated();
-			//DatabaseManager.update(eventToEdit);
+			//DatabaseManager.updateEvent(EventEditorActivity.this, new EventInstanceModel(eventToEdit, start, end));
 			
 		}
 		//EventListFragment.getWeekViewInstance().notifyDatasetChanged();
@@ -497,6 +525,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		          .commit();
 	}
 	
+	/**
+	 * 0 set visibility of the spinners. 0 visibile 1 invisibile 2 gone
+	 * @param visibility
+	 */
 	private void setSpinnerVisibility(int visibility){
 		spinnerEndDay.setVisibility(visibility);
 		spinnerStartTime.setVisibility(visibility);

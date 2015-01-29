@@ -66,6 +66,14 @@
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content" />
 			 </LinearLayout>
+		
+     <TextView
+                style="@style/sectionHeader"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time Settings" />
+     
   <ScrollView
         android:id="@+id/editor_edit_event_scroll"
         android:layout_width="match_parent"
@@ -94,13 +102,6 @@
 	             android:layout_width="fill_parent"
 	             android:layout_height="0dp"
 	             android:background="#c0c0c0"/>
-			
-			 <TextView
-                style="@style/sectionHeader"
-                android:layout_margin="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Time Settings" />
 			 
 			 <Switch
 			     android:id="@+id/editor_edit_event_switch_deadline"
@@ -114,7 +115,7 @@
 			     android:layout_margin="10dp"
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content"
-			     android:text="Deadline Description"
+			     android:text="This event has no deadline."
 			     android:textAppearance="?android:attr/textAppearanceSmall" />
 
 			 <View
@@ -265,7 +266,7 @@
 			    android:id="@+id/editor_edit_event_switch_ismovable"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
-			    android:text="Can move this event?" />
+			    android:text="Can I move this event (set time constraints)?" />
 			 <fragment
 			     android:id="@+id/editor_edit_event_fragment_constraints_container"
 			     android:name="it.unozerouno.givemetime.view.editor.ConstraintsFragment"
@@ -275,7 +276,9 @@
 			    android:id="@+id/editor_edit_event_switch_donotdisturb"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
-			    android:text="Do not disturb during this event" />
+			    android:paddingTop="10dp"
+			    android:paddingBottom="10dp"
+			    android:text="Notification for this event" />
 
         </LinearLayout>
     </ScrollView>
