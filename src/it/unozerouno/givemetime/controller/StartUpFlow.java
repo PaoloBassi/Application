@@ -96,26 +96,9 @@ public final class StartUpFlow extends Fragment{
     	
     	
 		//4-Collect new data from service (questions, etc)
-		DatabaseManager.generateMissingDataQuestions(getActivity(), new OnDatabaseUpdatedListener<SparseArray<OptimizingQuestion>>() {
-			
-			@Override
-			protected void onUpdateFinished(SparseArray<OptimizingQuestion> questionList) {
-				for (int i = 0; i < questionList.size(); i++) {
-					int key = questionList.keyAt(i);
-					OptimizingQuestion question = questionList.get(key);
-					//TODO: Generate the view for question
-					String missingPlace = "";
-					String missingCategory = "";
-					String missingConstraints = "";
-					if(question.isMissingCategory()) missingCategory = "missing category, ";
-					if(question.isMissingConstraints()) missingConstraints = "missing constraints, ";
-					if(question.isMissingPlace()) missingPlace = "missing place, ";
-					GiveMeLogger.log("Event number " + question.getEvent().getID() + " has :" + missingCategory + missingConstraints + missingPlace);
-				}
-				
-			}
-		});
-    	
+		GiveMeLogger.log("Generating missing data questions");
+		DatabaseManager.generateMissingDataQuestions(getActivity());
+		
     	
 		//5-If not already running, start the service
 		GiveMeLogger.log("Starting Service");
