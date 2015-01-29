@@ -14,19 +14,27 @@ import it.unozerouno.givemetime.model.events.EventDescriptionModel;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.places.PlaceModel;
+import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
+import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
+import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
+import it.unozerouno.givemetime.view.questions.QuestionActivity;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.gms.internal.lo;
+
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -272,7 +280,7 @@ public final class DatabaseManager {
 
 			}
 		});
-
+		updater.execute();
 		addEventInDatabase(eventToUpdate.getEvent().getID(), eventToUpdate);
 	}
 
@@ -499,6 +507,30 @@ public final class DatabaseManager {
 		};
 		placeFetcher.execute(newPlace);
 	}
+	
+	/**
+	 * This function get a Location (mainly a Longitude/Latitude pair) and retrives the associated PlaceModel.
+	 * The type of Place returned is likely to be a road (see {@link PlaceFetcher})
+	 * @param location
+	 * @param resultListener
+	 */
+	public static void getPlaceModelFromLocation(Location location, final OnDatabaseUpdatedListener<PlaceModel> resultListener){
+		AsyncTask<Location, Void, PlaceModel> locationToPlaceConverter = new AsyncTask<Location, Void, PlaceModel>() {
+
+			@Override
+			protected PlaceModel doInBackground(Location... location) {
+				return PlaceFetcher.getPlaceModelFromLocation(location[0]);
+			}
+
+			@Override
+			protected void onPostExecute(PlaceModel result) {
+				super.onPostExecute(result);
+				addPlaceInDatabase(result);
+				resultListener.updateFinished(result);
+			}
+		};
+		locationToPlaceConverter.execute(location);
+		}
 
 	/**
 	 * Store a placeModel into the database
@@ -1382,18 +1414,143 @@ public final class DatabaseManager {
 		//
 		// /////////////////////////////		
 	
-		public static void addQuestion(QuestionModel question){
-			//TODO: IMPLEMENT THIS
+		/**
+		 * Add a question model into the database. If no id is set, a new id will be given instead
+		 * @param question
+		 * @return the id of new generated question
+		 */
+		public static synchronized long addQuestion(QuestionModel question){
+			if(question==null) return -1;
+			ContentValues values = new ContentValues();
+			if(question.getId() != -1) values.put(DatabaseCreator.QUESTION_ID, question.getId());
+			values.put(DatabaseCreator.QUESTION_DATE_TIME, question.getGenerationTime().toMillis(false));
+			
+			if(question instanceof FreeTimeQuestion){
+				FreeTimeQuestion freeTimeQuestion = (FreeTimeQuestion) question;
+				values.put(DatabaseCreator.QUESTION_TYPE, FreeTimeQuestion.TYPE);
+				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(freeTimeQuestion.getClosestEvent().getEvent().getID()));
+			}
+			if(question instanceof LocationMismatchQuestion){
+				LocationMismatchQuestion locationMismatchQuestion = (LocationMismatchQuestion) question;
+				values.put(DatabaseCreator.QUESTION_TYPE, LocationMismatchQuestion.TYPE);
+				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(locationMismatchQuestion.getEvent().getEvent().getID()));
+				values.put(DatabaseCreator.QUESTION_USER_LATITUDE, locationMismatchQuestion.getLocationWhenGenerated().getLatitude());
+				values.put(DatabaseCreator.QUESTION_USER_LONGITUDE, locationMismatchQuestion.getLocationWhenGenerated().getLongitude());
+			}
+			if(question instanceof OptimizingQuestion){
+				OptimizingQuestion optimizingQuestion = (OptimizingQuestion) question;
+				values.put(DatabaseCreator.QUESTION_TYPE, OptimizingQuestion.TYPE);
+				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(optimizingQuestion.getEvent().getID()));
+				values.put(DatabaseCreator.QUESTION_MISSING_CATEGORY,optimizingQuestion.isMissingCategory());
+				values.put(DatabaseCreator.QUESTION_MISSING_CONSTRAINT,optimizingQuestion.isMissingConstraints());
+				values.put(DatabaseCreator.QUESTION_MISSING_PLACE, optimizingQuestion.isMissingPlace());
+			}
+			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
+			long rowId = database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+			return rowId;
 		}
-		public static void removeQuestion(QuestionModel question){
-			//TODO: IMPLEMENT THIS
-		}
-		public static List<QuestionModel> getQuestions(){
-			//TODO: IMPLEMENT THIS
-			return null;
+		public static void removeQuestion(int questionId){
+			if(questionId == -1) return;
+			
+			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_ID + " = " + questionId,null);
 		}
 		
-		public static void generateMissingDataQuestions(final Context context, final OnDatabaseUpdatedListener<SparseArray<OptimizingQuestion>> listener){
+		/**
+		 * Returns a list of Intent that starts activities relative 
+		 * NOTE THAT returned questions have NO EVENT MODEL ASSOCIATED, but only their id.
+		 * To rebuild the proper question model you should first fetch the event pointed by that id
+		 * @param context
+		 * @return
+		 */
+		public static synchronized ArrayList<Intent> getQuestions(final Context context, Class<? extends Activity> questionActivity){
+			ArrayList<Intent> questionIntents = new ArrayList<Intent>();
+			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
+			final String[] projection = {DatabaseCreator.QUESTION_ID,DatabaseCreator.QUESTION_TYPE,DatabaseCreator.QUESTION_DATE_TIME};
+			Cursor results = database.query(table, projection, null, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
+			
+			while (results.moveToNext()){
+				
+				int questionId = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
+				String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
+				String questionTimeString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_DATE_TIME));
+				if(questionType == null) {
+					GiveMeLogger.log("Invalid question found in DB, removing");
+					removeQuestion(questionId);
+					continue;
+				}
+				if(questionType.equals(FreeTimeQuestion.TYPE) || questionType.equals(LocationMismatchQuestion.TYPE) || questionType.equals(OptimizingQuestion.TYPE)){
+							Intent questionIntent = new Intent(context,questionActivity);
+							questionIntent.putExtra(QuestionModel.QUESTION_ID, questionId);
+							questionIntent.putExtra(QuestionModel.QUESTION_TYPE, questionType);
+							questionIntent.putExtra(QuestionModel.QUESTION_TIME, questionTimeString);
+							questionIntents.add(questionIntent);
+						}
+			}
+			results.close();
+			return questionIntents;
+		}
+		
+		/**
+		 * Returns a list of questions that are stored into the database.
+		 * NOTE THAT returned questions have NO EVENT MODEL ASSOCIATED, but only their id.
+		 * To rebuild the proper question model you should first fetch the event pointed by that id
+		 * @param context
+		 * @return
+		 */
+		public static synchronized QuestionModel getQuestion(final Context context, int questionId){
+			QuestionModel question = null;
+			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
+			final String[] projection = DatabaseCreator.Projections.QUESTIONS;
+			String where = DatabaseCreator.QUESTION_ID + " = " + questionId;
+			
+			Cursor results = database.query(table, projection, where, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
+			while (results.moveToNext()){
+				 int questionIdReturned = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
+				String questionDate = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_DATE_TIME));
+				 String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
+				if(questionType == null) continue;
+				 int questionEventId= results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_EVENT_ID));
+				 String questionLongitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LONGITUDE));
+				 String questionLatitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LATITUDE));
+				 String missingCategoryString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_MISSING_CATEGORY));
+				 String missingConstraintString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_MISSING_CONSTRAINT));
+				 String missingPlaceString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_MISSING_PLACE));
+				 
+				 Time questionTime = new Time();
+				 questionTime.set(Long.parseLong(questionDate));
+						if(questionType.equals(FreeTimeQuestion.TYPE)){
+							FreeTimeQuestion freeTimeQuestion = new FreeTimeQuestion(context, questionTime, null);
+							freeTimeQuestion.setId(questionIdReturned);
+							freeTimeQuestion.setEventId(questionEventId);
+							question = freeTimeQuestion;
+						}
+						else if (questionType.equals(LocationMismatchQuestion.TYPE)) {
+							Location generatedLocation = new Location("GMT");
+							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
+							generatedLocation.setLongitude(Double.parseDouble(questionLongitude));
+							LocationMismatchQuestion locationMismatchQuestion = new LocationMismatchQuestion(context, null,generatedLocation, questionTime);
+							locationMismatchQuestion.setId(questionIdReturned);
+							locationMismatchQuestion.setEventId(questionEventId);
+							question = locationMismatchQuestion;
+						} else if (questionType.equals(OptimizingQuestion.TYPE)){
+							
+							boolean missingCategory = (missingCategoryString != null) ? (missingCategoryString.equals("1")) : (false);
+							boolean missingConstraints= (missingConstraintString != null) ? (missingConstraintString.equals("1")) : (false);
+							boolean missingPlace= (missingPlaceString != null) ? (missingPlaceString.equals("1")) : (false);
+							OptimizingQuestion optimizingQuestion = new OptimizingQuestion(context, null, missingPlace, missingCategory, missingConstraints, questionTime);
+							question = optimizingQuestion;
+						}
+			}
+			results.close();
+			return question;
+		}
+		
+		/**
+		 * This function analyzes all the events in the next three months and generates corresponding questions about missing data
+		 * @param context
+		 * @param listener results are returned here
+		 */
+		public static synchronized void generateMissingDataQuestions(final Context context){
 			Time now = new Time();
 			now.setToNow();
 			Time end = new Time();
@@ -1404,7 +1561,13 @@ public final class DatabaseManager {
 			EventListener<EventInstanceModel> eventResults = new EventListener<EventInstanceModel>() {
 				@Override
 				public void onLoadCompleted() {
-				listener.updateFinished(questions);
+					//Now that we have questions for all event with missing data, we update the database
+					for (int i = 0; i < questions.size(); i++) {
+						int eventId = questions.keyAt(i);
+						OptimizingQuestion question = questions.get(eventId);
+						addQuestion(question);
+					}
+					GiveMeLogger.log("Missing data generation complete");
 				}
 				@Override
 				public void onEventCreation(EventInstanceModel newEvent) {
@@ -1427,6 +1590,7 @@ public final class DatabaseManager {
 					Time now = new Time();
 					now.setToNow();
 					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints, now);
+					newQuestion.setEventId(Integer.parseInt(event.getID()));
 					questions.put(Integer.parseInt(event.getID()), newQuestion);
 					}
 				}
@@ -1448,7 +1612,7 @@ public final class DatabaseManager {
 	/**
 	 * This helper class creates the GiveMeTime database
 	 * 
-	 * @author Edoardo Giacomello <edoardo.giacomello1990@gmail.com> Paolo Bassi
+	 * @author Paolo Bassi
 	 * 
 	 */
 	private static class DatabaseCreator extends SQLiteOpenHelper {
@@ -1464,6 +1628,9 @@ public final class DatabaseManager {
 			public static final String[] CONSTRAINT_COMPLEX_ALL = {C_COMPLEX_ID, C_COMPLEX_S_ID};
 			public static final String[] OT_ALL = {OT_PLACE_ID, OT_COMPLEX_CONSTRAINT};
 			public static final String[] EVENT_MODEL_ALL = { ID_CALENDAR, ID_EVENT_PROVIDER,ID_PLACE, ID_EVENT_CATEGORY, FLAG_DO_NOT_DISTURB,FLAG_DEADLINE,FLAG_MOVABLE };
+			public static final String[] QUESTIONS = { QUESTION_ID, QUESTION_DATE_TIME,QUESTION_TYPE, QUESTION_EVENT_ID, QUESTION_USER_LATITUDE,QUESTION_USER_LONGITUDE,QUESTION_MISSING_CATEGORY,QUESTION_MISSING_CONSTRAINT,QUESTION_MISSING_PLACE};
+			
+			
 			public static int getIndex(String[] projection, String coloumn) {
 				int counter = 0;
 				for (String currentColoumn : projection) {
@@ -1519,11 +1686,16 @@ public final class DatabaseManager {
 		private static final String OT_PLACE_ID = "ot_place_id";
 		private static final String OT_COMPLEX_CONSTRAINT = "ot_constraint_id";
 		// QUESTION_MODEL
-		private static final String ID_QUESTION = "id_question";
-		private static final String DATE_TIME = "date_time";
-		private static final String TYPE_QUESTION = "type_question";
-		private static final String EVENT_ID = "event_id";
-		private static final String USER_LOCATION = "user_location";
+		private static final String QUESTION_ID = "id_question";
+		private static final String QUESTION_DATE_TIME = "date_time";
+		private static final String QUESTION_TYPE = "type_question";
+		private static final String QUESTION_EVENT_ID = "event_id";
+		private static final String QUESTION_USER_LATITUDE = "user_latitude";
+		private static final String QUESTION_USER_LONGITUDE = "user_longitude";
+		private static final String QUESTION_MISSING_PLACE = "question_missing_place";
+		private static final String QUESTION_MISSING_CATEGORY = "question_missing_category";
+		private static final String QUESTION_MISSING_CONSTRAINT = "question_missing_constraint";
+		
 		// EVENT CATEGORY
 		private static final String ECA_NAME = "eca_name";
 		private static final String ECA_DEFAULT_DONOTDISTURB = "default_donotdisturb";
@@ -1587,29 +1759,18 @@ public final class DatabaseManager {
 		
 		// QUESTION_MODEL
 		private static final String CREATE_TABLE_QUESTION_MODEL = "CREATE TABLE "
-				+ TABLE_QUESTION_MODEL
-				+ "("
-				+ ID_QUESTION
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
-				+ DATE_TIME
-				+ " DATE, "
-				+ TYPE_QUESTION
-				+ " VARCHAR(30), "
-				+ EVENT_ID
-				+ " INT, "
-				+ USER_LOCATION
-				+ " VARCHAR(255), "
-				+ " FOREIGN KEY ("
-				+ EVENT_ID
-				+ ") REFERENCES "
-				+ TABLE_EVENT_MODEL
-				+ " ("
-				+ ID_EVENT_PROVIDER
-				+ ")"
-				+ " FOREIGN KEY ("
-				+ USER_LOCATION
-				+ ") REFERENCES "
-				+ TABLE_PLACE_MODEL + " (" + PLACE_ID + ")" + ");";
+				+ TABLE_QUESTION_MODEL + "("
+				+ QUESTION_ID+ " INTEGER PRIMARY KEY NOT NULL, "
+				+ QUESTION_DATE_TIME	+ " VARCHAR(30), "
+				+ QUESTION_TYPE	+ " VARCHAR(30), "
+				+ QUESTION_EVENT_ID	+ " INT, "
+				+ QUESTION_USER_LONGITUDE	+ " VARCHAR(30), "
+				+ QUESTION_USER_LATITUDE	+ " VARCHAR(30), "
+				+ QUESTION_MISSING_CATEGORY + " BOOLEAN, "
+				+ QUESTION_MISSING_PLACE + " BOOLEAN,"
+				+ QUESTION_MISSING_CONSTRAINT + " BOOLEAN, "
+				+ " FOREIGN KEY ("	+ QUESTION_EVENT_ID	+ ") REFERENCES "+ TABLE_EVENT_MODEL+ " ("	+ ID_EVENT_PROVIDER	+ ")"
+				+ ");";
 		// EVENT_CATEGORY
 		private static final String CREATE_TABLE_EVENT_CATEGORY = "CREATE TABLE "
 				+ TABLE_EVENT_CATEGORY

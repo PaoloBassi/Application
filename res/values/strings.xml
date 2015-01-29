@@ -2,18 +2,18 @@
 <resources>
 
     <string name="app_name">GiveMeTime</string>
-    <string name="hello_world">Here we are in the main</string>
     <string name="action_settings">Settings</string>
     <string name="firstPage">Welcome and Disclaimer</string>
+
     <string name="secondPage">Calendar Selection</string>
-    <string name="thirdPage">Third Tutorial Page</string>
     <string name="skipButton">Skip</string>
     <string name="continueButton">Continue</string>
     <string name="swipeNext">>>> Swipe to Continue >>></string>
     <string name="frag1_text">First main page</string>
     <string name="frag2_text">Second main page</string>
     <string name="frag3_text">Third main page</string>
-
+    <string name="welcome_disclaimer_text">Welcome to GiveMeTime! Before starting using the app we\'ll need some little informations to help you organize everything better! \n Keep in mind that the more information you\'ll give to GiveMeTime, the more you\'ll have precise and efficient results. Don\'t worry: we care about your privacy and all the personal datas you\'ll insert will be stored only on your device and you\'ll be the only one who can access them.
+\n The list of your tasks will be safely synchronized with your Google account to let you access your GiveMeTime calendar from every device, anyway, to protect your privacy, the informations related to GiveMeTime will be stored exclusively on your smartphone </string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_websearch">Web search</string>
@@ -34,7 +34,8 @@
     <string name="place_autocomplete_key_outdated">Your application is outdated. Please update it on Play Store or send us an email if the error persists.</string>
     <string name="editor_constraints_datepicker_title">Date Constraints</string>
     <string name="editor_constraints_timepicker_title">Time Constraints</string>
-     <string name="editor_constraints_daypicker_title">Week Day Constraints</string>
+    <string name="editor_constraints_daypicker_title">Week Day Constraints</string>
+    <string name="location_not_set">None</string>
 	<string-array name="Repetitions">
 	    <item>Do not repeat</item>
 	    <item>Every Day</item>
@@ -43,4 +44,7 @@
 	    <item>Every Year</item>
 	    <item>Personalize</item>
 	</string-array>
+	<string name="question_list_description_locationmismatch">Question about an event location</string>
+	<string name="question_list_description_freetime">Suggestion on what to do</string>
+	<string name="question_list_optimizing_question">An event is missing some data</string>
 </resources>

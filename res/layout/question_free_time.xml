@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/question_free_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="If you are not busy, you could consider this event:" />
+
+    </LinearLayout>
+     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/question_free_time_event_suggestion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Name" />
+
+
+    </LinearLayout>
+  <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/question_free_time_freetime_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="How about that? " />
+
+
+    </LinearLayout>
+
+ <LinearLayout
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content" >
+
+     <Button
+         android:id="@+id/question_freetime_btn_update"
+         android:layout_width="132dp"
+         android:layout_height="wrap_content"
+         android:layout_weight="0.50"
+         android:text="Update event" />
+
+     <Button
+         android:id="@+id/question_freetime_btn_cancel"
+         android:layout_width="142dp"
+         android:layout_height="wrap_content"
+         android:layout_weight="0.50"
+         android:text="Cancel" />
+
+ </LinearLayout>
+
+ <Button
+     android:id="@+id/question_freetime_btn_create"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:text="Create new event" />
+
+</LinearLayout>
+
