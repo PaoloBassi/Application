@@ -1540,6 +1540,7 @@ public final class DatabaseManager {
 							boolean missingConstraints= (missingConstraintString != null) ? (missingConstraintString.equals("1")) : (false);
 							boolean missingPlace= (missingPlaceString != null) ? (missingPlaceString.equals("1")) : (false);
 							OptimizingQuestion optimizingQuestion = new OptimizingQuestion(context, null, missingPlace, missingCategory, missingConstraints, questionTime);
+							optimizingQuestion.setEventId(questionEventId);
 							question = optimizingQuestion;
 						}
 			}

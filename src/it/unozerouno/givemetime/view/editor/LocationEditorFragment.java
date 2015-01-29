@@ -62,7 +62,7 @@ public class LocationEditorFragment extends Fragment {
         try {
             mListener = (OnSelectedPlaceModelListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+            throw new ClassCastException(activity.toString() + " must implement OnSelectedPlaceModelListener");
         }
     }
 	

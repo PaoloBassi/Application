@@ -39,7 +39,6 @@ public class ConstraintsFragment extends Fragment{
 	public void setConstraintList(List<ComplexConstraint> constraints){
 		for (ComplexConstraint complexConstraint : constraints) {
 			addFragment(complexConstraint);
-			
 		}
 	}
 	public List<ComplexConstraint> getConstraintList(){

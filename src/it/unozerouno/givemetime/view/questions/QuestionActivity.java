@@ -7,21 +7,25 @@ import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
+import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
 import it.unozerouno.givemetime.view.questions.fragments.FreeTimeFragment;
+import it.unozerouno.givemetime.view.questions.fragments.MissingDataFragment;
 import it.unozerouno.givemetime.view.questions.fragments.FreeTimeFragment.OnFreeTimeQuestionResponse;
 import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragment;
 import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragment.OnLocationMismatchQuestionResponse;
+import it.unozerouno.givemetime.view.questions.fragments.MissingDataFragment.OnOptimizingQuestionResponse;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Time;
 import android.widget.Toast;
 
-public class QuestionActivity extends ActionBarActivity implements OnLocationMismatchQuestionResponse, OnFreeTimeQuestionResponse{
+public class QuestionActivity extends ActionBarActivity implements OnLocationMismatchQuestionResponse, OnFreeTimeQuestionResponse, OnOptimizingQuestionResponse{
 	QuestionModel question;
 	FreeTimeQuestion freeTimeQuestion;
 	LocationMismatchQuestion locationMismatchQuestion;
+	OptimizingQuestion optimizingQuestion;
 	PlaceModel questionPlace;
 	EventInstanceModel questionEvent;
 	
@@ -86,6 +90,11 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 			freeTimeQuestion.setClosestEvent(questionEvent);
 			freeTimeFlow();
 		}
+		if (question instanceof OptimizingQuestion){
+			optimizingQuestion = (OptimizingQuestion) question;
+			optimizingQuestion.setEvent(questionEvent.getEvent());
+			optimizingFlow();
+		}
 		if (question instanceof LocationMismatchQuestion){
 			locationMismatchQuestion = (LocationMismatchQuestion) question;
 			locationMismatchQuestion.setEvent(questionEvent);
@@ -122,6 +131,15 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	
 	}
 	
+	/**
+	 * This is the flow when the question is for a missing data event (OptimizingQuestion)
+	 */
+	private void optimizingFlow(){
+		MissingDataFragment missingDataFragment = new MissingDataFragment();
+		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,missingDataFragment,"missingDataFragment").commit();
+	
+	}
+	
 	@Override
 	public FreeTimeQuestion loadFreeTimeQuestion() {
 		if(question instanceof FreeTimeQuestion) return (FreeTimeQuestion) question;
@@ -130,7 +148,8 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onUpdateClicked(FreeTimeQuestion question) {
-		// TODO Update event
+		DatabaseManager.getInstance(getApplicationContext());
+		DatabaseManager.updateEvent(getApplicationContext(), question.getClosestEvent());
 		finish();
 	}
 	@Override
@@ -151,7 +170,8 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onUpdateClicked(LocationMismatchQuestion question) {
-		// TODO Update Event
+		DatabaseManager.getInstance(getApplicationContext());
+		DatabaseManager.updateEvent(getApplicationContext(), question.getEvent());
 		finish();
 	}
 	@Override
@@ -165,9 +185,25 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 		// TODO open New Event Activity
 		
 	}
-	
-	
-	
-	
+	@Override
+	public OptimizingQuestion loadOptimizingQuestion() {
+		if(question instanceof OptimizingQuestion) return (OptimizingQuestion) question;
+		finish();
+		return null;
+	}
+	@Override
+	public void onUpdateClicked(OptimizingQuestion question) {
+		DatabaseManager.getInstance(getApplicationContext());
+		Time now = new Time();
+		now.setToNow();
+		EventInstanceModel eventContainer = new EventInstanceModel(question.getEvent(),now, now);
+		DatabaseManager.updateEvent(getApplicationContext(), eventContainer);
+		finish();
+	}
+	@Override
+	public void onCancelClicked(OptimizingQuestion question) {
+		DatabaseManager.removeQuestion(question.getId());
+		finish();
+	}
 	
 }
