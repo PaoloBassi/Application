@@ -159,8 +159,16 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 							} else {
 								textLocation.setText(eventToEdit.getPlace().getName());
 							}
-							spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
+							if (eventToEdit.getCategory() == null) {
+								// loading an external application generated event
+								// set amusement, better than work
+								spinnerCategory.setSelection(2);
+							} else {
+								spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
+							}
+							System.out.println("deadline just before setting it in update fetch : " + eventToEdit.getHasDeadline());
 							switchDeadline.setChecked(eventToEdit.getHasDeadline());
+							System.out.println("deadline on click: " + switchDeadline.isChecked());
 							// check if the event has repetitions
 							if (eventToEdit.isRecursive()){
 								//TODO set spinner repetition with correct text
@@ -307,9 +315,11 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				 if (!switchAllDay.isChecked()){
 					 System.out.println("visible");
 					 setSpinnerVisibility(View.VISIBLE);
+					 eventToEdit.setAllDay(0);
 				 } else {
 					 System.out.println("invisible");
 					 setSpinnerVisibility(View.GONE);
+					 eventToEdit.setAllDay(1);
 				 }
 				
 			}
@@ -361,8 +371,13 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				// if the position is not the last, save the name of the category and load the switch values associated
 				if (position != (items.size() - 1)){
 					categoryName = items.get(position);
-					switchDoNotDisturb.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_donotdisturb());
-					switchIsMovable.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_movable());
+					boolean doNotDisturb = DatabaseManager.getCategoryByName(categoryName).isDefault_donotdisturb();
+					boolean isMovable = DatabaseManager.getCategoryByName(categoryName).isDefault_movable();
+					switchDoNotDisturb.setChecked(doNotDisturb);
+					switchIsMovable.setChecked(isMovable);
+					eventToEdit.setCategory(DatabaseManager.getCategoryByName(categoryName));
+					eventToEdit.setDoNotDisturb(doNotDisturb);
+					eventToEdit.setIsMovable(isMovable);
 				} else {
 					// TODO creation of new category
 					spinnerCategory.setSelection(0);
@@ -397,9 +412,11 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					spinnerRepetition.setSelection(0);
 					setSpinnerVisibility(2);
 					switchIsMovable.setChecked(false);
+					eventToEdit.setHasDeadline(true);
 				} else {
 					textDeadLine.setText("This event has no deadline");
 					setSpinnerVisibility(0);
+					eventToEdit.setHasDeadline(false);
 				}
 				
 			}
@@ -431,8 +448,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					// if all day events, disable all the others
 					 if (!switchIsMovable.isChecked()){
 						hideFragment(fragmentConstraints);
+						eventToEdit.setIsMovable(false);
 					 } else {
 						 showFragment(fragmentConstraints);
+						 eventToEdit.setIsMovable(true);
 					 }
 					
 				}
@@ -490,6 +509,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				// TODO do other things with non default categories
 			}
 			// TODO: set all other data that we have
+			eventToEdit.setHasDeadline(switchDeadline.isChecked());
+			System.out.println("first deadline set to : " + eventToEdit.getHasDeadline());
+			// set the constraint List inside the event
+			eventToEdit.setConstraints(fragmentConstraints.getConstraintList());
 			// create the relative instance of the Event
 			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
 			// if the event is recursive, set the duration
@@ -498,18 +521,17 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			// duration is an empty string
 			eventToAdd.setStartingTime();
 			
-			// set the constraint List inside the event
-			eventToEdit.setConstraints(fragmentConstraints.getConstraintList());
-			
 			// finally add the event to the db 
 			DatabaseManager.addEvent(this, eventToAdd);
+			System.out.println("deadline after insert set to : " + eventToAdd.getEvent().getHasDeadline());
 		} else {
 			//Here we are updating an existing event
 			// start and end are correctly set during the fetch, line 153-154
 			DatabaseManager.updateEvent(EventEditorActivity.this, new EventInstanceModel(eventToEdit, start, end));
+			System.out.println("deadline set to : " + eventToEdit.getHasDeadline());
 			
 		}
-		//EventListFragment.getWeekViewInstance().notifyDatasetChanged();
+		EventListFragment.getWeekViewInstance().notifyDatasetChanged();
 	}
 	
 	private void hideFragment(Fragment fragment){
