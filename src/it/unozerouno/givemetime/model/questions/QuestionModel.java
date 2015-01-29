@@ -4,6 +4,11 @@ import android.content.Context;
 import android.text.format.Time;
 
 public abstract class QuestionModel {
+	//Descriptor strings for letting database interact with UI
+	public static final String QUESTION_ID = "question_id";
+	public static final String QUESTION_TIME = "question_time";
+	public static final String QUESTION_TYPE = "question_type";
+	
 	private Context context;
 	private Time generationTime;
 	private int id;

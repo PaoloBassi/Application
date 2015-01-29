@@ -25,14 +25,17 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	PlaceModel questionPlace;
 	EventInstanceModel questionEvent;
 	
-	public static final String QUESTION_ID = "question_id";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.question_layout);
 		super.onCreate(savedInstanceState);
-		Long questionId = getIntent().getExtras().getLong(QUESTION_ID);
+		//If it's coming from a notification, the intent will contain a long Id
+		Long lQuestionId = getIntent().getLongExtra(QuestionModel.QUESTION_ID, -1);
+		//If it's coming from a stored notification, the intent will contain an int id.
+		int iQuestionId = getIntent().getIntExtra(QuestionModel.QUESTION_ID, -1);
 		//Getting the question
-		Integer iQuestionId = questionId != null ? questionId.intValue() : null;
+		iQuestionId = (iQuestionId != -1) ? iQuestionId : lQuestionId.intValue();
 		question = DatabaseManager.getQuestion(this, iQuestionId);
 		//Now we can fetch the event
 		if(question!=null){
@@ -132,7 +135,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCancelClicked(FreeTimeQuestion question) {
-		DatabaseManager.removeQuestion(question);
+		DatabaseManager.removeQuestion(question.getId());
 		finish();
 	}
 	@Override
@@ -153,7 +156,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCancelClicked(LocationMismatchQuestion question) {
-		DatabaseManager.removeQuestion(question);
+		DatabaseManager.removeQuestion(question.getId());
 		finish();
 		
 	}

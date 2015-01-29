@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/content"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:fillViewport="true">
-    
+    android:fillViewport="true" >
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:padding="5dp"
         android:layout_height="fill_parent"
-        android:showDividers="middle"
-        >
-        
-        <TextView
-            style="?android:textAppearanceMedium"
-            android:id="@+id/view"
-            android:lineSpacingMultiplier="1.2"
+        android:orientation="vertical"
+        android:padding="5dp"
+        android:showDividers="middle" >
+
+        <ScrollView
+            android:id="@+id/welcome_scrollview"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="top"
-            android:text="@string/firstPage"
-            />
-        
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+
+            <TextView
+                android:id="@+id/view"
+                style="?android:textAppearanceMedium"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:gravity="top"
+                android:lineSpacingMultiplier="1.2"
+                android:text="@string/welcome_disclaimer_text" />
+        </ScrollView>
+
         <View
-    		android:layout_width="fill_parent"
-    		android:layout_height="1dip"
-   			android:background="?android:attr/actionBarDivider" />
-        
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="?android:attr/actionBarDivider" />
+
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="5dp"
             android:gravity="center"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            android:paddingTop="5dp" >
 
             <Button
-                style="?android:buttonBarButtonStyle"
                 android:id="@+id/btn_next_first_page"
+                style="?android:buttonBarButtonStyle"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:text="Next" />
-                
         </RelativeLayout>
-
     </LinearLayout>
-
 
 </ScrollView>

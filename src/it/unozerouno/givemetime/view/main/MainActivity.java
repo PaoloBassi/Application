@@ -7,7 +7,7 @@ import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.editor.EventEditorActivity;
 import it.unozerouno.givemetime.view.main.fragments.DebugFragment;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
-import it.unozerouno.givemetime.view.main.fragments.FragmentThree;
+import it.unozerouno.givemetime.view.main.fragments.MainFragment;
 import it.unozerouno.givemetime.view.utilities.DrawerItem;
 import it.unozerouno.givemetime.view.utilities.DrawerListAdapter;
 
@@ -126,7 +126,7 @@ public class MainActivity extends ActionBarActivity {
             
         	// both spinner and header are present
         	if(dataList.get(0).isSpinner() && dataList.get(1).getTitle() != null){
-        		selectItem(3);
+        		selectItem(4);
         	// spinner is missing
         	} else if (dataList.get(0).getTitle() != null) {
         		selectItem(1);
@@ -168,7 +168,7 @@ public class MainActivity extends ActionBarActivity {
         	case 3: fragment = new DebugFragment();
         			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
-        	case 4: fragment = new FragmentThree();
+        	case 4: fragment = new MainFragment();
         			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 6: Intent settings = new Intent(this, SettingsActivity.class);
