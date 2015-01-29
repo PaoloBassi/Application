@@ -62,4 +62,7 @@ public abstract class QuestionModel {
 		this.id = id;
 	}
 	
+	public interface OnQuestionGenerated{
+		public void onQuestionGenerated();
+	}
 }
