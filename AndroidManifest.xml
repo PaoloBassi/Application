@@ -95,6 +95,22 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity 
+            android:name="it.unozerouno.givemetime.view.intro.HomeLocationDialogActivity"
+            android:label="Set Home Location"
+            android:theme="@android:style/Theme.Holo.Dialog">
+            <intent-filter >
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity 
+            android:name="it.unozerouno.givemetime.view.intro.HomeSleepDialogActivity"
+            android:label="Set Sleep Time"
+            android:theme="@android:style/Theme.Holo.Dialog">
+            <intent-filter >
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
          <activity
             android:name="it.unozerouno.givemetime.view.questions.QuestionActivity"
             android:label="GiveMeTime Question"
@@ -109,9 +125,9 @@
            android:label="GiveMeTime Service"
            android:name="it.unozerouno.givemetime.controller.service.GiveMeTimeService"
            >
-           </service>  
-           <receiver android:name="it.unozerouno.givemetime.controller.service.ServiceScheduler"
-               >
+        </service>  
+           
+    <receiver android:name="it.unozerouno.givemetime.controller.service.ServiceScheduler">
     <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED"></action>
     </intent-filter>

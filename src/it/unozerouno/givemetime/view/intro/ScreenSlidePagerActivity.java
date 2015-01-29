@@ -22,8 +22,6 @@ import android.view.WindowManager;
 
 public class ScreenSlidePagerActivity extends ActionBarActivity{
 
-	private Toolbar toolbar;
-
 	// number of pages to show
     private static final int NUM_PAGES = 3;
 
@@ -46,17 +44,10 @@ public class ScreenSlidePagerActivity extends ActionBarActivity{
         	if (LoginPreferences.isDeviceOnline(this)){
 	            // set the layout
 	            setContentView(R.layout.activity_screen_slide);
-	            
-	            // set the toolbar 
-	            toolbar = (Toolbar) findViewById(R.id.toolbar_intro);
-	            if (toolbar != null){
-	            	// set the toolbar as the action bar
-	            	setSupportActionBar(toolbar);
-	            }
 	
 	            // instantiate the ViewPager and the adapter
 	            mPager = (ViewPager) findViewById(R.id.pager);
-	            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), mPager, toolbar);
+	            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), mPager);
 	            mPager.setAdapter(mPagerAdapter);
 	            // remove comment if you want to use the zoomOutPageTransformer animation
 	            // mPager.setPageTransformer(true, new ZoomOutPageTransformer());
@@ -97,12 +88,10 @@ public class ScreenSlidePagerActivity extends ActionBarActivity{
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter{
 
     	private ViewPager pager;
-    	private Toolbar toolbar;
     	
-        public ScreenSlidePagerAdapter(FragmentManager fm, ViewPager pager, Toolbar toolbar){
+        public ScreenSlidePagerAdapter(FragmentManager fm, ViewPager pager){
         	super(fm);
         	this.pager = pager;
-        	this.toolbar = toolbar;
         }
 
         @Override

@@ -50,9 +50,14 @@ public class CalendarUtils {
 	
 	/**
 	 * adds trailing zeroes in case of hour or minute from 0 to 9
+	 * 
 	 * @return the string representation of hour and minute HH:mm
+	 * 			if hour == -1, returns the empty string
 	 */
 	public static String formatHour(int hour, int minute){
+		if (String.valueOf(hour).equals("-1")) {
+			return "";
+		}
 		String strHour = String.valueOf(hour);
 		String strMinute = String.valueOf(minute);
 		if (strHour.length() == 1){

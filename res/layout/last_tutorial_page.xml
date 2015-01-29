@@ -5,40 +5,97 @@
     android:layout_height="fill_parent"
     android:fillViewport="true">
 
-    <LinearLayout
+    <RelativeLayout
+        
         android:orientation="vertical"
         android:padding="16dp"
         android:layout_width="fill_parent"
+        android:divider="?android:dividerHorizontal"
         android:layout_height="fill_parent">
 
-    <TextView
-        style="?android:textAppearanceMedium"
-        android:id="@+id/view"
-        android:padding="16dp"
-        android:lineSpacingMultiplier="1.2"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="top"
-        android:text="@string/thirdPage"
-    />
+        
+        <LinearLayout 
+            android:id="@+id/buttonList"
+	        android:orientation="vertical"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerInParent="true"
+	        android:background="@drawable/linearlayout_bg"
+	        android:padding="10dp"
+        >
 
+        <Button 
+            style="?android:buttonBarButtonStyle"
+            android:id="@+id/btnHomeLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_margin="4dp"
+            android:text="Home Location"
+           />
+        <Button 
+            style="?android:buttonBarButtonStyle"
+            android:id="@+id/btnSleepTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_margin="4dp"
+            android:text="Sleep Time"
+           />
+        <Button 
+            style="?android:buttonBarButtonStyle"
+            android:id="@+id/btnWorkTimetable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:padding="10dp"
+            android:layout_margin="4dp"
+            android:text="Work Timetable"
+           />
+        
+        <Button 
+            style="?android:buttonBarButtonStyle"
+            android:id="@+id/btnVacationDays"
+            android:enabled="false"
+           	android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_margin="4dp"
+            android:text="Vacation Days"
+           />
+        
+        </LinearLayout>
+        
         <RelativeLayout
-            android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:layout_below="@+id/buttonList"
+            >
 
-            <Button
-                style="?android:buttonBarButtonStyle"
-                android:id="@+id/continueButton"
+            <View
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/continueButton"
+                android:layout_height="1dip"
+                android:background="?android:attr/actionBarDivider"
+                android:layout_above="@+id/continueButton"
+                 />
+        
+			<Button
+		    	style="?android:buttonBarButtonStyle"
+		        android:id="@+id/continueButton"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentBottom="true"
+		        android:text="@string/continueButton"
+		    />
+		</RelativeLayout>
+	
+	            
 
-            />
-        </RelativeLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </ScrollView>
