@@ -280,7 +280,7 @@ public final class DatabaseManager {
 
 			}
 		});
-
+		updater.execute();
 		addEventInDatabase(eventToUpdate.getEvent().getID(), eventToUpdate);
 	}
 
@@ -1437,6 +1437,14 @@ public final class DatabaseManager {
 				values.put(DatabaseCreator.QUESTION_USER_LATITUDE, locationMismatchQuestion.getLocationWhenGenerated().getLatitude());
 				values.put(DatabaseCreator.QUESTION_USER_LONGITUDE, locationMismatchQuestion.getLocationWhenGenerated().getLongitude());
 			}
+			if(question instanceof OptimizingQuestion){
+				OptimizingQuestion optimizingQuestion = (OptimizingQuestion) question;
+				values.put(DatabaseCreator.QUESTION_TYPE, OptimizingQuestion.TYPE);
+				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(optimizingQuestion.getEvent().getID()));
+				values.put(DatabaseCreator.QUESTION_MISSING_CATEGORY,optimizingQuestion.isMissingCategory());
+				values.put(DatabaseCreator.QUESTION_MISSING_CONSTRAINT,optimizingQuestion.isMissingConstraints());
+				values.put(DatabaseCreator.QUESTION_MISSING_PLACE, optimizingQuestion.isMissingPlace());
+			}
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
 			long rowId = database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 			return rowId;
@@ -1470,7 +1478,7 @@ public final class DatabaseManager {
 					removeQuestion(questionId);
 					continue;
 				}
-				if(questionType.equals(FreeTimeQuestion.TYPE) || questionType.equals(LocationMismatchQuestion.TYPE)){
+				if(questionType.equals(FreeTimeQuestion.TYPE) || questionType.equals(LocationMismatchQuestion.TYPE) || questionType.equals(OptimizingQuestion.TYPE)){
 							Intent questionIntent = new Intent(context,questionActivity);
 							questionIntent.putExtra(QuestionModel.QUESTION_ID, questionId);
 							questionIntent.putExtra(QuestionModel.QUESTION_TYPE, questionType);
@@ -1493,7 +1501,6 @@ public final class DatabaseManager {
 			QuestionModel question = null;
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
 			final String[] projection = DatabaseCreator.Projections.QUESTIONS;
-			GiveMeLogger.log("database path is: " + database.getPath());
 			String where = DatabaseCreator.QUESTION_ID + " = " + questionId;
 			
 			Cursor results = database.query(table, projection, where, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
@@ -1505,16 +1512,19 @@ public final class DatabaseManager {
 				 int questionEventId= results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_EVENT_ID));
 				 String questionLongitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LONGITUDE));
 				 String questionLatitude = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_USER_LATITUDE));
-				
+				 String missingCategoryString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_MISSING_CATEGORY));
+				 String missingConstraintString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_MISSING_CONSTRAINT));
+				 String missingPlaceString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_MISSING_PLACE));
+				 
 				 Time questionTime = new Time();
 				 questionTime.set(Long.parseLong(questionDate));
-						if(questionType.equals("FreeTimeQuestion")){
+						if(questionType.equals(FreeTimeQuestion.TYPE)){
 							FreeTimeQuestion freeTimeQuestion = new FreeTimeQuestion(context, questionTime, null);
 							freeTimeQuestion.setId(questionIdReturned);
 							freeTimeQuestion.setEventId(questionEventId);
 							question = freeTimeQuestion;
 						}
-						else if (questionType.equals("LocationMismatchQuestion")) {
+						else if (questionType.equals(LocationMismatchQuestion.TYPE)) {
 							Location generatedLocation = new Location("GMT");
 							generatedLocation.setLatitude(Double.parseDouble(questionLatitude));
 							generatedLocation.setLongitude(Double.parseDouble(questionLongitude));
@@ -1522,6 +1532,13 @@ public final class DatabaseManager {
 							locationMismatchQuestion.setId(questionIdReturned);
 							locationMismatchQuestion.setEventId(questionEventId);
 							question = locationMismatchQuestion;
+						} else if (questionType.equals(OptimizingQuestion.TYPE)){
+							
+							boolean missingCategory = (missingCategoryString != null) ? (missingCategoryString.equals("1")) : (false);
+							boolean missingConstraints= (missingConstraintString != null) ? (missingConstraintString.equals("1")) : (false);
+							boolean missingPlace= (missingPlaceString != null) ? (missingPlaceString.equals("1")) : (false);
+							OptimizingQuestion optimizingQuestion = new OptimizingQuestion(context, null, missingPlace, missingCategory, missingConstraints, questionTime);
+							question = optimizingQuestion;
 						}
 			}
 			results.close();
@@ -1533,7 +1550,7 @@ public final class DatabaseManager {
 		 * @param context
 		 * @param listener results are returned here
 		 */
-		public static synchronized void generateMissingDataQuestions(final Context context, final OnDatabaseUpdatedListener<SparseArray<OptimizingQuestion>> listener){
+		public static synchronized void generateMissingDataQuestions(final Context context){
 			Time now = new Time();
 			now.setToNow();
 			Time end = new Time();
@@ -1544,7 +1561,13 @@ public final class DatabaseManager {
 			EventListener<EventInstanceModel> eventResults = new EventListener<EventInstanceModel>() {
 				@Override
 				public void onLoadCompleted() {
-				listener.updateFinished(questions);
+					//Now that we have questions for all event with missing data, we update the database
+					for (int i = 0; i < questions.size(); i++) {
+						int eventId = questions.keyAt(i);
+						OptimizingQuestion question = questions.get(eventId);
+						addQuestion(question);
+					}
+					GiveMeLogger.log("Missing data generation complete");
 				}
 				@Override
 				public void onEventCreation(EventInstanceModel newEvent) {
@@ -1567,6 +1590,7 @@ public final class DatabaseManager {
 					Time now = new Time();
 					now.setToNow();
 					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints, now);
+					newQuestion.setEventId(Integer.parseInt(event.getID()));
 					questions.put(Integer.parseInt(event.getID()), newQuestion);
 					}
 				}
@@ -1604,7 +1628,7 @@ public final class DatabaseManager {
 			public static final String[] CONSTRAINT_COMPLEX_ALL = {C_COMPLEX_ID, C_COMPLEX_S_ID};
 			public static final String[] OT_ALL = {OT_PLACE_ID, OT_COMPLEX_CONSTRAINT};
 			public static final String[] EVENT_MODEL_ALL = { ID_CALENDAR, ID_EVENT_PROVIDER,ID_PLACE, ID_EVENT_CATEGORY, FLAG_DO_NOT_DISTURB,FLAG_DEADLINE,FLAG_MOVABLE };
-			public static final String[] QUESTIONS = { QUESTION_ID, QUESTION_DATE_TIME,QUESTION_TYPE, QUESTION_EVENT_ID, QUESTION_USER_LATITUDE,QUESTION_USER_LONGITUDE };
+			public static final String[] QUESTIONS = { QUESTION_ID, QUESTION_DATE_TIME,QUESTION_TYPE, QUESTION_EVENT_ID, QUESTION_USER_LATITUDE,QUESTION_USER_LONGITUDE,QUESTION_MISSING_CATEGORY,QUESTION_MISSING_CONSTRAINT,QUESTION_MISSING_PLACE};
 			
 			
 			public static int getIndex(String[] projection, String coloumn) {
@@ -1668,6 +1692,10 @@ public final class DatabaseManager {
 		private static final String QUESTION_EVENT_ID = "event_id";
 		private static final String QUESTION_USER_LATITUDE = "user_latitude";
 		private static final String QUESTION_USER_LONGITUDE = "user_longitude";
+		private static final String QUESTION_MISSING_PLACE = "question_missing_place";
+		private static final String QUESTION_MISSING_CATEGORY = "question_missing_category";
+		private static final String QUESTION_MISSING_CONSTRAINT = "question_missing_constraint";
+		
 		// EVENT CATEGORY
 		private static final String ECA_NAME = "eca_name";
 		private static final String ECA_DEFAULT_DONOTDISTURB = "default_donotdisturb";
@@ -1738,6 +1766,9 @@ public final class DatabaseManager {
 				+ QUESTION_EVENT_ID	+ " INT, "
 				+ QUESTION_USER_LONGITUDE	+ " VARCHAR(30), "
 				+ QUESTION_USER_LATITUDE	+ " VARCHAR(30), "
+				+ QUESTION_MISSING_CATEGORY + " BOOLEAN, "
+				+ QUESTION_MISSING_PLACE + " BOOLEAN,"
+				+ QUESTION_MISSING_CONSTRAINT + " BOOLEAN, "
 				+ " FOREIGN KEY ("	+ QUESTION_EVENT_ID	+ ") REFERENCES "+ TABLE_EVENT_MODEL+ " ("	+ ID_EVENT_PROVIDER	+ ")"
 				+ ");";
 		// EVENT_CATEGORY
