@@ -1427,12 +1427,12 @@ public final class DatabaseManager {
 			
 			if(question instanceof FreeTimeQuestion){
 				FreeTimeQuestion freeTimeQuestion = (FreeTimeQuestion) question;
-				values.put(DatabaseCreator.QUESTION_TYPE, "FreeTimeQuestion");
+				values.put(DatabaseCreator.QUESTION_TYPE, FreeTimeQuestion.TYPE);
 				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(freeTimeQuestion.getClosestEvent().getEvent().getID()));
 			}
 			if(question instanceof LocationMismatchQuestion){
 				LocationMismatchQuestion locationMismatchQuestion = (LocationMismatchQuestion) question;
-				values.put(DatabaseCreator.QUESTION_TYPE, "LocationMismatchQuestion");
+				values.put(DatabaseCreator.QUESTION_TYPE, LocationMismatchQuestion.TYPE);
 				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(locationMismatchQuestion.getEvent().getEvent().getID()));
 				values.put(DatabaseCreator.QUESTION_USER_LATITUDE, locationMismatchQuestion.getLocationWhenGenerated().getLatitude());
 				values.put(DatabaseCreator.QUESTION_USER_LONGITUDE, locationMismatchQuestion.getLocationWhenGenerated().getLongitude());
@@ -1454,24 +1454,28 @@ public final class DatabaseManager {
 		 * @param context
 		 * @return
 		 */
-		public static synchronized ArrayList<Intent> getQuestions(final Context context, Class<Activity> questionActivity){
+		public static synchronized ArrayList<Intent> getQuestions(final Context context, Class<? extends Activity> questionActivity){
 			ArrayList<Intent> questionIntents = new ArrayList<Intent>();
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
-			final String[] projection = {DatabaseCreator.QUESTION_ID,DatabaseCreator.QUESTION_TYPE};
+			final String[] projection = {DatabaseCreator.QUESTION_ID,DatabaseCreator.QUESTION_TYPE,DatabaseCreator.QUESTION_DATE_TIME};
 			Cursor results = database.query(table, projection, null, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
 			
 			while (results.moveToNext()){
 				
 				int questionId = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
 				String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
+				String questionTimeString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_DATE_TIME));
 				if(questionType == null) {
 					GiveMeLogger.log("Invalid question found in DB, removing");
 					removeQuestion(questionId);
 					continue;
 				}
-				if(questionType.equals("FreeTimeQuestion") || questionType.equals("LocationMismatchQuestion")){
+				if(questionType.equals(FreeTimeQuestion.TYPE) || questionType.equals(LocationMismatchQuestion.TYPE)){
 							Intent questionIntent = new Intent(context,questionActivity);
-							questionIntent.putExtra(QuestionActivity.QUESTION_ID, questionId);
+							questionIntent.putExtra(QuestionModel.QUESTION_ID, questionId);
+							questionIntent.putExtra(QuestionModel.QUESTION_TYPE, questionType);
+							questionIntent.putExtra(QuestionModel.QUESTION_TIME, questionTimeString);
+							questionIntents.add(questionIntent);
 						}
 			}
 			results.close();

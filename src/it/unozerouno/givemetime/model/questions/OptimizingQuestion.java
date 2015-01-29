@@ -10,6 +10,7 @@ import android.text.format.Time;
  *
  */
 public class OptimizingQuestion extends QuestionModel{
+	public static final String TYPE = "OptimizingQuestion";
 	private EventDescriptionModel event;
 	private boolean missingPlace; //If place is unknown
 	private boolean missingCategory; //If category has not been set

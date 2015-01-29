@@ -10,6 +10,7 @@ import android.text.format.Time;
  *
  */
 public class FreeTimeQuestion extends QuestionModel{
+	public static final String TYPE = "FreeTimeQuestion";
 	EventInstanceModel closestEvent;
 	
 	public FreeTimeQuestion(Context context, Time generationTime, EventInstanceModel closestEvent) {

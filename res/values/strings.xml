@@ -44,5 +44,7 @@
 	    <item>Every Year</item>
 	    <item>Personalize</item>
 	</string-array>
-	
+	<string name="question_list_description_locationmismatch">Question about an event location</string>
+	<string name="question_list_description_freetime">Suggestion on what to do</string>
+	<string name="question_list_optimizing_question">An event is missing some data</string>
 </resources>

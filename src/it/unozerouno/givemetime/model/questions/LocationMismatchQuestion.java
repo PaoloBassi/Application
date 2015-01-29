@@ -16,6 +16,7 @@ import android.text.format.Time;
  *
  */
 public class LocationMismatchQuestion extends QuestionModel{
+	public static final String TYPE = "LocationMismatchQuestion";
 	private EventInstanceModel event;
 	private Location locationWhenGenerated;
 	private PlaceModel place;
