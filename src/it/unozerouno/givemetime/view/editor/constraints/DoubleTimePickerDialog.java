@@ -1,11 +1,11 @@
 package it.unozerouno.givemetime.view.editor.constraints;
 
 import it.unozerouno.givemetime.R;
-
-
 import android.app.DialogFragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.format.Time;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,7 +30,9 @@ public class DoubleTimePickerDialog extends DialogFragment{
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.editor_constraint_timepicker_double, container);
 		startPicker = (TimePicker) view.findViewById(R.id.editor_constraint_timepicker_start);
+		startPicker.setIs24HourView(true);
 		endPicker = (TimePicker) view.findViewById(R.id.editor_constraint_timepicker_end);
+		endPicker.setIs24HourView(true);
 		okBtn = (Button) view.findViewById(R.id.editor_constraint_timepicker_btn_save);
 		cancelBtn = (Button) view.findViewById(R.id.editor_constraint_timepicker_btn_cancel);
 		setButtonListener();

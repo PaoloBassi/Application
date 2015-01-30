@@ -29,6 +29,9 @@
     <string name="action_day_view">Day view</string>
     <string name="action_three_day_view">3 day view</string>
     <string name="action_week_view">Week view</string>
+    <string name="pay_categories">This option is not available in the free version. Purchase the pro version in order to create your own personalized categories!</string>
+    <string name="Not_available">Option not Available</string>
+    <string name="pay_deadline">This option is not available in the free version. Purchase the pro version in order to instantiate deadline-free events.</string>
     
     <string name="place_autocomplete_quota_exceeded">The maximum free user number has been exceeded. You can retry tomorrow. Please donate or purchase GiveMeTime for full functionality!</string>
     <string name="place_autocomplete_key_outdated">Your application is outdated. Please update it on Play Store or send us an email if the error persists.</string>
@@ -44,9 +47,9 @@
 	    <item>Every Year</item>
 	    <item>Personalize</item>
 	</string-array>
-	<string name="question_list_description_locationmismatch">Question about an event location</string>
-	<string name="question_list_description_freetime">Suggestion on what to do</string>
-	<string name="question_list_optimizing_question">An event is missing some data</string>
+	<string name="question_list_description_locationmismatch">Location details about: </string>
+	<string name="question_list_description_freetime">Found compatible event: </string>
+	<string name="question_list_optimizing_question">I need information about: </string>
 	<string name="question_relative_to_deleted_event">This event does not exist anymore</string>
-	<string name="paid_functionality">This functionality belongs to PRO version. \n Please support us!</string>
+	<string name="paid_create_event">This option is not available in the free version. Purchase the pro version in order to dinamically create events!</string>
 </resources>
