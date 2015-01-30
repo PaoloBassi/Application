@@ -33,10 +33,14 @@ public class EventInstanceModel extends EventModel{
 		return startingTime;
 	}
 
+	
+	public void setStartingTime(Time startingTime) {
+		this.startingTime = startingTime;
+	}
 	/**
 	 * compute the duration of recursive events and set the duration
 	 */
-	public void setStartingTime() {
+	public void computeDuration(){
 		if (event.isRecursive()){
 			Time difference = new Time();
 			difference.setJulianDay(Time.EPOCH_JULIAN_DAY);

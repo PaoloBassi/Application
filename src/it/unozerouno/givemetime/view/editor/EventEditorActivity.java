@@ -1,5 +1,6 @@
 package it.unozerouno.givemetime.view.editor;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -46,6 +48,7 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class EventEditorActivity extends ActionBarActivity implements OnSelectedPlaceModelListener{
 	
@@ -73,33 +76,27 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	private Switch switchDoNotDisturb;
 	private Button buttonCancel;
 	private Button buttonSave;
-	private Time start;
-	private Time end;
 	private String categoryName;
 	private List<String> items; 
 	private EventCategory selectedCategory;
-	private EventDescriptionModel eventToEdit;
-	private EventInstanceModel eventToAdd;
-	private String eventID;
-	private String eventName;
-	private PlaceModel selectedPlaceModel;
+	private EventInstanceModel eventToEdit;
 	private Toolbar toolbar;
 	private EventListener<EventInstanceModel> eventListener;
 	
 	public void setStart(Time start) {
-		this.start = start;
+		eventToEdit.setStartingTime(start);
 	}
 	
 	public void setEnd(Time end) {
-		this.end = end;
+		eventToEdit.setEndingTime(end);
 	}
 	
 	public Time getStart() {
-		return start;
+		return eventToEdit.getStartingTime();
 	}
 	
 	public Time getEnd() {
-		return end;
+		 return eventToEdit.getEndingTime();
 	}
 
 	public TextView getSpinnerStartDay() {
@@ -122,8 +119,20 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.editor_edit_event);
+		//Creating a new Dummy event
+		eventToEdit = new EventInstanceModel(new EventDescriptionModel(null, null), null, null);
 		// set the title of the activity
 		editOrNew = getIntent().getStringExtra("EditOrNew");
+		
+		//Interface Init
+		getUiContent();
+		setUiListeners();
+		hideFragment(fragmentLocations);
+		hideFragment(fragmentConstraints);
+		//Setting default data
+		setDefaults();
+		
+		//Here we prepare to get the event
 		if (editOrNew.equals("New")){
 			this.setTitle("New Event");
 		} else {
@@ -138,66 +147,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			endTime.set(endTimeinMillis);
 			
 	        eventListener = new EventListener<EventInstanceModel>() {
+	        	EventInstanceModel fetchedEvent;
 				@Override
 				public void onEventCreation(final EventInstanceModel newEvent) {
-					
-					runOnUiThread(new Runnable() {
-						
-						@Override
-						public void run() {
-							
-							// when found, assign the corresponding event
-							eventToEdit = newEvent.getEvent();
-							// retrieve all data in order to display them on screen
-							
-							// set the start and end variables to startTime and EndTime for update 
-							start = startTime;
-							end = endTime;
-							
-							editEventTitle.setText(eventToEdit.getName());
-							if (eventToEdit.getPlace() == null){
-								textLocation.setText("Location not set");
-							} else {
-								textLocation.setText(eventToEdit.getPlace().getName());
-							}
-							if (eventToEdit.getCategory() == null) {
-								// loading an external application generated event
-								// set amusement, better than work
-								spinnerCategory.setSelection(2);
-							} else {
-								spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
-							}
-							// the deadline is always true, payment required
-							switchDeadline.setChecked(true); 
-							// check if the event has repetitions
-							if (eventToEdit.isRecursive()){
-								//TODO set spinner repetition with correct text
-							} else {
-								spinnerRepetition.setSelection(0); // it the no repetition choice
-							}
-							// check if it is an all day event
-							int i = getIntent().getIntExtra("AllDayEvent", 0);
-							boolean isAllDay;
-							if (i == 1){
-								isAllDay = true;
-							} else {
-								isAllDay = false;
-							}
-							switchAllDay.setChecked(isAllDay);
-							
-							// if all day events, disable all the others
-							if (!switchAllDay.isChecked()){
-								setSpinnerVisibility(View.VISIBLE);
-							} else {
-								setSpinnerVisibility(View.GONE);
-							}
-							setSpinnerData(eventToEdit.getSeriesStartingDateTime(), eventToEdit.getSeriesEndingDateTime());
-							
-							switchIsMovable.setChecked(eventToEdit.getIsMovable());
-							switchDoNotDisturb.setChecked(eventToEdit.getDoNotDisturb());
-							
-						}
-					});
+					fetchedEvent = newEvent;
 				}
 				
 				@Override
@@ -207,25 +160,96 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 
 				@Override
 				public void onLoadCompleted() {
-					//This is called from the Fetcher thread, so we had to swap to the UI thread		
+					
+					runOnUiThread(new Runnable() {
+						
+						@Override
+						public void run() {
+							loadEvent(fetchedEvent);						
+						}
+					});		
 				}
 			};
+			
 			// fetch the event instances searching for the edit event
-			System.out.println("start: " + startTime.hour + " " + startTime.minute + " " + startTime.second);
-			System.out.println("end: " + endTime.hour + " " + endTime.minute + " " + endTime.second);
 			DatabaseManager.getEventsInstances(Integer.parseInt(ID), startTime, endTime, this, eventListener);
 		}
-		getUiContent();
-		setUiListeners();
-		hideFragment(fragmentLocations);
-		hideFragment(fragmentConstraints);
+	
 
-		getEventInfo();
+	}
+
+	/**
+	 * This function loads an event received from the DatabaseManager callback into the event to edit and fills the UI accordingly
+	 * @param eventToLoad
+	 */
+	private synchronized void loadEvent(EventInstanceModel eventToLoad){
+		if(eventToLoad == null){
+			GiveMeLogger.log("FATAL ERROR: Editor launched with a non-existing id");
+		}
+		// when found, assign the corresponding event
+		eventToEdit = eventToLoad;
+		// retrieve all data in order to display them on screen
+		
+		
+		//Setting the UI
+		//Setting title 
+		editEventTitle.setText(eventToEdit.getEvent().getName());
+		//Setting Location
+		if (eventToEdit.getEvent().getPlace() == null){
+			textLocation.setText("Location not set");
+		} else {
+			textLocation.setText(eventToEdit.getEvent().getPlace().getName());
+		}
+		//Setting Category
+		if (eventToEdit.getEvent().getCategory() == null) {
+			// loading an external application generated event
+			// set amusement, better than work
+			spinnerCategory.setSelection(2);
+		} else {
+			spinnerCategory.setSelection(items.indexOf(eventToEdit.getEvent().getCategory().getName()));
+			
+		}
+		
+		//Setting deadLine
+		// the deadline is always true, payment required
+					switchDeadline.setChecked(true); 
+
+		// check if the event has repetitions
+		if (eventToEdit.getEvent().isRecursive()){
+			//TODO set spinner repetition with correct text
+		} else {
+			spinnerRepetition.setSelection(0); // it the no repetition choice
+		}
+		
+		// check if it is an all day event
+		//TODO: implement this using allDay coloumn from CalendarFetcher (check even if it's present on EventModel)
+		int allDayInt = getIntent().getIntExtra("AllDayEvent", 0);
+		boolean isAllDay = (allDayInt == 1);
+		switchAllDay.setChecked(isAllDay);
+		
+			// if all day events, disable all the others
+			if (!switchAllDay.isChecked()){
+				setSpinnerVisibility(View.VISIBLE);
+			} else {
+				setSpinnerVisibility(View.GONE);
+			}
+		setSpinnerData(eventToEdit.getEvent().getSeriesStartingDateTime(), eventToEdit.getEvent().getSeriesEndingDateTime());
+		
+		//Setting isMovable
+		switchIsMovable.setChecked(eventToEdit.getEvent().getIsMovable());
+		switchDoNotDisturb.setChecked(eventToEdit.getEvent().getDoNotDisturb());
+		//Setting constraints
+		if (eventToEdit.getEvent().getConstraints() != null) {
+			switchIsMovable.setEnabled(true);
+			fragmentConstraints.setConstraintList(eventToEdit.getEvent().getConstraints());
+		}
+		
 	}
 	
-	
-	private void getUiContent(){
-		
+	/**
+	 * Gets all UI components' references
+	 */
+	private synchronized void getUiContent(){
 		// set the toolbar 
         toolbar = (Toolbar) findViewById(R.id.toolbar_edit_event);
         if (toolbar != null){
@@ -289,10 +313,8 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		 buttonSave = (Button) findViewById(R.id.editor_edit_event_btn_save);
 	}
 	
-	private void setUiListeners(){
-		//TODO: Insert listeners for the ui
-		
-		
+	
+	private synchronized void setUiListeners(){
 		
 		//Setting Location Button onClick
 		buttonLocation.setOnClickListener(new OnClickListener() {
@@ -315,11 +337,11 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				 if (!switchAllDay.isChecked()){
 					 System.out.println("visible");
 					 setSpinnerVisibility(View.VISIBLE);
-					 eventToEdit.setAllDay(0);
+					 eventToEdit.getEvent().setAllDay(0);
 				 } else {
 					 System.out.println("invisible");
 					 setSpinnerVisibility(View.GONE);
-					 eventToEdit.setAllDay(1);
+					 eventToEdit.getEvent().setAllDay(1);
 				 }
 				
 			}
@@ -375,37 +397,34 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					boolean isMovable = DatabaseManager.getCategoryByName(categoryName).isDefault_movable();
 					switchDoNotDisturb.setChecked(doNotDisturb);
 					switchIsMovable.setChecked(isMovable);
-					eventToEdit.setCategory(DatabaseManager.getCategoryByName(categoryName));
-					eventToEdit.setDoNotDisturb(doNotDisturb);
-					eventToEdit.setIsMovable(isMovable);
+					eventToEdit.getEvent().setCategory(DatabaseManager.getCategoryByName(categoryName));
+					eventToEdit.getEvent().setDoNotDisturb(doNotDisturb);
+					eventToEdit.getEvent().setIsMovable(isMovable);
 				} else {
 					// TODO creation of new category
 					spinnerCategory.setSelection(0);
 					Dialog.paymentDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_categories);
-				}
 			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				// TODO Auto-generated method stub
+			}
+			public void onNothingSelected(android.widget.AdapterView<?> arg0) {};
 				
+		});
+		switchDeadline.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked) {
+					textDeadLine.setText(getString(R.string.editor_hasdeadline_text));
+					eventToEdit.getEvent().setHasDeadline(true);
+				} else {
+					Dialog.paymentDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_deadline);
+					switchDeadline.setChecked(true);
+//					textDeadLine.setText("This event has no deadline");
+//					setSpinnerVisibility(0);
+				}
 			}
 		});
 		
-		switchDeadline.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				if(switchDeadline.isChecked()) {
-					// TODO disable other options
-					Dialog.paymentDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_deadline);
-					switchDeadline.setChecked(false);
-				} else {
-					// do nothing
-				}
-				
-			}
-		});
 		
 		//Setting button actions
 		buttonCancel.setOnClickListener(new OnClickListener() {
@@ -416,6 +435,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				EventEditorActivity.this.finish();
 			}
 		});
+		
 		buttonSave.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -431,91 +451,109 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 					// if all day events, disable all the others
-					 if (!switchIsMovable.isChecked()){
+					 if (!isChecked){
 						hideFragment(fragmentConstraints);
-						eventToEdit.setIsMovable(false);
+						eventToEdit.getEvent().setIsMovable(false);
 					 } else {
 						 showFragment(fragmentConstraints);
-						 eventToEdit.setIsMovable(true);
+						 eventToEdit.getEvent().setIsMovable(true);
 					 }
 					
 				}
 			});
+			
+			//Setting isMovable switch behaviour
+			switchDoNotDisturb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+						eventToEdit.getEvent().setDoNotDisturb(isChecked);
+				}
+			});
+			
+			editEventTitle.setOnEditorActionListener(new OnEditorActionListener() {
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+					eventToEdit.getEvent().setName(v.getText().toString());
+					return true;
+				}
+			});
+			
+			
 	}
 
 	/**
-	 * Acquires informations about creating or editing an event, retrieve and display information consequently
+	 * Sets all ui and model default data
 	 */
-	private void getEventInfo(){
-		//TODO: Here get the event passed by the calendarView.
-		if(editOrNew.equals("New")){
-			//If it is not present, this activity is used as "new event activity"
-			editEventTitle.setText("New Event");
-			start = new Time();
+	private synchronized void setDefaults(){
+		//Default hasDeadline
+		switchDeadline.setEnabled(true);
+		eventToEdit.getEvent().setHasDeadline(true);
+		//Default Category
+			// set amusement, better than work
+		int defaultPosition = 2;
+		spinnerCategory.setSelection(defaultPosition);
+		eventToEdit.getEvent().setCategory(DatabaseManager.getCategoryByName(items.get(defaultPosition)));
+		textLocation.setText("Location not set");
+		eventToEdit.getEvent().setPlace(null);
+		//Setting deadLine
+		// the deadline is always true, payment required
+		switchDeadline.setChecked(true);
+		eventToEdit.getEvent().setHasDeadline(true);
+		//Setting repetition default
+		spinnerRepetition.setSelection(0); // it the no repetition choice
+		switchAllDay.setChecked(false);
+		eventToEdit.getEvent().setAllDay(0);
+		editEventTitle.setText("New Event");
+		eventToEdit.getEvent().setName(editEventTitle.getText().toString());
+		
+			Time start = new Time();
 			start.setToNow();
 			CalendarUtils.approximateMinutes(start);
-			end = new Time(start);
+			Time end = new Time(start);
 			if(end.hour != 23){
 				end.hour++;
 				//Have to find a clever way to set default times
 			} else {
 				end.hour = 0;
 			}
-			// create a description model in order to load the constraint fragment
-			eventToEdit = new EventDescriptionModel("", editEventTitle.getText().toString());
+			// setting default data to event
+			eventToEdit.setStartingTime(start);
+			eventToEdit.setEndingTime(end);
 			// set data inside the spinner
 			setSpinnerData(start, end);
 			// get the constraint list associated to the event
-			fragmentConstraints.setConstraintList(eventToEdit.getConstraints());
-			
-		} else {
-			// Event Edit with listener in onCreate
-		}
+			fragmentConstraints.setConstraintList(eventToEdit.getEvent().getConstraints());
 	}
 	
 	private void saveEvent(){
-		//TODO: Complete this function
 		//Here update all data on the EventDescriptionModel and EventInstanceModel
-		if(editOrNew.equals("New")){
-			// set the (probably) new title, start and ending time of the event
-			eventToEdit.setName(editEventTitle.getText().toString());
-			eventToEdit.setSeriesStartingDateTime(start);
-			eventToEdit.setSeriesEndingDateTime(end);
-			
-			eventToEdit.setCalendarId(UserKeyRing.getCalendarId(this));
-			// retrieve the name of the category selected and the default data of the switch associated
-			selectedCategory = DatabaseManager.getCategoryByName(categoryName);
-			// check if it is a default category
-			if (selectedCategory.isDefaultCategory()){
-				eventToEdit.setCategory(selectedCategory);
-				switchDoNotDisturb.setChecked(selectedCategory.isDefault_donotdisturb());
-				switchIsMovable.setChecked(selectedCategory.isDefault_movable());
-			} else {
-				// TODO do other things with non default categories
-			}
-			// TODO: set all other data that we have
-			eventToEdit.setHasDeadline(true); // payment required for false values
-			// set the constraint List inside the event
-			eventToEdit.setConstraints(fragmentConstraints.getConstraintList());
-			// create the relative instance of the Event
-			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
-			// if the event is recursive, set the duration
-			// set the RRULE to let googleCalendar display the view
-			eventToAdd.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), start, end);
-			// duration is an empty string
-			eventToAdd.setStartingTime();
-			
-			// finally add the event to the db 
-			DatabaseManager.addEvent(this, eventToAdd);
-			System.out.println("deadline after insert set to : " + eventToAdd.getEvent().getHasDeadline());
-		} else {
-			//Here we are updating an existing event
-			// start and end are correctly set during the fetch, line 153-154
-			DatabaseManager.updateEvent(EventEditorActivity.this, new EventInstanceModel(eventToEdit, start, end));
-			System.out.println("deadline set to : " + eventToEdit.getHasDeadline());
-			
+		eventToEdit.getEvent().setName(editEventTitle.getText().toString());
+		eventToEdit.getEvent().setCalendarId(UserKeyRing.getCalendarId(this));
+		// retrieve the name of the category selected and the default data of the switch associated
+
+		// set the constraint List inside the event
+		eventToEdit.getEvent().setConstraints(fragmentConstraints.getConstraintList());
+
+		// if the event is recursive, set the duration
+		// set the RRULE to let googleCalendar display the view
+		if (spinnerRepetition.getSelectedItemPosition() != 0){
+			//Event is recursive
+			//TODO: fix starting dateTime of Event
+		eventToEdit.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), eventToEdit.getStartingTime(), eventToEdit.getEndingTime());
+		// duration is an empty string
+		eventToEdit.computeDuration();
 		}
-		EventListFragment.getWeekViewInstance().notifyDatasetChanged();
+		
+		if(editOrNew.equals("New")){
+			DatabaseManager.addEvent(this, eventToEdit);
+		
+		} else {
+			DatabaseManager.updateEvent(this, eventToEdit);
+		}
+		// finally add the event to the db 
+		
+	//	EventListFragment.getWeekViewInstance().notifyDatasetChanged();
 	}
 	
 	private void hideFragment(Fragment fragment){
@@ -559,9 +597,9 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		textLocation.setText(place.getName());
 		hideFragment(fragmentLocations);
 		buttonLocation.setText("Edit");
-		selectedPlaceModel = place;
 		// attach the selected place model to the event to add or edit in the UI
-		eventToEdit.setPlace(selectedPlaceModel);
+		eventToEdit.getEvent().setPlace(place);
 	}
+	
 	
 }
