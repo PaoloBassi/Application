@@ -383,7 +383,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					spinnerCategory.setSelection(0);
 					new AlertDialog.Builder(EventEditorActivity.this)
 						.setTitle("Option Not Available")
-						.setMessage("This option is not available in the free version. Purchase the pro version in order to create you own personalized categories!")
+						.setMessage("This option is not available in the free version. Purchase the pro version in order to create your own personalized categories!")
 						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 							
 							@Override

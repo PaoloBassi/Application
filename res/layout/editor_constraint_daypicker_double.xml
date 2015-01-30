@@ -8,6 +8,7 @@
         android:id="@+id/editor_constraint_daypicker_text_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
         android:text="If the event can be moved in an arbitrary range of time, please select it" />
 
     <TextView
@@ -15,6 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Start"
+        android:paddingBottom="10dp"
+        android:layout_gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Spinner
@@ -27,6 +30,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="End"
+        android:paddingBottom="10dp"
+        android:layout_gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Spinner

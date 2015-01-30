@@ -1,73 +1,88 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/editor_constraint_timepicker_text_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="If the event can be moved in an arbitrary range of time, please select it" />
-
-    <TextView
-        android:id="@+id/editor_constraint_timepicker_text1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TimePicker
-        android:id="@+id/editor_constraint_timepicker_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:calendarViewShown="false"
-         />
-
-    <TextView
-        android:id="@+id/editor_constraint_timepicker_text2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="End"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TimePicker
-        android:id="@+id/editor_constraint_timepicker_end"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:calendarViewShown="false"
-        />
-
-    <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-
-            android:orientation="horizontal"
-            android:layout_weight="1" >
-
-            <Button
-                style="?android:buttonBarButtonStyle"
-                android:id="@+id/editor_constraint_timepicker_btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/centerPoint"
-                android:text="Cancel" />
-
-            <TextView
-                android:id="@+id/centerPoint"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:text="" />
-
-            <Button
-                style="?android:buttonBarButtonStyle"
-                android:id="@+id/editor_constraint_timepicker_btn_save"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_toRightOf="@+id/centerPoint"
-                android:text="Ok" />
-        </RelativeLayout>
-</LinearLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<LinearLayout 
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical" >
+	
+	    <TextView
+	        android:id="@+id/editor_constraint_timepicker_text_info"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:paddingBottom="10dp"
+	        android:text="If the event can be moved in an arbitrary range of time, please select it" />
+	
+	    <TextView
+	        android:id="@+id/editor_constraint_timepicker_text1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:paddingBottom="10dp"
+	        android:text="Start"
+	        android:layout_gravity="center"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <TimePicker
+	        style="@android:style/Theme.Holo.Light"
+	        android:id="@+id/editor_constraint_timepicker_start"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:calendarViewShown="false"
+	        android:paddingBottom="10dp"
+	        android:layout_gravity="center"
+	         />
+	
+	    <TextView
+	        android:id="@+id/editor_constraint_timepicker_text2"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="End"
+	        android:paddingBottom="10dp"
+	        android:layout_gravity="center"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <TimePicker
+	        android:id="@+id/editor_constraint_timepicker_end"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:calendarViewShown="false"
+	        android:paddingBottom="10dp"
+	        android:layout_gravity="center"
+	        />
+	
+	    <RelativeLayout
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	
+	            android:orientation="horizontal"
+	            android:layout_weight="1" >
+	
+	            <Button
+	                style="?android:buttonBarButtonStyle"
+	                android:id="@+id/editor_constraint_timepicker_btn_cancel"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentLeft="true"
+	                android:layout_toLeftOf="@+id/centerPoint"
+	                android:text="Cancel" />
+	
+	            <TextView
+	                android:id="@+id/centerPoint"
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_centerHorizontal="true"
+	                android:text="" />
+	
+	            <Button
+	                style="?android:buttonBarButtonStyle"
+	                android:id="@+id/editor_constraint_timepicker_btn_save"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentRight="true"
+	                android:layout_toRightOf="@+id/centerPoint"
+	                android:text="Ok" />
+	        </RelativeLayout>
+	
+	</LinearLayout>
+</ScrollView>

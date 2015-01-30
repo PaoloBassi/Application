@@ -22,4 +22,8 @@
         <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">2</item>
     </style>
+    
+    <style name="Picker.Holo" parent="android:Theme.Holo.Light">
+        
+    </style>
 </resources>

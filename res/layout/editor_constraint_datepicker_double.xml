@@ -1,73 +1,85 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/editor_constraint_datepicker_text_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="If the event can be moved in an arbitrary range of time, please select it" />
-
-    <TextView
-        android:id="@+id/editor_constraint_datepicker_text1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <DatePicker
-        android:id="@+id/editor_constraint_datepicker_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:calendarViewShown="false"
-         />
-
-    <TextView
-        android:id="@+id/editor_constraint_datepicker_text2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="End"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <DatePicker
-        android:id="@+id/editor_constraint_datepicker_end"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:calendarViewShown="false"
-        />
-
-    <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-
-            android:orientation="horizontal"
-            android:layout_weight="1" >
-
-            <Button
-                style="?android:buttonBarButtonStyle"
-                android:id="@+id/editor_constraint_datepicker_btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/centerPoint"
-                android:text="Cancel" />
-
-            <TextView
-                android:id="@+id/centerPoint"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:text="" />
-
-            <Button
-                style="?android:buttonBarButtonStyle"
-                android:id="@+id/editor_constraint_datepicker_btn_save"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_toRightOf="@+id/centerPoint"
-                android:text="Ok" />
-        </RelativeLayout>
-</LinearLayout>
+	
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical" >
+	
+	    <TextView
+	        android:id="@+id/editor_constraint_datepicker_text_info"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:paddingBottom="10dp"
+	        android:text="If the event can be moved in an arbitrary range of time, please select it" />
+	
+	    <TextView
+	        android:id="@+id/editor_constraint_datepicker_text1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Start"
+	        android:paddingBottom="10dp"
+	        android:gravity="center"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <fragment
+	        android:id="@+id/date_picker_fragment_start"
+	        android:name="it.unozerouno.givemetime.view.utilities.DoubleDatePickerFragment"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" />
+	    
+	    <DatePicker
+	        android:id="@+id/editor_constraint_datepicker_start"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:calendarViewShown="false"
+	         />
+	
+	    <TextView
+	        android:id="@+id/editor_constraint_datepicker_text2"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="End"
+	        android:paddingBottom="10dp"
+	        android:gravity="center"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <DatePicker
+	        android:id="@+id/editor_constraint_datepicker_end"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:calendarViewShown="false"
+	        />
+	
+	    <RelativeLayout
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	
+	            android:orientation="horizontal"
+	            android:layout_weight="1" >
+	
+	            <Button
+	                style="?android:buttonBarButtonStyle"
+	                android:id="@+id/editor_constraint_datepicker_btn_cancel"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentLeft="true"
+	                android:layout_toLeftOf="@+id/centerPoint"
+	                android:text="Cancel" />
+	
+	            <TextView
+	                android:id="@+id/centerPoint"
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_centerHorizontal="true"
+	                android:text="" />
+	
+	            <Button
+	                style="?android:buttonBarButtonStyle"
+	                android:id="@+id/editor_constraint_datepicker_btn_save"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentRight="true"
+	                android:layout_toRightOf="@+id/centerPoint"
+	                android:text="Ok" />
+	        </RelativeLayout>
+	</LinearLayout>
