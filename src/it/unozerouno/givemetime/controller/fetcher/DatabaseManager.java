@@ -322,27 +322,30 @@ public final class DatabaseManager {
 	 */
 	private static void addEventInDatabase(String addedEventId,
 			EventInstanceModel newEventInstance) {
-
+		ContentValues values = new ContentValues();
 		EventDescriptionModel newEvent = newEventInstance.getEvent();
+		
 		String eventId = addedEventId;
+		values.put(DatabaseCreator.ID_EVENT_PROVIDER, eventId);
+		
 		int calendarId = Integer.parseInt(newEvent.getCalendarId());
+		values.put(DatabaseCreator.ID_CALENDAR, calendarId);
+		
+		if (newEvent.getCategory() != null){
 		String eventCategory = newEvent.getCategory().getName();
-		String placeId = null;
+		values.put(DatabaseCreator.ID_EVENT_CATEGORY, eventCategory);
+		}
+		
 		if(newEvent.getPlace() != null){
-			placeId = newEvent.getPlace().getPlaceId();
+			String placeId = newEvent.getPlace().getPlaceId();
+			values.put(DatabaseCreator.ID_PLACE, placeId);
 		}
 		
 		boolean doNotDisturb = newEvent.getDoNotDisturb();
-		boolean hasDeadline = newEvent.getHasDeadline();
-		boolean isMovable = newEvent.getIsMovable();
-		
-		ContentValues values = new ContentValues();
-		values.put(DatabaseCreator.ID_CALENDAR, calendarId);
-		values.put(DatabaseCreator.ID_EVENT_PROVIDER, eventId);
-		values.put(DatabaseCreator.ID_EVENT_CATEGORY, eventCategory);
-		values.put(DatabaseCreator.ID_PLACE, placeId);
 		values.put(DatabaseCreator.FLAG_DO_NOT_DISTURB, doNotDisturb);
+		boolean hasDeadline = newEvent.getHasDeadline();
 		values.put(DatabaseCreator.FLAG_DEADLINE, hasDeadline);
+		boolean isMovable = newEvent.getIsMovable();
 		values.put(DatabaseCreator.FLAG_MOVABLE, isMovable);
 		
 		Long result = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_MODEL, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -1441,7 +1444,7 @@ public final class DatabaseManager {
 			if(question instanceof OptimizingQuestion){
 				OptimizingQuestion optimizingQuestion = (OptimizingQuestion) question;
 				values.put(DatabaseCreator.QUESTION_TYPE, OptimizingQuestion.TYPE);
-				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(optimizingQuestion.getEvent().getID()));
+				values.put(DatabaseCreator.QUESTION_EVENT_ID, Integer.parseInt(optimizingQuestion.getEventInstance().getEvent().getID()));
 				values.put(DatabaseCreator.QUESTION_MISSING_CATEGORY,optimizingQuestion.isMissingCategory());
 				values.put(DatabaseCreator.QUESTION_MISSING_CONSTRAINT,optimizingQuestion.isMissingConstraints());
 				values.put(DatabaseCreator.QUESTION_MISSING_PLACE, optimizingQuestion.isMissingPlace());
@@ -1540,6 +1543,8 @@ public final class DatabaseManager {
 							boolean missingConstraints= (missingConstraintString != null) ? (missingConstraintString.equals("1")) : (false);
 							boolean missingPlace= (missingPlaceString != null) ? (missingPlaceString.equals("1")) : (false);
 							OptimizingQuestion optimizingQuestion = new OptimizingQuestion(context, null, missingPlace, missingCategory, missingConstraints, questionTime);
+							optimizingQuestion.setId(questionIdReturned);
+							optimizingQuestion.setEventId(questionEventId);
 							question = optimizingQuestion;
 						}
 			}
@@ -1580,26 +1585,25 @@ public final class DatabaseManager {
 				@Override
 				public void onEventCreation(EventInstanceModel newEvent) {
 					//Parsing the event and getting the question
-					EventDescriptionModel event = newEvent.getEvent();
 					boolean missingCategory = false;
 					boolean missingPlace = false;
 					boolean missingConstraints = false;
-					if (event.getCategory() == null){
+					if (newEvent.getEvent().getCategory() == null){
 						missingCategory = true;
 					}
-					if(event.getPlace() == null || event.getPlace().getPlaceId()==null){
+					if(newEvent.getEvent().getPlace() == null || newEvent.getEvent().getPlace().getPlaceId()==null){
 						missingPlace=true;
 					}
-					if(event.getIsMovable() && event.getConstraints().isEmpty()){
+					if(newEvent.getEvent().getIsMovable() && newEvent.getEvent().getConstraints().isEmpty()){
 						missingConstraints =true;
 					}
 					//Generating new question for the event
 					if(missingCategory||missingPlace||missingConstraints){
 					Time now = new Time();
 					now.setToNow();
-					OptimizingQuestion newQuestion = new OptimizingQuestion(context, event, missingPlace, missingCategory, missingConstraints, now);
-					newQuestion.setEventId(Integer.parseInt(event.getID()));
-					questions.put(Integer.parseInt(event.getID()), newQuestion);
+					OptimizingQuestion newQuestion = new OptimizingQuestion(context, newEvent, missingPlace, missingCategory, missingConstraints, now);
+					newQuestion.setEventId(Integer.parseInt(newEvent.getEvent().getID()));
+					questions.put(Integer.parseInt(newEvent.getEvent().getID()), newQuestion);
 					}
 				}
 				@Override

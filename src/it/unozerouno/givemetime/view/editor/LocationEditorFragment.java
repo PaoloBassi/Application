@@ -30,7 +30,7 @@ public class LocationEditorFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_edit_locations, container);
+		View view = inflater.inflate(R.layout.editor_edit_locations, container, false);
 		fragmentLocationList= (CommonLocationFragment) getChildFragmentManager().findFragmentById(R.id.editor_edit_loactions_common);
 		  AutoCompleteTextView autoCompView = (AutoCompleteTextView) view.findViewById(R.id.editor_edit_locations_autocomplete);
 		  //Setting autocomplete  
@@ -62,7 +62,7 @@ public class LocationEditorFragment extends Fragment {
         try {
             mListener = (OnSelectedPlaceModelListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+            throw new ClassCastException(activity.toString() + " must implement OnSelectedPlaceModelListener");
         }
     }
 	

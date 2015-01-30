@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/question_missing_data_event_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event:" />
+
+        <TextView
+            android:id="@+id/question_missing_data_event_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EventName" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/question_missing_data_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your event has the following missing data:" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/question_missingdata_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:id="@+id/question_missingdata_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom" >
+
+        <Button
+            android:id="@+id/question_missingdata_btn_update"
+            android:layout_width="132dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.50"
+            android:text="Update event Location" />
+
+        <Button
+            android:id="@+id/question_missingdata_btn_cancel"
+            android:layout_width="142dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.50"
+            android:text="Cancel" />
+    </LinearLayout>
+
+</LinearLayout>
