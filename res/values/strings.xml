@@ -47,4 +47,6 @@
 	<string name="question_list_description_locationmismatch">Question about an event location</string>
 	<string name="question_list_description_freetime">Suggestion on what to do</string>
 	<string name="question_list_optimizing_question">An event is missing some data</string>
+	<string name="question_relative_to_deleted_event">This event does not exist anymore</string>
+	<string name="paid_functionality">This functionality belongs to PRO version. \n Please support us!</string>
 </resources>

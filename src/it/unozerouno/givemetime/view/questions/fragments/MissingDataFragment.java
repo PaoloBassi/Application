@@ -64,7 +64,7 @@ public class MissingDataFragment extends Fragment{
 	 */
 	private void loadQuestion(){
 		final OptimizingQuestion question = mListener.loadOptimizingQuestion();
-		eventNameText.setText(question.getEvent().getName());
+		eventNameText.setText(question.getEventInstance().getEvent().getName());
 		if (question.isMissingCategory()){
 			missingCategory(question);
 		}
@@ -82,7 +82,7 @@ public class MissingDataFragment extends Fragment{
 					//TODO: Set categories
 				}
 				if (question.isMissingConstraints()){
-					question.getEvent().setConstraints(constraintFragment.getConstraintList());
+					question.getEventInstance().getEvent().setConstraints(constraintFragment.getConstraintList());
 				}
 				if (question.isMissingPlace()){
 					//PlaceHolder: place are sent beck to activity from the PlaceEditorFragment

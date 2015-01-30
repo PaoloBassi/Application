@@ -1,5 +1,7 @@
 package it.unozerouno.givemetime.view.questions;
 
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter.FixedSpaceIndenter;
+
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.events.EventInstanceModel;
@@ -59,7 +61,12 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 				@Override
 				public void onLoadCompleted() {
 					questionEvent = resultEvent;
-					loadQuestionProperties();
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							loadQuestionProperties();
+						}
+					});
 				}
 				
 				@Override
@@ -86,6 +93,15 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	 * Called when both question and event is loaded, it fills the model
 	 */
 	protected void loadQuestionProperties() {
+		//Check if the event still exists (or it's an old question about a deleted event)
+		if(questionEvent == null){
+			//The event has been deleted on the calendar, falling back
+			Toast.makeText(getApplication(), R.string.question_relative_to_deleted_event, Toast.LENGTH_SHORT).show();
+			DatabaseManager.removeQuestion(question.getId());
+			finish();
+			return;
+		}
+			
 		if (question instanceof FreeTimeQuestion){
 			freeTimeQuestion = (FreeTimeQuestion) question;
 			freeTimeQuestion.setClosestEvent(questionEvent);
@@ -93,7 +109,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 		}
 		if (question instanceof OptimizingQuestion){
 			optimizingQuestion = (OptimizingQuestion) question;
-			optimizingQuestion.setEvent(questionEvent.getEvent());
+			optimizingQuestion.setEventInstance(questionEvent);
 			optimizingFlow();
 		}
 		if (question instanceof LocationMismatchQuestion){
@@ -150,6 +166,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	public void onUpdateClicked(FreeTimeQuestion question) {
 		DatabaseManager.getInstance(getApplicationContext());
 		DatabaseManager.updateEvent(getApplicationContext(), question.getClosestEvent());
+		DatabaseManager.removeQuestion(question.getId());
 		finish();
 	}
 	@Override
@@ -159,8 +176,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(FreeTimeQuestion question) {
-		// TODO open New Event Activity
-		
+		Toast.makeText(getApplicationContext(), R.string.paid_functionality, Toast.LENGTH_LONG).show();
 	}
 	@Override
 	public LocationMismatchQuestion loadLocationMismatchQuestion() {
@@ -168,8 +184,12 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onUpdateClicked(LocationMismatchQuestion question) {
+		//Updating questionPlace into eventPlace
+		question.getEvent().getEvent().setPlace(question.getPlace());
 		DatabaseManager.getInstance(getApplicationContext());
 		DatabaseManager.updateEvent(getApplicationContext(), question.getEvent());
+		//Deleting question
+		DatabaseManager.removeQuestion(question.getId());
 		finish();
 	}
 	@Override
@@ -180,8 +200,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(LocationMismatchQuestion question) {
-		// TODO open New Event Activity
-		
+		Toast.makeText(getApplicationContext(), R.string.paid_functionality, Toast.LENGTH_LONG).show();
 	}
 	@Override
 	public OptimizingQuestion loadOptimizingQuestion() {
@@ -190,10 +209,9 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	@Override
 	public void onUpdateClicked(OptimizingQuestion question) {
 		DatabaseManager.getInstance(getApplicationContext());
-		Time now = new Time();
-		now.setToNow();
-		EventInstanceModel eventContainer = new EventInstanceModel(question.getEvent(),now, now);
-		DatabaseManager.updateEvent(getApplicationContext(), eventContainer);
+		DatabaseManager.updateEvent(getApplicationContext(), question.getEventInstance());
+		//Deleting question
+    	DatabaseManager.removeQuestion(question.getId());
 		finish();
 	}
 	@Override
@@ -206,7 +224,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 		//Setting selected place as Event Place
 		if(questionFragment != null && (questionFragment instanceof MissingDataFragment)){
 			MissingDataFragment fragment = (MissingDataFragment) questionFragment;
-			optimizingQuestion.getEvent().setPlace(place);
+			optimizingQuestion.getEventInstance().getEvent().setPlace(place);
 			fragment.removePlaceFragment();
 		}
 		
