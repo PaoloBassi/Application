@@ -166,10 +166,10 @@ public class MainActivity extends ActionBarActivity {
         			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 3: fragment = new DebugFragment();
-        			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
+        			args.putString(DebugFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 4: fragment = new MainFragment();
-        			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
+        			args.putString(MainFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
         	case 6: Intent settings = new Intent(this, SettingsActivity.class);
     				startActivity(settings);

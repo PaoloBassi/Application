@@ -40,6 +40,7 @@ public class MainFragment extends Fragment implements OnQuestionGenerated{
 	ListView questionList;
 	ArrayList<Intent> questionIntents;
 	QuestionIntentAdapter adapter;
+	public static final String ITEM_NAME = "item_name";
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
