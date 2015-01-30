@@ -313,7 +313,6 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			System.err.println("Event to update has not been set.");
 			return;
 		}
-		System.out.println("Warning: FIXME: Event update working only on non repeating events!");
 		
 		ContentResolver cr = caller.getContentResolver();
 		Uri uri = Events.CONTENT_URI;
@@ -326,7 +325,7 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			values.put(Events.DTSTART, eventInstanceToUpdate.getStartingTime().toMillis(false));
 			values.put(Events.DTEND, eventInstanceToUpdate.getEndingTime().toMillis(false));
 		} else {
-			values.put(Events.DTSTART, eventInstanceToUpdate.getEvent().getSeriesStartingDateTime().toMillis(false));
+			values.put(Events.DTSTART, eventInstanceToUpdate.getStartingTime().toMillis(false));
 			// dtend è sicuramente null se ricorsivo 
 			// setStartingTime viene settato all'update di un evento
 			values.put(Events.DURATION, eventInstanceToUpdate.getEvent().getDuration());
@@ -382,8 +381,8 @@ public class CalendarFetcher extends AsyncTaskWithListener<String, Void, String[
 			// only if the event is recurring. If not null, original_id and original_sync_id must be null
 			values.put(CalendarContract.Events.RRULE, RRULE);
 			values.put(CalendarContract.Events.RDATE, RDATE);
-			values.put(CalendarContract.Events.ORIGINAL_ID, "null");
-			values.put(CalendarContract.Events.ORIGINAL_SYNC_ID, "null");
+			//values.put(CalendarContract.Events.ORIGINAL_ID, "null");
+			//values.put(CalendarContract.Events.ORIGINAL_SYNC_ID, "null");
 		} else {
 			// only if the event is non-recurring
 			values.put(CalendarContract.Events.DTEND, endingTime); 

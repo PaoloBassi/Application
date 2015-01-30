@@ -182,7 +182,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	 * This function loads an event received from the DatabaseManager callback into the event to edit and fills the UI accordingly
 	 * @param eventToLoad
 	 */
-	private void loadEvent(EventInstanceModel eventToLoad){
+	private synchronized void loadEvent(EventInstanceModel eventToLoad){
 		if(eventToLoad == null){
 			GiveMeLogger.log("FATAL ERROR: Editor launched with a non-existing id");
 		}
@@ -238,12 +238,18 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		//Setting isMovable
 		switchIsMovable.setChecked(eventToEdit.getEvent().getIsMovable());
 		switchDoNotDisturb.setChecked(eventToEdit.getEvent().getDoNotDisturb());
+		//Setting constraints
+		if (eventToEdit.getEvent().getConstraints() != null) {
+			switchIsMovable.setEnabled(true);
+			fragmentConstraints.setConstraintList(eventToEdit.getEvent().getConstraints());
+		}
+		
 	}
 	
 	/**
 	 * Gets all UI components' references
 	 */
-	private void getUiContent(){
+	private synchronized void getUiContent(){
 		// set the toolbar 
         toolbar = (Toolbar) findViewById(R.id.toolbar_edit_event);
         if (toolbar != null){
@@ -308,7 +314,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	}
 	
 	
-	private void setUiListeners(){
+	private synchronized void setUiListeners(){
 		
 		//Setting Location Button onClick
 		buttonLocation.setOnClickListener(new OnClickListener() {
@@ -445,7 +451,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 					// if all day events, disable all the others
-					 if (!switchIsMovable.isChecked()){
+					 if (!isChecked){
 						hideFragment(fragmentConstraints);
 						eventToEdit.getEvent().setIsMovable(false);
 					 } else {
@@ -456,6 +462,15 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				}
 			});
 			
+			//Setting isMovable switch behaviour
+			switchDoNotDisturb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+				
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+						eventToEdit.getEvent().setDoNotDisturb(isChecked);
+				}
+			});
+			
 			editEventTitle.setOnEditorActionListener(new OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -463,12 +478,14 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					return true;
 				}
 			});
+			
+			
 	}
 
 	/**
 	 * Sets all ui and model default data
 	 */
-	private void setDefaults(){
+	private synchronized void setDefaults(){
 		//Default hasDeadline
 		switchDeadline.setEnabled(true);
 		eventToEdit.getEvent().setHasDeadline(true);
@@ -536,7 +553,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		}
 		// finally add the event to the db 
 		
-		EventListFragment.getWeekViewInstance().notifyDatasetChanged();
+	//	EventListFragment.getWeekViewInstance().notifyDatasetChanged();
 	}
 	
 	private void hideFragment(Fragment fragment){

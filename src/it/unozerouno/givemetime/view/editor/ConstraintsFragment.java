@@ -58,6 +58,7 @@ public class ConstraintsFragment extends Fragment{
 				removeFragment(fragment);
 			}
 		});
+		constraintFragments.add(complexConstraintFragment);
 		getFragmentManager().beginTransaction().add(R.id.constraint_container,complexConstraintFragment).commit();
 	}
 	
