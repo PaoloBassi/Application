@@ -75,6 +75,10 @@ public final class StartUpFlow extends Fragment{
 			getActivity().finish();
 		}    
 		
+		//Setup All default data for application
+		DatabaseManager.getInstance(getActivity());
+		DatabaseManager.addDefaultCategories();
+		
 	    
 		//These stages can be performed Asynchronously
     	
