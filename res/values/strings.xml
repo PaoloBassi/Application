@@ -8,10 +8,6 @@
     <string name="secondPage">Calendar Selection</string>
     <string name="skipButton">Skip</string>
     <string name="continueButton">Continue</string>
-    <string name="swipeNext">>>> Swipe to Continue >>></string>
-    <string name="frag1_text">First main page</string>
-    <string name="frag2_text">Second main page</string>
-    <string name="frag3_text">Third main page</string>
     <string name="welcome_disclaimer_text">Welcome to GiveMeTime! Before starting using the app we\'ll need some little informations to help you organize everything better! \n Keep in mind that the more information you\'ll give to GiveMeTime, the more you\'ll have precise and efficient results. Don\'t worry: we care about your privacy and all the personal datas you\'ll insert will be stored only on your device and you\'ll be the only one who can access them.
 \n The list of your tasks will be safely synchronized with your Google account to let you access your GiveMeTime calendar from every device, anyway, to protect your privacy, the informations related to GiveMeTime will be stored exclusively on your smartphone </string>
     <string name="drawer_open">Open navigation drawer</string>
@@ -32,6 +28,16 @@
     <string name="pay_categories">This option is not available in the free version. Purchase the pro version in order to create your own personalized categories!</string>
     <string name="Not_available">Option not Available</string>
     <string name="pay_deadline">This option is not available in the free version. Purchase the pro version in order to instantiate deadline-free events.</string>
+    <string name="select_time">If the event can be moved in an arbitrary range of time, please select it</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="cancel">Cancel</string>
+    <string name="Ok">OK</string>
+    <string name="plus">+</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="day">Day</string>
+    <string name="next">Next</string>
     
     <string name="place_autocomplete_quota_exceeded">The maximum free user number has been exceeded. You can retry tomorrow. Please donate or purchase GiveMeTime for full functionality!</string>
     <string name="place_autocomplete_key_outdated">Your application is outdated. Please update it on Play Store or send us an email if the error persists.</string>

@@ -10,13 +10,13 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:paddingBottom="10dp"
-	        android:text="If the event can be moved in an arbitrary range of time, please select it" />
+	        android:text="@string/select_time" />
 	
 	    <TextView
 	        android:id="@+id/editor_constraint_datepicker_text1"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="Start"
+	        android:text="@string/start"
 	        android:paddingBottom="10dp"
 	        android:gravity="center"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -38,7 +38,7 @@
 	        android:id="@+id/editor_constraint_datepicker_text2"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="End"
+	        android:text="@string/end"
 	        android:paddingBottom="10dp"
 	        android:gravity="center"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -52,7 +52,7 @@
 	
 	    <RelativeLayout
 	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content"
+	            android:layout_height="0dp"
 	
 	            android:orientation="horizontal"
 	            android:layout_weight="1" >
@@ -64,7 +64,7 @@
 	                android:layout_height="wrap_content"
 	                android:layout_alignParentLeft="true"
 	                android:layout_toLeftOf="@+id/centerPoint"
-	                android:text="Cancel" />
+	                android:text="@string/cancel" />
 	
 	            <TextView
 	                android:id="@+id/centerPoint"
@@ -80,6 +80,6 @@
 	                android:layout_height="wrap_content"
 	                android:layout_alignParentRight="true"
 	                android:layout_toRightOf="@+id/centerPoint"
-	                android:text="Ok" />
+	                android:text="@string/Ok" />
 	        </RelativeLayout>
 	</LinearLayout>

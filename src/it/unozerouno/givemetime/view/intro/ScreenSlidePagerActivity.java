@@ -22,6 +22,8 @@ import android.view.WindowManager;
 
 public class ScreenSlidePagerActivity extends ActionBarActivity{
 
+	private Toolbar toolbar;
+	
 	// number of pages to show
     private static final int NUM_PAGES = 3;
 
@@ -45,6 +47,15 @@ public class ScreenSlidePagerActivity extends ActionBarActivity{
 	            // set the layout
 	            setContentView(R.layout.activity_screen_slide);
 	
+	            // get the toolbar and set the title
+	            toolbar = (Toolbar) findViewById(R.id.toolbar_intro);
+	            if (toolbar != null){
+	            	// set the toolbar as the action bar
+	            	setSupportActionBar(toolbar);
+	            	getSupportActionBar().setTitle("Give Me Time");
+	            	getSupportActionBar().setIcon(R.drawable.ic_launcher);
+	            }
+	            
 	            // instantiate the ViewPager and the adapter
 	            mPager = (ViewPager) findViewById(R.id.pager);
 	            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), mPager);

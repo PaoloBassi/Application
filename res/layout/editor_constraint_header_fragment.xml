@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="Time"
+            android:text="@string/time"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="Day"
+            android:text="@string/day"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="Date"
+            android:text="@string/date"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="+" />
+            android:text="@string/plus" />
     </LinearLayout>
 
  
