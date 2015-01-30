@@ -142,8 +142,10 @@ public class MainFragment extends Fragment implements OnQuestionGenerated{
 				        Intent questionIntent = getItem(position);
 				        String questionType = questionIntent.getStringExtra(QuestionModel.QUESTION_TYPE);
 				        String questionTime = questionIntent.getStringExtra(QuestionModel.QUESTION_TIME);
-				        viewHolder.setDescription(questionType);
+				        String questionText = questionIntent.getStringExtra(QuestionModel.QUESTION_TEXT);
+				        viewHolder.setDescription(questionText);
 				        viewHolder.setTime(questionTime);
+				        viewHolder.setIcon(questionType);
 				        
 				        return convertView;
 			}
@@ -156,19 +158,24 @@ public class MainFragment extends Fragment implements OnQuestionGenerated{
 			        public TextView description;
 			        public TextView time;
 			        public ImageView icon;
-			        public void setDescription(String questionType){
-			        	if(questionType.equals(FreeTimeQuestion.TYPE)){
-			        		description.setText(R.string.question_list_description_freetime);
-			        	}else if (questionType.equals(LocationMismatchQuestion.TYPE)){
-			        		description.setText(R.string.question_list_description_locationmismatch);
-			        	}else if (questionType.equals(OptimizingQuestion.TYPE)){
-			        		description.setText(R.string.question_list_optimizing_question);
-			        	}
+			        public void setDescription(String text){
+			        		description.setText(text);
 			        }
 			        public void setTime(String questionTimeString){
 			        	Time questionTime = new Time();
 			        	questionTime.set(Long.parseLong(questionTimeString));
 			        	time.setText(TimeConversion.timeToString(questionTime, true, false, true, false));
+			        }
+			        public void setIcon(String questionType){
+			        	if (questionType.equals(OptimizingQuestion.TYPE)){
+			        		icon.setImageResource(R.drawable.ic_stat_question_missing_data);
+			        	}
+			        	if (questionType.equals(LocationMismatchQuestion.TYPE)){
+			        		icon.setImageResource(R.drawable.ic_stat_question_location);
+			        	}
+			        	if (questionType.equals(FreeTimeQuestion.TYPE)){
+			        		icon.setImageResource(R.drawable.ic_stat_question_freetime);
+			        	}
 			        }
 			    }
 	    }

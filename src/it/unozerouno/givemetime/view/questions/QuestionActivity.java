@@ -19,6 +19,8 @@ import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragmen
 import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragment.OnLocationMismatchQuestionResponse;
 import it.unozerouno.givemetime.view.questions.fragments.MissingDataFragment.OnOptimizingQuestionResponse;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -176,7 +178,16 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(FreeTimeQuestion question) {
-		Toast.makeText(getApplicationContext(), R.string.paid_functionality, Toast.LENGTH_LONG).show();
+		new AlertDialog.Builder(QuestionActivity.this)
+		 .setTitle("Option Not Available")
+		 .setMessage(R.string.paid_create_event)
+		 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+		 @Override
+		 public void onClick(DialogInterface dialog, int which) {
+		 dialog.cancel();
+		 
+		 }
+		 }).show();
 	}
 	@Override
 	public LocationMismatchQuestion loadLocationMismatchQuestion() {
@@ -200,7 +211,16 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(LocationMismatchQuestion question) {
-		Toast.makeText(getApplicationContext(), R.string.paid_functionality, Toast.LENGTH_LONG).show();
+		new AlertDialog.Builder(QuestionActivity.this)
+		 .setTitle("Option Not Available")
+		 .setMessage(R.string.paid_create_event)
+		 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+		 @Override
+		 public void onClick(DialogInterface dialog, int which) {
+		 dialog.cancel();
+		 
+		 }
+		 }).show();
 	}
 	@Override
 	public OptimizingQuestion loadOptimizingQuestion() {
