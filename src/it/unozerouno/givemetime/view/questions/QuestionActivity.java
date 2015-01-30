@@ -11,6 +11,7 @@ import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
+import it.unozerouno.givemetime.utils.Dialog;
 import it.unozerouno.givemetime.view.editor.LocationEditorFragment.OnSelectedPlaceModelListener;
 import it.unozerouno.givemetime.view.questions.fragments.FreeTimeFragment;
 import it.unozerouno.givemetime.view.questions.fragments.MissingDataFragment;
@@ -178,16 +179,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(FreeTimeQuestion question) {
-		new AlertDialog.Builder(QuestionActivity.this)
-		 .setTitle("Option Not Available")
-		 .setMessage(R.string.paid_create_event)
-		 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-		 @Override
-		 public void onClick(DialogInterface dialog, int which) {
-		 dialog.cancel();
-		 
-		 }
-		 }).show();
+		Dialog.paymentDialog(QuestionActivity.this, R.string.Not_available, R.string.paid_create_event);
 	}
 	@Override
 	public LocationMismatchQuestion loadLocationMismatchQuestion() {
@@ -211,16 +203,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(LocationMismatchQuestion question) {
-		new AlertDialog.Builder(QuestionActivity.this)
-		 .setTitle("Option Not Available")
-		 .setMessage(R.string.paid_create_event)
-		 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-		 @Override
-		 public void onClick(DialogInterface dialog, int which) {
-		 dialog.cancel();
-		 
-		 }
-		 }).show();
+		Dialog.paymentDialog(QuestionActivity.this, R.string.Not_available, R.string.paid_create_event);
 	}
 	@Override
 	public OptimizingQuestion loadOptimizingQuestion() {

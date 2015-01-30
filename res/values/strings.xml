@@ -26,8 +26,9 @@
     <string name="action_three_day_view">3 day view</string>
     <string name="action_week_view">Week view</string>
     <string name="pay_categories">This option is not available in the free version. Purchase the pro version in order to create your own personalized categories!</string>
-    <string name="Not_available">Option not Available</string>
+    <string name="paid_create_event">This option is not available in the free version. Purchase the pro version in order to dinamically create events!</string>
     <string name="pay_deadline">This option is not available in the free version. Purchase the pro version in order to instantiate deadline-free events.</string>
+    <string name="Not_available">Option not Available</string>
     <string name="select_time">If the event can be moved in an arbitrary range of time, please select it</string>
     <string name="start">Start</string>
     <string name="end">End</string>
@@ -59,5 +60,5 @@
 	<string name="question_list_description_freetime">Found compatible event: </string>
 	<string name="question_list_optimizing_question">I need information about: </string>
 	<string name="question_relative_to_deleted_event">This event does not exist anymore</string>
-	<string name="paid_create_event">This option is not available in the free version. Purchase the pro version in order to dinamically create events!</string>
+	
 </resources>
