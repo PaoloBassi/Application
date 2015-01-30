@@ -88,9 +88,9 @@ public class MainActivity extends ActionBarActivity {
         dataList.add(new DrawerItem(true));	// add a spinner
         
         dataList.add(new DrawerItem("Menu Options")); // add a header
-        dataList.add(new DrawerItem("First Page", R.drawable.action_search));
-        dataList.add(new DrawerItem("Second Page", R.drawable.action_search));
-        dataList.add(new DrawerItem("Third Page", R.drawable.action_search));
+        dataList.add(new DrawerItem("Calendar", R.drawable.action_search));
+        dataList.add(new DrawerItem("Debug Page", R.drawable.action_search));
+        dataList.add(new DrawerItem("Questions", R.drawable.action_search));
         
         dataList.add(new DrawerItem("Settings")); // add a header
         dataList.add(new DrawerItem("Settings", R.drawable.ic_action_settings));

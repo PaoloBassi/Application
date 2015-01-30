@@ -4,12 +4,12 @@
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         />
     <item
         android:id="@+id/addEvent"
         android:icon="@drawable/new_event"
         android:title="Add event"
-        android:showAsAction="always"
+        app:showAsAction="ifRoom"
         />
 </menu>
