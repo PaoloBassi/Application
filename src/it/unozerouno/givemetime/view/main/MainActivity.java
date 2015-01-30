@@ -2,8 +2,6 @@ package it.unozerouno.givemetime.view.main;
 
 import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.StartUpFlow;
-import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
-import it.unozerouno.givemetime.view.editor.AddNewEventActivity;
 import it.unozerouno.givemetime.view.editor.EventEditorActivity;
 import it.unozerouno.givemetime.view.main.fragments.DebugFragment;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
@@ -14,18 +12,16 @@ import it.unozerouno.givemetime.view.utilities.DrawerListAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R.bool;
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;

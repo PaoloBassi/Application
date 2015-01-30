@@ -55,14 +55,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="it.unozerouno.givemetime.view.editor.AddNewEventActivity"
-            android:label="AddNewEvent">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name="it.unozerouno.givemetime.controller.fetcher.PlayServicesController"
             android:label="Account Selection"
             android:theme="@android:style/Theme.Dialog">
