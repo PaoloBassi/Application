@@ -653,7 +653,6 @@ public class WeekView extends View{
                 List<EventInstanceModel> events = monthChangeListener.onMonthChange((previousMonth==12)?day.get(Calendar.YEAR)-1:day.get(Calendar.YEAR), previousMonth);
                 sortEvents(events);
                 for (EventInstanceModel event: events) {
-                	System.out.println("Caching events on getMoreEvents");
                     cacheEvent(event);
                 }
             }

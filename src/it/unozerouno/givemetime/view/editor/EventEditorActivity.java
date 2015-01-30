@@ -23,7 +23,9 @@ import it.unozerouno.givemetime.view.utilities.DayStartPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
 import it.unozerouno.givemetime.view.utilities.TimeStartPickerFragment;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
@@ -147,14 +149,26 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 							eventToEdit = newEvent.getEvent();
 							// retrieve all data in order to display them on screen
 							
+							// set the start and end variables to startTime and EndTime for update 
+							start = startTime;
+							end = endTime;
+							
 							editEventTitle.setText(eventToEdit.getName());
 							if (eventToEdit.getPlace() == null){
 								textLocation.setText("Location not set");
 							} else {
 								textLocation.setText(eventToEdit.getPlace().getName());
 							}
-							spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
+							if (eventToEdit.getCategory() == null) {
+								// loading an external application generated event
+								// set amusement, better than work
+								spinnerCategory.setSelection(2);
+							} else {
+								spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
+							}
+							System.out.println("deadline just before setting it in update fetch : " + eventToEdit.getHasDeadline());
 							switchDeadline.setChecked(eventToEdit.getHasDeadline());
+							System.out.println("deadline on click: " + switchDeadline.isChecked());
 							// check if the event has repetitions
 							if (eventToEdit.isRecursive()){
 								//TODO set spinner repetition with correct text
@@ -181,7 +195,6 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 							
 							switchIsMovable.setChecked(eventToEdit.getIsMovable());
 							switchDoNotDisturb.setChecked(eventToEdit.getDoNotDisturb());
-							// TODO Auto-generated method stub
 							
 						}
 					});
@@ -285,7 +298,11 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		buttonLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showFragment(fragmentLocations);
+				if (fragmentLocations.isHidden()) {
+					showFragment(fragmentLocations);
+				} else {
+					hideFragment(fragmentLocations);
+				}
 			}
 		});
 		
@@ -298,9 +315,11 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				 if (!switchAllDay.isChecked()){
 					 System.out.println("visible");
 					 setSpinnerVisibility(View.VISIBLE);
+					 eventToEdit.setAllDay(0);
 				 } else {
 					 System.out.println("invisible");
 					 setSpinnerVisibility(View.GONE);
+					 eventToEdit.setAllDay(1);
 				 }
 				
 			}
@@ -352,16 +371,53 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				// if the position is not the last, save the name of the category and load the switch values associated
 				if (position != (items.size() - 1)){
 					categoryName = items.get(position);
-					switchDoNotDisturb.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_donotdisturb());
-					switchIsMovable.setChecked(DatabaseManager.getCategoryByName(categoryName).isDefault_movable());
+					boolean doNotDisturb = DatabaseManager.getCategoryByName(categoryName).isDefault_donotdisturb();
+					boolean isMovable = DatabaseManager.getCategoryByName(categoryName).isDefault_movable();
+					switchDoNotDisturb.setChecked(doNotDisturb);
+					switchIsMovable.setChecked(isMovable);
+					eventToEdit.setCategory(DatabaseManager.getCategoryByName(categoryName));
+					eventToEdit.setDoNotDisturb(doNotDisturb);
+					eventToEdit.setIsMovable(isMovable);
 				} else {
 					// TODO creation of new category
+					spinnerCategory.setSelection(0);
+					new AlertDialog.Builder(EventEditorActivity.this)
+						.setTitle("Option Not Available")
+						.setMessage("This option is not available in the free version. Purchase the pro version in order to create you own personalized categories!")
+						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+								
+							}
+						}).show();
 				}
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		switchDeadline.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				if(switchDeadline.isChecked()) {
+					// TODO disable other options
+					textDeadLine.setText("This event has an active deadline");
+					spinnerRepetition.setSelection(0);
+					setSpinnerVisibility(2);
+					switchIsMovable.setChecked(false);
+					eventToEdit.setHasDeadline(true);
+				} else {
+					textDeadLine.setText("This event has no deadline");
+					setSpinnerVisibility(0);
+					eventToEdit.setHasDeadline(false);
+				}
 				
 			}
 		});
@@ -392,8 +448,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					// if all day events, disable all the others
 					 if (!switchIsMovable.isChecked()){
 						hideFragment(fragmentConstraints);
+						eventToEdit.setIsMovable(false);
 					 } else {
 						 showFragment(fragmentConstraints);
+						 eventToEdit.setIsMovable(true);
 					 }
 					
 				}
@@ -426,9 +484,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			fragmentConstraints.setConstraintList(eventToEdit.getConstraints());
 			
 		} else {
-			// Event Edit 
-			
-			
+			// Event Edit with listener in onCreate
 		}
 	}
 	
@@ -453,33 +509,29 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				// TODO do other things with non default categories
 			}
 			// TODO: set all other data that we have
-			// create the relative instance of the Event
-			
-			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
-			// if the event is recursive, set the duration
-			if (!spinnerRepetition.getSelectedItem().equals("Do not repeat")){
-				// set the RRULE to let googleCalendar display the view
-				eventToAdd.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), start, end);
-				// TODO: handle the personalize choice
-				eventToAdd.setStartingTime();
-			}
+			eventToEdit.setHasDeadline(switchDeadline.isChecked());
+			System.out.println("first deadline set to : " + eventToEdit.getHasDeadline());
 			// set the constraint List inside the event
 			eventToEdit.setConstraints(fragmentConstraints.getConstraintList());
+			// create the relative instance of the Event
+			eventToAdd = new EventInstanceModel(eventToEdit, start, end);
+			// if the event is recursive, set the duration
+			// set the RRULE to let googleCalendar display the view
+			eventToAdd.getEvent().setRRULE(spinnerRepetition.getSelectedItem(), start, end);
+			// duration is an empty string
+			eventToAdd.setStartingTime();
 			
 			// finally add the event to the db 
 			DatabaseManager.addEvent(this, eventToAdd);
+			System.out.println("deadline after insert set to : " + eventToAdd.getEvent().getHasDeadline());
 		} else {
 			//Here we are updating an existing event
-			
-
-			//Updating data about event description
-			//eventToEdit.getEvent().setUpdated();
-			//Updating data about instance?
-			//eventToEdit.setUpdated();
-			//DatabaseManager.update(eventToEdit);
+			// start and end are correctly set during the fetch, line 153-154
+			DatabaseManager.updateEvent(EventEditorActivity.this, new EventInstanceModel(eventToEdit, start, end));
+			System.out.println("deadline set to : " + eventToEdit.getHasDeadline());
 			
 		}
-		//EventListFragment.getWeekViewInstance().notifyDatasetChanged();
+		EventListFragment.getWeekViewInstance().notifyDatasetChanged();
 	}
 	
 	private void hideFragment(Fragment fragment){
@@ -497,6 +549,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		          .commit();
 	}
 	
+	/**
+	 * 0 set visibility of the spinners. 0 visibile 1 invisibile 2 gone
+	 * @param visibility
+	 */
 	private void setSpinnerVisibility(int visibility){
 		spinnerEndDay.setVisibility(visibility);
 		spinnerStartTime.setVisibility(visibility);
