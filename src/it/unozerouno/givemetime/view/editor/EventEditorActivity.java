@@ -15,6 +15,7 @@ import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.utils.CalendarUtils;
+import it.unozerouno.givemetime.utils.Dialog;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.editor.LocationEditorFragment.OnSelectedPlaceModelListener;
 import it.unozerouno.givemetime.view.main.fragments.EventListFragment;
@@ -166,9 +167,8 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 							} else {
 								spinnerCategory.setSelection(items.indexOf(eventToEdit.getCategory().getName()));
 							}
-							System.out.println("deadline just before setting it in update fetch : " + eventToEdit.getHasDeadline());
-							switchDeadline.setChecked(eventToEdit.getHasDeadline());
-							System.out.println("deadline on click: " + switchDeadline.isChecked());
+							// the deadline is always true, payment required
+							switchDeadline.setChecked(true); 
 							// check if the event has repetitions
 							if (eventToEdit.isRecursive()){
 								//TODO set spinner repetition with correct text
@@ -381,17 +381,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				} else {
 					// TODO creation of new category
 					spinnerCategory.setSelection(0);
-					new AlertDialog.Builder(EventEditorActivity.this)
-						.setTitle("Option Not Available")
-						.setMessage("This option is not available in the free version. Purchase the pro version in order to create your own personalized categories!")
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
-								
-							}
-						}).show();
+					Dialog.paymentDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_categories);
 				}
 			}
 
@@ -408,15 +398,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			public void onClick(View arg0) {
 				if(switchDeadline.isChecked()) {
 					// TODO disable other options
-					textDeadLine.setText("This event has an active deadline");
-					spinnerRepetition.setSelection(0);
-					setSpinnerVisibility(2);
-					switchIsMovable.setChecked(false);
-					eventToEdit.setHasDeadline(true);
+					Dialog.paymentDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_deadline);
+					switchDeadline.setChecked(false);
 				} else {
-					textDeadLine.setText("This event has no deadline");
-					setSpinnerVisibility(0);
-					eventToEdit.setHasDeadline(false);
+					// do nothing
 				}
 				
 			}
@@ -509,8 +494,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				// TODO do other things with non default categories
 			}
 			// TODO: set all other data that we have
-			eventToEdit.setHasDeadline(switchDeadline.isChecked());
-			System.out.println("first deadline set to : " + eventToEdit.getHasDeadline());
+			eventToEdit.setHasDeadline(true); // payment required for false values
 			// set the constraint List inside the event
 			eventToEdit.setConstraints(fragmentConstraints.getConstraintList());
 			// create the relative instance of the Event
@@ -579,6 +563,5 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		// attach the selected place model to the event to add or edit in the UI
 		eventToEdit.setPlace(selectedPlaceModel);
 	}
-	
 	
 }
