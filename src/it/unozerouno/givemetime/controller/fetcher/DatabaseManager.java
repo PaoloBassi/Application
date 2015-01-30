@@ -322,27 +322,30 @@ public final class DatabaseManager {
 	 */
 	private static void addEventInDatabase(String addedEventId,
 			EventInstanceModel newEventInstance) {
-
+		ContentValues values = new ContentValues();
 		EventDescriptionModel newEvent = newEventInstance.getEvent();
+		
 		String eventId = addedEventId;
+		values.put(DatabaseCreator.ID_EVENT_PROVIDER, eventId);
+		
 		int calendarId = Integer.parseInt(newEvent.getCalendarId());
+		values.put(DatabaseCreator.ID_CALENDAR, calendarId);
+		
+		if (newEvent.getCategory() != null){
 		String eventCategory = newEvent.getCategory().getName();
-		String placeId = null;
+		values.put(DatabaseCreator.ID_EVENT_CATEGORY, eventCategory);
+		}
+		
 		if(newEvent.getPlace() != null){
-			placeId = newEvent.getPlace().getPlaceId();
+			String placeId = newEvent.getPlace().getPlaceId();
+			values.put(DatabaseCreator.ID_PLACE, placeId);
 		}
 		
 		boolean doNotDisturb = newEvent.getDoNotDisturb();
-		boolean hasDeadline = newEvent.getHasDeadline();
-		boolean isMovable = newEvent.getIsMovable();
-		
-		ContentValues values = new ContentValues();
-		values.put(DatabaseCreator.ID_CALENDAR, calendarId);
-		values.put(DatabaseCreator.ID_EVENT_PROVIDER, eventId);
-		values.put(DatabaseCreator.ID_EVENT_CATEGORY, eventCategory);
-		values.put(DatabaseCreator.ID_PLACE, placeId);
 		values.put(DatabaseCreator.FLAG_DO_NOT_DISTURB, doNotDisturb);
+		boolean hasDeadline = newEvent.getHasDeadline();
 		values.put(DatabaseCreator.FLAG_DEADLINE, hasDeadline);
+		boolean isMovable = newEvent.getIsMovable();
 		values.put(DatabaseCreator.FLAG_MOVABLE, isMovable);
 		
 		Long result = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_MODEL, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -1540,6 +1543,7 @@ public final class DatabaseManager {
 							boolean missingConstraints= (missingConstraintString != null) ? (missingConstraintString.equals("1")) : (false);
 							boolean missingPlace= (missingPlaceString != null) ? (missingPlaceString.equals("1")) : (false);
 							OptimizingQuestion optimizingQuestion = new OptimizingQuestion(context, null, missingPlace, missingCategory, missingConstraints, questionTime);
+							optimizingQuestion.setId(questionIdReturned);
 							optimizingQuestion.setEventId(questionEventId);
 							question = optimizingQuestion;
 						}

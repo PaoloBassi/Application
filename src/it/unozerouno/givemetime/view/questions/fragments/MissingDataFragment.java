@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MissingDataFragment extends Fragment implements OnSelectedPlaceModelListener{
+public class MissingDataFragment extends Fragment{
 	OnOptimizingQuestionResponse mListener;
 	TextView eventNameText;
 	Button btnSave;
@@ -85,7 +85,7 @@ public class MissingDataFragment extends Fragment implements OnSelectedPlaceMode
 					question.getEvent().setConstraints(constraintFragment.getConstraintList());
 				}
 				if (question.isMissingPlace()){
-					question.getEvent().setPlace(selectedPlace);
+					//PlaceHolder: place are sent beck to activity from the PlaceEditorFragment
 				}
 				mListener.onUpdateClicked(question);
 			}
@@ -118,6 +118,10 @@ public class MissingDataFragment extends Fragment implements OnSelectedPlaceMode
 		getFragmentManager().beginTransaction().add(R.id.question_missingdata_container,fragment,name).commit();
 	}
 	
+	public void removePlaceFragment(){
+		if(locationFragment != null) getFragmentManager().beginTransaction().remove(locationFragment).commit();
+	}
+	
 	public interface OnOptimizingQuestionResponse {
 		/**
 		 * Called from the fragment when it tries to load a question
@@ -133,12 +137,6 @@ public class MissingDataFragment extends Fragment implements OnSelectedPlaceMode
 		 * Called when the user decides to do not make any action
 		 */
 		void onCancelClicked(OptimizingQuestion question);
-	}
-
-	@Override
-	public void onSelectedPlaceModel(PlaceModel place) {
-		selectedPlace = place;
-		getFragmentManager().beginTransaction().remove(locationFragment).commit();
 	}
 	
 }

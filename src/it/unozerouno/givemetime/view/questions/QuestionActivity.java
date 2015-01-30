@@ -9,6 +9,7 @@ import it.unozerouno.givemetime.model.questions.FreeTimeQuestion;
 import it.unozerouno.givemetime.model.questions.LocationMismatchQuestion;
 import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
+import it.unozerouno.givemetime.view.editor.LocationEditorFragment.OnSelectedPlaceModelListener;
 import it.unozerouno.givemetime.view.questions.fragments.FreeTimeFragment;
 import it.unozerouno.givemetime.view.questions.fragments.MissingDataFragment;
 import it.unozerouno.givemetime.view.questions.fragments.FreeTimeFragment.OnFreeTimeQuestionResponse;
@@ -17,17 +18,19 @@ import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragmen
 import it.unozerouno.givemetime.view.questions.fragments.MissingDataFragment.OnOptimizingQuestionResponse;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Time;
 import android.widget.Toast;
 
-public class QuestionActivity extends ActionBarActivity implements OnLocationMismatchQuestionResponse, OnFreeTimeQuestionResponse, OnOptimizingQuestionResponse{
+public class QuestionActivity extends ActionBarActivity implements OnLocationMismatchQuestionResponse, OnFreeTimeQuestionResponse, OnOptimizingQuestionResponse, OnSelectedPlaceModelListener{
 	QuestionModel question;
 	FreeTimeQuestion freeTimeQuestion;
 	LocationMismatchQuestion locationMismatchQuestion;
 	OptimizingQuestion optimizingQuestion;
 	PlaceModel questionPlace;
 	EventInstanceModel questionEvent;
+	Fragment questionFragment;
 	
 	
 	@Override
@@ -56,8 +59,6 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 				@Override
 				public void onLoadCompleted() {
 					questionEvent = resultEvent;
-					
-					
 					loadQuestionProperties();
 				}
 				
@@ -116,18 +117,19 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	private void locationMismatchFlow(){
 		if(questionPlace == null){
 			//Something gone wrong with reverse geocoding
-			Toast.makeText(getApplicationContext(), "No suitable Places near your location", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "No suitable Places near your location \n Please check your network connection", Toast.LENGTH_LONG).show();
+			finish();
 		}
-		LocationMismatchFragment locationMismatchFragment = new LocationMismatchFragment();
-		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,locationMismatchFragment,"locationMismatchFragment").commit();
+		questionFragment = new LocationMismatchFragment();
+		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,questionFragment,"locationMismatchFragment").commit();
 	}
 	
 	/**
 	 * This is the flow when the question is for a freeTime suggestion
 	 */
 	private void freeTimeFlow(){
-		FreeTimeFragment freeTimeFragment = new FreeTimeFragment();
-		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,freeTimeFragment,"freeTimeFragment").commit();
+		questionFragment = new FreeTimeFragment();
+		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,questionFragment,"freeTimeFragment").commit();
 	
 	}
 	
@@ -135,16 +137,14 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	 * This is the flow when the question is for a missing data event (OptimizingQuestion)
 	 */
 	private void optimizingFlow(){
-		MissingDataFragment missingDataFragment = new MissingDataFragment();
-		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,missingDataFragment,"missingDataFragment").commit();
+		questionFragment = new MissingDataFragment();
+		getSupportFragmentManager().beginTransaction().add(R.id.question_screen_container,questionFragment,"missingDataFragment").commit();
 	
 	}
 	
 	@Override
 	public FreeTimeQuestion loadFreeTimeQuestion() {
-		if(question instanceof FreeTimeQuestion) return (FreeTimeQuestion) question;
-		finish();
-		return null;
+		return freeTimeQuestion;
 	}
 	@Override
 	public void onUpdateClicked(FreeTimeQuestion question) {
@@ -164,9 +164,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public LocationMismatchQuestion loadLocationMismatchQuestion() {
-		if(question instanceof LocationMismatchQuestion) return (LocationMismatchQuestion) question;
-		finish();
-		return null;
+		return locationMismatchQuestion;
 	}
 	@Override
 	public void onUpdateClicked(LocationMismatchQuestion question) {
@@ -187,9 +185,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public OptimizingQuestion loadOptimizingQuestion() {
-		if(question instanceof OptimizingQuestion) return (OptimizingQuestion) question;
-		finish();
-		return null;
+		return optimizingQuestion;
 	}
 	@Override
 	public void onUpdateClicked(OptimizingQuestion question) {
@@ -204,6 +200,16 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	public void onCancelClicked(OptimizingQuestion question) {
 		DatabaseManager.removeQuestion(question.getId());
 		finish();
+	}
+	@Override
+	public void onSelectedPlaceModel(PlaceModel place) {
+		//Setting selected place as Event Place
+		if(questionFragment != null && (questionFragment instanceof MissingDataFragment)){
+			MissingDataFragment fragment = (MissingDataFragment) questionFragment;
+			optimizingQuestion.getEvent().setPlace(place);
+			fragment.removePlaceFragment();
+		}
+		
 	}
 	
 }
