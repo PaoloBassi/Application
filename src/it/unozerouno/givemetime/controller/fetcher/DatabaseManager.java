@@ -1,5 +1,6 @@
 package it.unozerouno.givemetime.controller.fetcher;
 
+import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher.Actions;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher;
 import it.unozerouno.givemetime.controller.fetcher.places.PlaceFetcher.PlaceResult;
@@ -1417,18 +1418,18 @@ public final class DatabaseManager {
 		// Questions
 		//
 		// /////////////////////////////		
-	
 		/**
 		 * Add a question model into the database. If no id is set, a new id will be given instead
 		 * @param question
+		 * @param message 
 		 * @return the id of new generated question
 		 */
-		public static synchronized long addQuestion(QuestionModel question){
+		public static synchronized long addQuestion(QuestionModel question, String messageToShow){
 			if(question==null) return -1;
 			ContentValues values = new ContentValues();
 			if(question.getId() != -1) values.put(DatabaseCreator.QUESTION_ID, question.getId());
 			values.put(DatabaseCreator.QUESTION_DATE_TIME, question.getGenerationTime().toMillis(false));
-			
+			values.put(DatabaseCreator.QUESTION_TEXT, messageToShow);
 			if(question instanceof FreeTimeQuestion){
 				FreeTimeQuestion freeTimeQuestion = (FreeTimeQuestion) question;
 				values.put(DatabaseCreator.QUESTION_TYPE, FreeTimeQuestion.TYPE);
@@ -1450,18 +1451,24 @@ public final class DatabaseManager {
 				values.put(DatabaseCreator.QUESTION_MISSING_PLACE, optimizingQuestion.isMissingPlace());
 			}
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
+			//Removing old questions of the same type for the same event
+			removeQuestion(values.getAsString(DatabaseCreator.QUESTION_TYPE),values.getAsInteger(DatabaseCreator.QUESTION_EVENT_ID) );
+			//Adding the new question
 			long rowId = database.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 			return rowId;
 		}
 		public static void removeQuestion(int questionId){
 			if(questionId == -1) return;
-			
 			database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_ID + " = " + questionId,null);
 			GiveMeLogger.log("Removed question " + questionId);
 		}
+		public static void removeQuestion(String questionType, int eventId){
+			int questionDeleted = database.delete(DatabaseCreator.TABLE_QUESTION_MODEL, DatabaseCreator.QUESTION_EVENT_ID + " = " + eventId + " AND " + DatabaseCreator.QUESTION_TYPE + " = " + "'" + questionType+ "'",null);
+			GiveMeLogger.log("Removed " + questionDeleted + " old questions");
+		}
 		
 		/**
-		 * Returns a list of Intent that starts activities relative 
+		 * Returns a list of Intent that starts relative  activity. Text to show user is set as Intent Extra with tag QuestionModel.QUESTION_TEXT
 		 * NOTE THAT returned questions have NO EVENT MODEL ASSOCIATED, but only their id.
 		 * To rebuild the proper question model you should first fetch the event pointed by that id
 		 * @param context
@@ -1470,7 +1477,7 @@ public final class DatabaseManager {
 		public static synchronized ArrayList<Intent> getQuestions(final Context context, Class<? extends Activity> questionActivity){
 			ArrayList<Intent> questionIntents = new ArrayList<Intent>();
 			String table = DatabaseCreator.TABLE_QUESTION_MODEL;
-			final String[] projection = {DatabaseCreator.QUESTION_ID,DatabaseCreator.QUESTION_TYPE,DatabaseCreator.QUESTION_DATE_TIME};
+			final String[] projection = {DatabaseCreator.QUESTION_ID,DatabaseCreator.QUESTION_TYPE,DatabaseCreator.QUESTION_DATE_TIME,DatabaseCreator.QUESTION_TEXT};
 			Cursor results = database.query(table, projection, null, null, null, null, DatabaseCreator.QUESTION_DATE_TIME + " DESC");
 			
 			while (results.moveToNext()){
@@ -1478,6 +1485,7 @@ public final class DatabaseManager {
 				int questionId = results.getInt(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_ID));
 				String questionType = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TYPE));
 				String questionTimeString = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_DATE_TIME));
+				String questionText = results.getString(DatabaseCreator.Projections.getIndex(projection, DatabaseCreator.QUESTION_TEXT));
 				if(questionType == null) {
 					GiveMeLogger.log("Invalid question found in DB, removing");
 					removeQuestion(questionId);
@@ -1488,6 +1496,7 @@ public final class DatabaseManager {
 							questionIntent.putExtra(QuestionModel.QUESTION_ID, questionId);
 							questionIntent.putExtra(QuestionModel.QUESTION_TYPE, questionType);
 							questionIntent.putExtra(QuestionModel.QUESTION_TIME, questionTimeString);
+							questionIntent.putExtra(QuestionModel.QUESTION_TEXT, questionText);
 							questionIntents.add(questionIntent);
 						}
 			}
@@ -1577,7 +1586,7 @@ public final class DatabaseManager {
 					for (int i = 0; i < questions.size(); i++) {
 						int eventId = questions.keyAt(i);
 						OptimizingQuestion question = questions.get(eventId);
-						addQuestion(question);
+						addQuestion(question, context.getString(R.string.question_list_optimizing_question) + " " + question.getEventInstance().getEvent().getName());
 					}
 					GiveMeLogger.log("Missing data generation complete");
 					listener.onQuestionGenerated();
@@ -1644,7 +1653,7 @@ public final class DatabaseManager {
 			public static final String[] CONSTRAINT_COMPLEX_ALL = {C_COMPLEX_ID, C_COMPLEX_S_ID};
 			public static final String[] OT_ALL = {OT_PLACE_ID, OT_COMPLEX_CONSTRAINT};
 			public static final String[] EVENT_MODEL_ALL = { ID_CALENDAR, ID_EVENT_PROVIDER,ID_PLACE, ID_EVENT_CATEGORY, FLAG_DO_NOT_DISTURB,FLAG_DEADLINE,FLAG_MOVABLE };
-			public static final String[] QUESTIONS = { QUESTION_ID, QUESTION_DATE_TIME,QUESTION_TYPE, QUESTION_EVENT_ID, QUESTION_USER_LATITUDE,QUESTION_USER_LONGITUDE,QUESTION_MISSING_CATEGORY,QUESTION_MISSING_CONSTRAINT,QUESTION_MISSING_PLACE};
+			public static final String[] QUESTIONS = { QUESTION_ID, QUESTION_DATE_TIME,QUESTION_TYPE, QUESTION_EVENT_ID, QUESTION_USER_LATITUDE,QUESTION_USER_LONGITUDE,QUESTION_MISSING_CATEGORY,QUESTION_MISSING_CONSTRAINT,QUESTION_MISSING_PLACE, QUESTION_TEXT};
 			
 			
 			public static int getIndex(String[] projection, String coloumn) {
@@ -1711,7 +1720,7 @@ public final class DatabaseManager {
 		private static final String QUESTION_MISSING_PLACE = "question_missing_place";
 		private static final String QUESTION_MISSING_CATEGORY = "question_missing_category";
 		private static final String QUESTION_MISSING_CONSTRAINT = "question_missing_constraint";
-		
+		private static final String QUESTION_TEXT = "question_text";
 		// EVENT CATEGORY
 		private static final String ECA_NAME = "eca_name";
 		private static final String ECA_DEFAULT_DONOTDISTURB = "default_donotdisturb";
@@ -1785,6 +1794,7 @@ public final class DatabaseManager {
 				+ QUESTION_MISSING_CATEGORY + " BOOLEAN, "
 				+ QUESTION_MISSING_PLACE + " BOOLEAN,"
 				+ QUESTION_MISSING_CONSTRAINT + " BOOLEAN, "
+				+ QUESTION_TEXT + " VARCHAR(255),"
 				+ " FOREIGN KEY ("	+ QUESTION_EVENT_ID	+ ") REFERENCES "+ TABLE_EVENT_MODEL+ " ("	+ ID_EVENT_PROVIDER	+ ")"
 				+ ");";
 		// EVENT_CATEGORY
