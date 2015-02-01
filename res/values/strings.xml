@@ -41,6 +41,8 @@
     <string name="next">Next</string>
     <string name="calendar_selected_missing_title">Calendar not selected!</string>
     <string name="calendar_select_missing_msg">Before proceeding, please select a calendar from the list.</string>
+    <string name="calendar_name">Calendar Name</string>
+    <string name="calendar_owner">Calendar Owner</string>
     
     <string name="place_autocomplete_quota_exceeded">The maximum free user number has been exceeded. You can retry tomorrow. Please donate or purchase GiveMeTime for full functionality!</string>
     <string name="place_autocomplete_key_outdated">Your application is outdated. Please update it on Play Store or send us an email if the error persists.</string>
