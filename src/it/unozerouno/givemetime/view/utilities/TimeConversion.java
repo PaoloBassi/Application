@@ -19,9 +19,17 @@ public class TimeConversion {
 	 }
 	 
 	 if (getDate){
-	 timeString.append(time.hour);
+	 if (time.hour < 10) {
+		 timeString.append("0" + time.hour);
+	 } else {
+		 timeString.append(time.hour);
+	 }
 	 timeString.append(":");
-	 timeString.append(time.minute);
+	 if (time.minute < 10) {
+		 timeString.append("0" + time.minute);
+	 } else {
+		 timeString.append(time.minute);
+	 }
 	 if(showSeconds){
 		 timeString.append(":");
 		 timeString.append(time.second);
