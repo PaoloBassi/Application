@@ -28,7 +28,7 @@ public class DoubleTimePickerDialog extends DialogFragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_constraint_timepicker_double, container);
+		View view = inflater.inflate(R.layout.editor_constraint_timepicker_double, container, false);
 		startPicker = (TimePicker) view.findViewById(R.id.editor_constraint_timepicker_start);
 		startPicker.setIs24HourView(true);
 		endPicker = (TimePicker) view.findViewById(R.id.editor_constraint_timepicker_end);

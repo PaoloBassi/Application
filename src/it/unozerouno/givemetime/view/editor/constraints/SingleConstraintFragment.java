@@ -46,7 +46,7 @@ public class SingleConstraintFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_constraint_single_fragment, null);
+		View view = inflater.inflate(R.layout.editor_constraint_single_fragment, container, false);
 		dateButton = (ToggleButton)view.findViewById(R.id.editor_constraint_single_button_date);
 		dayButton = (ToggleButton)view.findViewById(R.id.editor_constraint_single_button_day);
 		timeButton = (ToggleButton)view.findViewById(R.id.editor_constraint_single_button_time);

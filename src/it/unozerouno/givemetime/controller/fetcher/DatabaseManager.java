@@ -352,6 +352,12 @@ public final class DatabaseManager {
 		Long result = database.insertWithOnConflict(DatabaseCreator.TABLE_EVENT_MODEL, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 		GiveMeLogger.log("Updated GiveMeTime DB row: " + result);
 		
+		//Inserting constraints
+		newEventInstance.getEvent().setID(addedEventId);
+		if (newEventInstance.getEvent().getConstraints() != null) {
+			setConstraints(newEventInstance.getEvent());
+		}
+		
 	}
 
 	/**
@@ -762,7 +768,7 @@ public final class DatabaseManager {
 				}
 				result.close();
 			}
-				GiveMeLogger.log("Added complex constraint with id " + complexConstraint.getId() + ", parent of a single event with id" + currentSimpleConstraintId );
+				GiveMeLogger.log("Added complex constraint with id " + complexConstraint.getId() + ", parent of a single event with id " + currentSimpleConstraintId );
 		}
 		return complexConstraintID;
 			
@@ -1008,7 +1014,7 @@ public final class DatabaseManager {
 	 * @param event
 	 * @return
 	 */
-	public static List<ComplexConstraint> getConstraints(EventDescriptionModel event) {
+	private static List<ComplexConstraint> getConstraints(EventDescriptionModel event) {
 		List<ComplexConstraint> constraints = new ArrayList<ComplexConstraint>();
 		int eventId = Integer.parseInt(event.getID());
 		String table = DatabaseCreator.TABLE_EVENT_CONSTRAINTS;
@@ -1061,7 +1067,7 @@ public final class DatabaseManager {
 	 * Removes every old constraints from the EventConstraints table and reinsert current ones
 	 * @param event
 	 */
-	public static void setConstraints(EventDescriptionModel event) {
+	private static void setConstraints(EventDescriptionModel event) {
 		//Removing old constraints
 		 String[] projection = {DatabaseCreator.ECO_ID_COMPLEX_CONSTRAINT};
 		 String where = DatabaseCreator.ECO_ID_EVENT + " = "+ "'" + event.getID()+ "'";
