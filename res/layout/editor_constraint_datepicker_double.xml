@@ -20,12 +20,6 @@
 	        android:paddingBottom="10dp"
 	        android:gravity="center"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
-	
-	    <fragment
-	        android:id="@+id/date_picker_fragment_start"
-	        android:name="it.unozerouno.givemetime.view.utilities.DoubleDatePickerFragment"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content" />
 	    
 	    <DatePicker
 	        android:id="@+id/editor_constraint_datepicker_start"

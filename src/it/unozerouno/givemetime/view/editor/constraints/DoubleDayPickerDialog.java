@@ -29,7 +29,7 @@ public class DoubleDayPickerDialog extends DialogFragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_constraint_daypicker_double, container);
+		View view = inflater.inflate(R.layout.editor_constraint_daypicker_double, container, false);
 		startSpinner = (Spinner) view.findViewById(R.id.editor_constraint_daypicker_start);
 		endSpinner = (Spinner) view.findViewById(R.id.editor_constraint_daypicker_end);
 		okBtn = (Button) view.findViewById(R.id.editor_constraint_daypicker_btn_save);
