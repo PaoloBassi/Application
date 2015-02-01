@@ -5,6 +5,7 @@ import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.service.GiveMeTimeService;
 import it.unozerouno.givemetime.controller.service.ServiceScheduler;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.main.MainActivity;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -33,6 +34,7 @@ public class DebugFragment extends Fragment{
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		setHasOptionsMenu(true);
+		MainActivity.toolbar.setTitle("Debug");
 		View view = inflater.inflate(R.layout.fragment_debug_layout, container, false);
 		debugTextView = (TextView) view.findViewById(R.id.debug_textview);
         

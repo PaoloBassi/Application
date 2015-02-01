@@ -31,7 +31,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 public class MainActivity extends ActionBarActivity {
 
-	Toolbar toolbar;
+	public static Toolbar toolbar;
 	
     // titles in the drawer
     private String[] titles;
@@ -101,6 +101,7 @@ public class MainActivity extends ActionBarActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar_main_activity);
         if (toolbar != null){
         	// set the toolbar as the action bar
+        	toolbar.setTitle("Questions");
         	setSupportActionBar(toolbar);
         	getSupportActionBar().setHomeButtonEnabled(true);
         }

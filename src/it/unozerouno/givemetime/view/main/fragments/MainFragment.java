@@ -16,6 +16,7 @@ import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
 import it.unozerouno.givemetime.model.questions.QuestionModel;
 import it.unozerouno.givemetime.model.questions.QuestionModel.OnQuestionGenerated;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
+import it.unozerouno.givemetime.view.main.MainActivity;
 import it.unozerouno.givemetime.view.questions.QuestionActivity;
 import it.unozerouno.givemetime.view.utilities.SwipeDismissListViewTouchListener;
 import it.unozerouno.givemetime.view.utilities.SwipeDismissListViewTouchListener.DismissCallbacks;
@@ -44,6 +45,7 @@ public class MainFragment extends Fragment implements OnQuestionGenerated{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		MainActivity.toolbar.setTitle("Questions");
 		View view = inflater.inflate(R.layout.fragment_main_layout, container, false);
 		questionList = (ListView) view.findViewById(R.id.main_question_list);	
 		questionIntents = new ArrayList<Intent>();

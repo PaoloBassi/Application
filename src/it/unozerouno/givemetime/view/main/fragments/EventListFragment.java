@@ -6,6 +6,7 @@ import it.unozerouno.givemetime.model.events.EventInstanceModel;
 import it.unozerouno.givemetime.model.events.EventListener;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.editor.EventEditorActivity;
+import it.unozerouno.givemetime.view.main.MainActivity;
 import it.unozerouno.givemetime.view.main.SettingsActivity;
 import it.unozerouno.givemetime.view.utilities.WeekView;
 import it.unozerouno.givemetime.view.utilities.WeekView.EventClickListener;
@@ -54,6 +55,7 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 			Bundle savedInstanceState) {
 		// tell the fragment that there is a new action bar menu
 		setHasOptionsMenu(true);
+		MainActivity.toolbar.setTitle("Calendar");
 		
 		View view = inflater.inflate(R.layout.fragment_event_list, container, false);
 		
