@@ -15,7 +15,7 @@ public class ConstraintHeaderFragment extends Fragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_constraint_header_fragment, container, false);
+		View view = inflater.inflate(R.layout.editor_constraint_header_fragment, null);
 		addBtn = (Button) view.findViewById(R.id.editor_constraint_header_btn_add);
 		addBtn.setOnClickListener(addListener);
 		return view;

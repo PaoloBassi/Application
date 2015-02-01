@@ -239,7 +239,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		switchIsMovable.setChecked(eventToEdit.getEvent().getIsMovable());
 		switchDoNotDisturb.setChecked(eventToEdit.getEvent().getDoNotDisturb());
 		//Setting constraints
-		if (eventToEdit.getEvent().getConstraints() != null && !eventToEdit.getEvent().getConstraints().isEmpty()) {
+		if (eventToEdit.getEvent().getConstraints() != null) {
 			switchIsMovable.setEnabled(true);
 			fragmentConstraints.setConstraintList(eventToEdit.getEvent().getConstraints());
 		}

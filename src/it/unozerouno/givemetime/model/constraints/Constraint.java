@@ -10,7 +10,7 @@ public abstract class Constraint {
 	
 	public Constraint() {
 		//When the id is not set, it value is -1, telling the DatabaseManager that it's a new constraint to be added;
-		id = -1;
+		id = 1;
 	}
 	public int getId() {
 		return id;

@@ -22,7 +22,7 @@ public class ConstraintsFragment extends Fragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_event_editor_constraints, container, false);
+		View view = inflater.inflate(R.layout.fragment_event_editor_constraints, container);
 		constraintFragments = new ArrayList<SingleConstraintFragment>();
 		header = new ConstraintHeaderFragment();
 		getFragmentManager().beginTransaction().add(R.id.constraint_container,header,"header").commit();

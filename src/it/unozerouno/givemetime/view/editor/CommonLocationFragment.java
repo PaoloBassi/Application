@@ -25,7 +25,7 @@ public class CommonLocationFragment extends Fragment {
  @Override
 public View onCreateView(LayoutInflater inflater, ViewGroup container,
 		Bundle savedInstanceState) {
-	View view = inflater.inflate(R.layout.fragment_event_editor_locations, container, false);
+	View view = inflater.inflate(R.layout.fragment_event_editor_locations, container);
 	placeView = (ListView) view.findViewById(R.id.editor_edit_event_location_listview_locations);
 	placeList = new ArrayList<PlaceModel>();
 	listAdapter = new LocationsListAdapter(getActivity(), R.layout.element_list_location, placeList);
