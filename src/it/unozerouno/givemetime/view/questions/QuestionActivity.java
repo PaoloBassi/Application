@@ -179,7 +179,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(FreeTimeQuestion question) {
-		Dialog.paymentDialog(QuestionActivity.this, R.string.Not_available, R.string.paid_create_event);
+		Dialog.genericAlertDialog(QuestionActivity.this, R.string.Not_available, R.string.paid_create_event);
 	}
 	@Override
 	public LocationMismatchQuestion loadLocationMismatchQuestion() {
@@ -203,7 +203,7 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	}
 	@Override
 	public void onCreateClicked(LocationMismatchQuestion question) {
-		Dialog.paymentDialog(QuestionActivity.this, R.string.Not_available, R.string.paid_create_event);
+		Dialog.genericAlertDialog(QuestionActivity.this, R.string.Not_available, R.string.paid_create_event);
 	}
 	@Override
 	public OptimizingQuestion loadOptimizingQuestion() {

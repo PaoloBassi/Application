@@ -5,6 +5,7 @@ import it.unozerouno.givemetime.controller.fetcher.CalendarFetcher;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.model.CalendarModel;
 import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.utils.Dialog;
 import it.unozerouno.givemetime.utils.Results;
 import it.unozerouno.givemetime.utils.TaskListener;
 import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;
@@ -45,6 +46,10 @@ public class CalendarPickerFragment extends Fragment {
 	
 	public CalendarPickerFragment(ViewPager pager) {
 		this.pager = pager;
+	}
+	
+	public CalendarPickerFragment() {
+		
 	}
 	
     @Override
@@ -92,12 +97,11 @@ public class CalendarPickerFragment extends Fragment {
 			
 			@Override
 			public void onClick(View v) {
+
 				// TODO get all events from google and put them inside the db
 				dbManager = DatabaseManager.getInstance(getActivity());
 				System.out.println("Inside Welcome " + pager.getCurrentItem());
 				pager.setCurrentItem(pager.getCurrentItem() + 1);
-				
-				
 			}
 		});
         

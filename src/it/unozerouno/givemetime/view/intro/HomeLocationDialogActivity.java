@@ -1,6 +1,8 @@
 package it.unozerouno.givemetime.view.intro;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.view.editor.LocationEditorFragment;
 import it.unozerouno.givemetime.view.editor.LocationEditorFragment.OnSelectedPlaceModelListener;
@@ -25,9 +27,9 @@ public class HomeLocationDialogActivity extends FragmentActivity implements OnSe
 
 	@Override
 	public void onSelectedPlaceModel(PlaceModel place) {
+		// TODO needs sleepTime set, precedence problem
+		//DatabaseManager.addUserHomePlace(UserKeyRing.getUserEmail(this), place);
 		finish();
-		// TODO do something with the result
-		
 	}
 
 }

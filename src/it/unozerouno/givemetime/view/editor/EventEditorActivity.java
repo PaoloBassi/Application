@@ -403,7 +403,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 				} else {
 					// TODO creation of new category
 					spinnerCategory.setSelection(0);
-					Dialog.paymentDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_categories);
+					Dialog.genericAlertDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_categories);
 			}
 			}
 			public void onNothingSelected(android.widget.AdapterView<?> arg0) {};
@@ -417,7 +417,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 					textDeadLine.setText(getString(R.string.editor_hasdeadline_text));
 					eventToEdit.getEvent().setHasDeadline(true);
 				} else {
-					Dialog.paymentDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_deadline);
+					Dialog.genericAlertDialog(EventEditorActivity.this, R.string.Not_available, R.string.pay_deadline);
 					switchDeadline.setChecked(true);
 //					textDeadLine.setText("This event has no deadline");
 //					setSpinnerVisibility(0);

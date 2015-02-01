@@ -1,8 +1,12 @@
 package it.unozerouno.givemetime.utils;
 
+import com.google.gson.FieldNamingStrategy;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 
 /**
  * class for handling Dialog messages 
@@ -17,7 +21,7 @@ public class Dialog {
 	 * @param title : title of the Dialog. It's an int, so it's required a string.xml reference
 	 * @param msg : message of the Dialog. It's an int, so it's required a string.xml reference
 	 */
-	public static void paymentDialog(Context context, int title, int msg) {
+	public static void genericAlertDialog(final Context context, int title, int msg) {
 		new AlertDialog.Builder(context)
 		.setTitle(title)
 		.setMessage(msg)
@@ -30,5 +34,6 @@ public class Dialog {
 			}
 		}).show();
 	}
+	
 	
 }

@@ -2,10 +2,12 @@ package it.unozerouno.givemetime.controller;
 
 import com.google.android.gms.internal.qu;
 
+import it.unozerouno.givemetime.R;
 import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
 import it.unozerouno.givemetime.controller.service.GiveMeTimeService;
 import it.unozerouno.givemetime.model.UserKeyRing;
 import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
+import it.unozerouno.givemetime.utils.Dialog;
 import it.unozerouno.givemetime.utils.GiveMeLogger;
 import it.unozerouno.givemetime.view.utilities.ApiKeys;
 import it.unozerouno.givemetime.view.utilities.ApiLoginInterface;

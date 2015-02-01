@@ -1,6 +1,9 @@
 package it.unozerouno.givemetime.view.intro;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.controller.fetcher.DatabaseManager;
+import it.unozerouno.givemetime.model.UserKeyRing;
+import it.unozerouno.givemetime.model.constraints.TimeConstraint;
 import it.unozerouno.givemetime.utils.CalendarUtils;
 import it.unozerouno.givemetime.view.editor.EventEditorActivity;
 import it.unozerouno.givemetime.view.utilities.TimeEndPickerFragment;
@@ -24,12 +27,10 @@ public class HomeSleepDialogActivity extends Activity{
 	private Switch isSleeping;
 	private TextView wakeUpText;
 	private TextView sleepText;
-	private TextView start;
-	private TextView end;
+	private TextView startView;
+	private TextView endView;
 	private TimePickerDialog sleep;
 	private TimePickerDialog wakeUp;
-	private Time sevenAM;
-	private Time elevenPM;
 	private Time setBegin;
 	private Time setEnd;
 	private Button btnCancel;
@@ -40,19 +41,19 @@ public class HomeSleepDialogActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dialog_sleep_time);
 		
-		sevenAM = new Time();
-		elevenPM = new Time();
-		sevenAM.hour = 7;
-		sevenAM.minute = 0;
-		sevenAM.second = 0;
-		elevenPM.hour = 23;
-		elevenPM.minute = 0;
-		elevenPM.second = 0;
+		setBegin = new Time();
+		setEnd = new Time();
+		setBegin.hour = 7;
+		setBegin.minute = 0;
+		setBegin.second = 0;
+		setEnd.hour = 23;
+		setEnd.minute = 0;
+		setEnd.second = 0;
 		
 		wakeUpText = (TextView) findViewById(R.id.home_start_day_textview);
 		sleepText = (TextView) findViewById(R.id.home_end_day_textview);
-		start = (TextView) findViewById(R.id.home_spinner_start_day);
-		end = (TextView) findViewById(R.id.home_spinner_end_day);
+		startView = (TextView) findViewById(R.id.home_spinner_start_day);
+		endView = (TextView) findViewById(R.id.home_spinner_end_day);
 		btnCancel = (Button) findViewById(R.id.btnCancel);
 		btnConfirm = (Button) findViewById(R.id.btnConfirm);
 		
@@ -65,24 +66,22 @@ public class HomeSleepDialogActivity extends Activity{
 				if (isSleeping.isChecked()) {
 					wakeUpText.setEnabled(false);
 					sleepText.setEnabled(false);
-					start.setEnabled(false);
-					end.setEnabled(false);
-					start.setText(CalendarUtils.formatHour(-1, -1));
-					end.setText(CalendarUtils.formatHour(-1, -1));
+					startView.setEnabled(false);
+					endView.setEnabled(false);
+					startView.setText(CalendarUtils.formatHour(-1, -1));
+					endView.setText(CalendarUtils.formatHour(-1, -1));
 				} else {
 					wakeUpText.setEnabled(true);
 					sleepText.setEnabled(true);
-					start.setEnabled(true);
-					end.setEnabled(true);
-					setBegin = new Time(sevenAM);
-					setEnd = new Time(elevenPM);
-					start.setText(CalendarUtils.formatHour(setBegin.hour, setBegin.minute));
-					end.setText(CalendarUtils.formatHour(setEnd.hour, setEnd.minute));
+					startView.setEnabled(true);
+					endView.setEnabled(true);
+					startView.setText(CalendarUtils.formatHour(setBegin.hour, setBegin.minute));
+					endView.setText(CalendarUtils.formatHour(setEnd.hour, setEnd.minute));
 				}
 			}
 		});
 		
-		start.setOnClickListener(new OnClickListener() {
+		startView.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -92,7 +91,7 @@ public class HomeSleepDialogActivity extends Activity{
 			}
 		});
 		
-		end.setOnClickListener(new OnClickListener() {
+		endView.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
@@ -114,7 +113,8 @@ public class HomeSleepDialogActivity extends Activity{
 			
 			@Override
 			public void onClick(View v) {
-				// TODO save the values somewhere
+				// TODO needs the user account, precedence problem
+				//DatabaseManager.setUserSleepTime(UserKeyRing.getUserEmail(HomeSleepDialogActivity.this), new TimeConstraint(setBegin, setEnd));
 				finish();
 			}
 		});
@@ -131,13 +131,13 @@ public class HomeSleepDialogActivity extends Activity{
 		
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new TimePickerDialog(getActivity(), this, sevenAM.hour, sevenAM.minute, true);
+			return new TimePickerDialog(getActivity(), this, setBegin.hour, setBegin.minute, true);
 		}
 		
 		@Override
 		public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 			// set the values in the view
-			start.setText(CalendarUtils.formatHour(hourOfDay, minute));
+			startView.setText(CalendarUtils.formatHour(hourOfDay, minute));
 			// save the values inside the variable
 			setBegin = new Time();
 			setBegin.hour = hourOfDay;
@@ -159,13 +159,13 @@ public class HomeSleepDialogActivity extends Activity{
 		
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new TimePickerDialog(getActivity(), this, elevenPM.hour, elevenPM.minute, true);
+			return new TimePickerDialog(getActivity(), this, setEnd.hour, setEnd.minute, true);
 		}
 		
 		@Override
 		public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 			// set the values in the view
-			end.setText(CalendarUtils.formatHour(hourOfDay, minute));
+			endView.setText(CalendarUtils.formatHour(hourOfDay, minute));
 			// save the values inside the variable
 			setEnd = new Time();
 			setEnd.hour = hourOfDay;
