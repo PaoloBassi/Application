@@ -254,9 +254,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
         toolbar = (Toolbar) findViewById(R.id.toolbar_edit_event);
         if (toolbar != null){
         	// set the toolbar as the action bar
-        	setSupportActionBar(toolbar);
-        	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        	getSupportActionBar().setHomeButtonEnabled(true);
+        	setSupportActionBar(toolbar);    	
         }
 		
 		 scrollView = (ScrollView) findViewById(R.id.editor_edit_event_scroll);
