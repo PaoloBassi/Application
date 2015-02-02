@@ -10,6 +10,7 @@ import android.text.format.Time;
 public class DayConstraint extends Constraint {
 	private int startingDay;
 	private int endingDay;
+	public static final String TYPE = "DayConstraint";
 	
 	/**
 	 * Create a new interval between two weekdays, starting from startingDay (included) and ending at endingDay (included)

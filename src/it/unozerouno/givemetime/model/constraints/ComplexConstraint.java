@@ -19,6 +19,7 @@ import android.text.format.Time;
  */
 public class ComplexConstraint extends Constraint {
 	private List<Constraint> constraints;
+	public static final String TYPE = "ComplexConstraint";
 
 	public ComplexConstraint() {
 		constraints = new ArrayList<Constraint>();

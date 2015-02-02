@@ -21,10 +21,14 @@ public class DoubleDayPickerDialog extends DialogFragment{
 	OnConstraintSelectedListener listener;
 	int startSelected;
 	int endSelected;
+	private int defaultStart;
+	private int defaultEnd;
 	
-	public DoubleDayPickerDialog(OnConstraintSelectedListener callBack) {
+	public DoubleDayPickerDialog(OnConstraintSelectedListener callBack, int defaultStart, int defaultEnd) {
 	super();
 	listener=callBack;
+	this.defaultStart = defaultStart;
+	this.defaultEnd = defaultEnd;
 	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,6 +44,14 @@ public class DoubleDayPickerDialog extends DialogFragment{
 		
 		
 		return view;
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		//If default values are specified, then load them
+			startSpinner.setSelection(defaultStart);
+			endSpinner.setSelection(defaultEnd);
 	}
 	
 	
@@ -93,6 +105,7 @@ public class DoubleDayPickerDialog extends DialogFragment{
 			@Override
 			public void onClick(View v) {
 				DoubleDayPickerDialog.this.dismiss();
+				listener.dayNotSelected();
 			}
 		});
 	}

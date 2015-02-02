@@ -20,10 +20,14 @@ public class DoubleTimePickerDialog extends DialogFragment{
 	Button okBtn;
 	Button cancelBtn;
 	OnConstraintSelectedListener listener;
+	private Time defaultStart;
+	private Time defaultEnd;
 	
-	public DoubleTimePickerDialog(OnConstraintSelectedListener callBack) {
+	public DoubleTimePickerDialog(OnConstraintSelectedListener callBack, Time defaultStart, Time defaultEnd) {
 	super();
 	listener=callBack;
+	this.defaultStart = defaultStart;
+	this.defaultEnd = defaultEnd;
 	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,6 +44,19 @@ public class DoubleTimePickerDialog extends DialogFragment{
 		return view;
 	}
 	
+	@Override
+	public void onStart() {
+		super.onStart();
+		//If default values are specified, then load them
+		if (defaultStart != null){
+			startPicker.setCurrentHour(defaultStart.hour);
+			startPicker.setCurrentMinute(defaultStart.minute);
+		}
+		if(defaultEnd != null){
+			endPicker.setCurrentHour(defaultEnd.hour);
+			endPicker.setCurrentMinute(defaultEnd.minute);
+		}
+	}
 	
 	 private void setButtonListener() {
 		 
@@ -74,6 +91,7 @@ public class DoubleTimePickerDialog extends DialogFragment{
 			
 			@Override
 			public void onClick(View v) {
+				listener.timeNotSelected();
 				DoubleTimePickerDialog.this.dismiss();
 			}
 		});
