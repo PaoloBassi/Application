@@ -21,8 +21,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 			
-         	
-            <TextView
+         <TextView
                 style="@style/sectionHeader"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
@@ -178,12 +177,25 @@
 					     android:layout_height="wrap_content"
 					     android:layout_centerInParent="true" />
 
-			 </RelativeLayout>
+			 	</RelativeLayout>   
+                
+			 </RelativeLayout>	
+         
+            <!-- Deadline -->
+            
+            
+            <TextView
+                style="@style/sectionHeader"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deadline" />
 			 
-                
-                
-                
-			 </RelativeLayout>
+            
 			 <View
 			     android:layout_marginTop="10dp"
 			     android:layout_marginBottom="10dp"
@@ -191,47 +203,113 @@
 	             android:layout_height="0dp"
 	             android:background="#c0c0c0"/>
 			 
-			 <Switch
-			     android:id="@+id/editor_edit_event_switch_deadline"
-			     android:layout_margin="10dp"
-			     android:layout_width="match_parent"
-			     android:layout_height="wrap_content"
-			     android:text="Has Deadline" />
-
+			<RelativeLayout 
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="horizontal" >
+			 
+			     <LinearLayout 
+			        android:id="@+id/layout_deadline_image"
+                    android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+					android:layout_marginTop="5dp"
+                	android:orientation="horizontal">
+		            <ImageView 
+		                android:src="@drawable/ic_action_edit"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:contentDescription="@string/EventDescription"/>
+	            </LinearLayout>
+			 
+			    <RelativeLayout 
+                    android:id="@+id/layout_deadline"
+                    android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:orientation="horizontal"
+                	android:layout_toRightOf="@+id/layout_deadline_image"
+                	android:layout_toEndOf="@+id/layout_deadline_image"> 
+			     
+					 <Switch
+					     android:id="@+id/editor_edit_event_switch_deadline"
+					     android:layout_margin="10dp"
+					     android:layout_width="match_parent"
+					     android:layout_height="wrap_content"
+					     android:layout_centerInParent="true"
+					     android:text="Has Deadline" />
+		
+					 
+				</RelativeLayout>
+				
+					<TextView
+					     android:id="@+id/editor_edit_event_text_deadline"
+					     android:layout_margin="10dp"
+					     android:layout_width="match_parent"
+					     android:layout_height="wrap_content"
+					     android:text="This event has no deadline."
+					     android:layout_below="@+id/layout_deadline"
+					     android:textAppearance="?android:attr/textAppearanceSmall" />
+			 </RelativeLayout>
+			 
+			 <!-- Event Repetition -->
+			 
 			 <TextView
-			     android:id="@+id/editor_edit_event_text_deadline"
-			     android:layout_margin="10dp"
-			     android:layout_width="match_parent"
-			     android:layout_height="wrap_content"
-			     android:text="This event has no deadline."
-			     android:textAppearance="?android:attr/textAppearanceSmall" />
-
-			 <View
-			     android:layout_marginTop="10dp"
-			     android:layout_margin="10dp"
-			     android:layout_marginBottom="10dp"
-	             android:layout_width="fill_parent"
-	             android:layout_height="1dp"
-	             android:background="#c0c0c0"/>
+                style="@style/sectionHeader"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Event Repetition" />
 			 
-			 <Spinner 
-			     android:id="@+id/recursive_spinner"
-			     android:layout_width="match_parent"
-			     android:layout_height="wrap_content"
-			     android:layout_margin="10dp"
+			 <RelativeLayout 
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp"
+                android:layout_margin="10dp">
+					
+				 <LinearLayout 
+	                    android:id="@+id/linear_repetition_layout"
+	                    android:layout_width="wrap_content"
+	                	android:layout_height="wrap_content"
+	                	android:layout_centerInParent="true"
+	                    android:layout_alignParentLeft="true"
+	                    android:layout_alignParentStart="true"
+	                	android:orientation="horizontal">
+			            <ImageView 
+			                android:src="@drawable/ic_action_edit"
+			                android:layout_width="wrap_content"
+			                android:layout_height="wrap_content"
+			                android:contentDescription="@string/EventDescription"/>
+		            </LinearLayout>
+				 
+				 <Spinner 
+				     android:id="@+id/recursive_spinner"
+				     android:layout_width="match_parent"
+				     android:layout_height="wrap_content"
+				     android:layout_toRightOf="@+id/linear_repetition_layout"
+				     android:layout_margin="10dp"
 			     />
-			 
-			 <View
-			     android:layout_marginTop="10dp"
-			     android:layout_margin="10dp"
-			     android:layout_marginBottom="10dp"
-	             android:layout_width="fill_parent"
-	             android:layout_height="1dp"
-	             android:background="#c0c0c0"/>
+			</RelativeLayout>	 
+			 <!-- Time Settings -->
+			 <TextView
+                style="@style/sectionHeader"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time Settings" />
 			 
 			<Switch
 			    android:id="@+id/editor_edit_event_switch_allday"
 			    android:layout_margin="10dp"
+			    android:padding="10dp"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:text="All Day Event" />
@@ -342,30 +420,48 @@
 			         android:layout_weight="1" />
 			 </LinearLayout>
 			 
-			<View
-			     android:layout_marginTop="10dp"
-			     android:layout_margin="10dp"
-			     android:layout_marginBottom="10dp"
-	             android:layout_width="fill_parent"
-	             android:layout_height="1dp"
-	             android:background="#c0c0c0"/>
+		<!-- Constraints -->
+			<TextView
+                style="@style/sectionHeader"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Constraints" />
 			
 			 <Switch
 			    android:id="@+id/editor_edit_event_switch_ismovable"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
+			    android:layout_margin="10dp"
 			    android:text="Can I move this event (set time constraints)?" />
 			 <fragment
 			     android:id="@+id/editor_edit_event_fragment_constraints_container"
 			     android:name="it.unozerouno.givemetime.view.editor.ConstraintsFragment"
 			     android:layout_width="match_parent"
 			     android:layout_height="wrap_content" />
+			 
+			<!-- Notifications -->
+			 <TextView
+                style="@style/sectionHeader"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Notifications" />
+			 
+			 
             <Switch
 			    android:id="@+id/editor_edit_event_switch_donotdisturb"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
-			    android:paddingTop="10dp"
-			    android:paddingBottom="10dp"
+			    android:layout_margin="10dp"
 			    android:text="Notification for this event" />
 
         </LinearLayout>
@@ -385,6 +481,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/centerPoint"
+                android:background="@drawable/button_corner"
                 android:text="Cancel" />
 
             <TextView
@@ -401,6 +498,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_toRightOf="@+id/centerPoint"
+                android:background="@drawable/button_corner"
                 android:text="Save" />
         </RelativeLayout>
 </LinearLayout>
