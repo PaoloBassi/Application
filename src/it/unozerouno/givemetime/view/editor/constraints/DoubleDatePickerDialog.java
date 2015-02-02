@@ -29,7 +29,7 @@ public class DoubleDatePickerDialog extends DialogFragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.editor_constraint_datepicker_double, container);
+		View view = inflater.inflate(R.layout.editor_constraint_datepicker_double, container, false);
 		startPicker = (DatePicker) view.findViewById(R.id.editor_constraint_datepicker_start);
 		endPicker = (DatePicker) view.findViewById(R.id.editor_constraint_datepicker_end);
 		okBtn = (Button) view.findViewById(R.id.editor_constraint_datepicker_btn_save);

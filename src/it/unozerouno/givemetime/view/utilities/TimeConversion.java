@@ -41,4 +41,10 @@ public class TimeConversion {
 	 if (getTime && getDate) return timeString.toString() + " " +dateString.toString();
 	 return "";
  }
+ 
+ public static long getNow(){
+	 Time now = new Time();
+	 now.setToNow();
+	 return now.toMillis(false);
+ }
 }

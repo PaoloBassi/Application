@@ -43,11 +43,11 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 		setContentView(R.layout.question_layout);
 		super.onCreate(savedInstanceState);
 		//If it's coming from a notification, the intent will contain a long Id
-		Long lQuestionId = getIntent().getLongExtra(QuestionModel.QUESTION_ID, -1);
+		//Long lQuestionId = getIntent().getLongExtra(QuestionModel.QUESTION_ID, -1);
 		//If it's coming from a stored notification, the intent will contain an int id.
 		int iQuestionId = getIntent().getIntExtra(QuestionModel.QUESTION_ID, -1);
 		//Getting the question
-		iQuestionId = (iQuestionId != -1) ? iQuestionId : lQuestionId.intValue();
+		//iQuestionId = (iQuestionId != -1) ? iQuestionId : lQuestionId.intValue();
 		question = DatabaseManager.getQuestion(this, iQuestionId);
 		//Now we can fetch the event
 		if(question!=null){
