@@ -803,7 +803,7 @@ public final class DatabaseManager {
 		
 		if (constraintToAdd instanceof DateConstraint){
 			DateConstraint constraint = (DateConstraint) constraintToAdd;
-			type = "DateConstraint"; 
+			type = DateConstraint.TYPE;  
 			id = constraint.getId();
 			start = constraint.getStartingDate().toMillis(false);
 			end = constraint.getEndingDate().toMillis(false);
@@ -813,7 +813,7 @@ public final class DatabaseManager {
 		}
 		if (constraintToAdd instanceof TimeConstraint){
 			TimeConstraint constraint = (TimeConstraint) constraintToAdd;
-			type = "TimeConstraint"; 
+			type = TimeConstraint.TYPE; 
 			//Checking if given constraint has id or not (update or insert)
 			id = constraint.getId();
 			start = constraint.getStartingTime().toMillis(false);
@@ -824,7 +824,7 @@ public final class DatabaseManager {
 		}
 		if (constraintToAdd instanceof DayConstraint){
 			DayConstraint constraint = (DayConstraint) constraintToAdd;
-			type = "DayConstraint"; 
+			type = DayConstraint.TYPE; 
 			//Checking if given constraint has id or not (update or insert)
 			id = constraint.getId();
 			dayStart = constraint.getStartingDay();
@@ -886,7 +886,7 @@ public final class DatabaseManager {
 		databaseResult.close();
 		
 		//Discerning what type of constraint has been fetched
-		if (type == "DateConstraint")
+		if (type.equals(DateConstraint.TYPE))
 		{
 			Time startTime = new Time();
 			startTime.set(Long.parseLong(start));
@@ -896,7 +896,7 @@ public final class DatabaseManager {
 			fetchedConstraint.setId(id);
 			return fetchedConstraint;
 		}
-		if (type == "TimeConstraint")
+		if (type.equals(TimeConstraint.TYPE))
 		{
 			Time startTime = new Time();
 			startTime.set(Long.parseLong(start));
@@ -906,7 +906,7 @@ public final class DatabaseManager {
 			fetchedConstraint.setId(id);
 			return fetchedConstraint;
 		}
-		if (type == "DayConstraint")
+		if (type.equals(DayConstraint.TYPE))
 		{
 			int startDay = Integer.parseInt(start);
 			int endDay = Integer.parseInt(end);

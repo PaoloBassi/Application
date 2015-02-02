@@ -51,6 +51,7 @@ public class ConstraintsFragment extends Fragment{
 	}
 	private void addFragment(ComplexConstraint complexConstraint){
 		SingleConstraintFragment complexConstraintFragment = new SingleConstraintFragment();
+		complexConstraintFragment.setConstraint(complexConstraint);
 		complexConstraintFragment.setListener(new OnRemoveButtonClickedListener() {
 			
 			@Override

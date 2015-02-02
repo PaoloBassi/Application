@@ -15,6 +15,7 @@ public class TimeConstraint extends Constraint{
 	private Time startingTime;
 	private Time endingTime;
 	private boolean containsMidnight = false;
+	public static final String TYPE = "TimeConstraint";
 	
 	/**
 	 * Creates a Time interval (hour-minute-seconds). Day-Month-Year of parameters will be ignored. 

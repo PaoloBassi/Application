@@ -65,16 +65,21 @@ public class SingleConstraintFragment extends Fragment {
 	}
 	
 	private void initializeButtons(){
+
+		setButtonsDefault();
+	
+		
 		dateButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if(isChecked){
-					showDateDialog();
+					if (dateConstraint == null) showDateDialog(null, null);
+					else showDateDialog(dateConstraint.getStartingDate(), dateConstraint.getEndingDate());
 				}
 				else{
 					dateConstraint=null;
-					updateText();
+					//updateText();
 				}
 				
 			}
@@ -84,11 +89,12 @@ public class SingleConstraintFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if(isChecked){
-					showDayDialog();
+					if (dayConstraint == null)  showDayDialog(0, 6);
+					else showDayDialog(dayConstraint.getStartingDay(), dayConstraint.getEndingDay());
 				}
 				else{
 					dayConstraint=null;
-					updateText();
+					//updateText();
 				}
 				
 			}
@@ -98,11 +104,15 @@ public class SingleConstraintFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if(isChecked){
-					showTimeDialog();
+					if (timeConstraint == null){
+					showTimeDialog(null, null);
+					} else {
+					showTimeDialog(timeConstraint.getStartingTime(), timeConstraint.getEndingTime());
+					}
 				}
 				else{
 					timeConstraint=null;
-					updateText();
+					//updateText();
 				}
 				
 			}
@@ -114,65 +124,12 @@ public class SingleConstraintFragment extends Fragment {
 				listener.onRemoveButtonClicked(SingleConstraintFragment.this);				
 			}
 		});
+
 	}
 	
-	private void showDateDialog(){
-		DoubleDatePickerDialog datePickerDialog = new DoubleDatePickerDialog(new DoubleDatePickerDialog.OnConstraintSelectedListener() {
-			
-			@Override
-			void onDateSelected(Time startTime, Time endTime) {
-				dateConstraint = new DateConstraint(startTime, endTime);
-				GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
-				updateText();
-			}
-
-			@Override
-			void dateNotSelected() {
-				dateButton.setChecked(false);							
-			}
-		});
-		datePickerDialog.show(getActivity().getFragmentManager(), getTag());
-	}
-	private void showDayDialog(){
-		DoubleDayPickerDialog dayPickerDialog = new DoubleDayPickerDialog(new DoubleDayPickerDialog.OnConstraintSelectedListener() {
-			
-			@Override
-			void onDaySelected(int startDay, int endDay) {
-				dayConstraint = new DayConstraint(startDay, endDay);
-				GiveMeLogger.log("Got start: " + startDay + " end: " + endDay);
-				updateText();
-			}
-
-			@Override
-			void dayNotSelected() {
-				dayButton.setChecked(false);						
-			}
-		});
-		dayPickerDialog.show(getActivity().getFragmentManager(), getTag());
-	}
-	private void showTimeDialog(){
-
-		DoubleTimePickerDialog timePickerDialog = new DoubleTimePickerDialog(new DoubleTimePickerDialog.OnConstraintSelectedListener() {
-			
-			@Override
-			void onTimeSelected(Time startTime, Time endTime) {
-				timeConstraint = new TimeConstraint(startTime, endTime);
-				GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
-				updateText();
-			}
-
-			@Override
-			void timeNotSelected() {
-				timeButton.setChecked(false);							
-			}
-		});
-		timePickerDialog.show(getActivity().getFragmentManager(), getTag());
-	}
-	
-	public void setConstraint(ComplexConstraint constraint){
-		if (constraint==null) complexConstraint = new ComplexConstraint();
-		this.complexConstraint = constraint;
-		for (Constraint currentConstraint : constraint.getConstraints()) {
+	private void setButtonsDefault(){
+		if(complexConstraint == null) return;
+		for (Constraint currentConstraint : complexConstraint.getConstraints()) {
 			if (currentConstraint instanceof DayConstraint){
 				dayConstraint = ((DayConstraint)currentConstraint).clone();
 				dayButton.setChecked(true);
@@ -186,8 +143,70 @@ public class SingleConstraintFragment extends Fragment {
 				timeButton.setChecked(true);
 			}
 		}
-		updateText();
+		//updateText();
 	}
+	
+	private void showDateDialog(Time defaultStart, Time defaultEnd){
+		DoubleDatePickerDialog datePickerDialog = new DoubleDatePickerDialog(new DoubleDatePickerDialog.OnConstraintSelectedListener() {
+			
+			@Override
+			void onDateSelected(Time startTime, Time endTime) {
+				dateConstraint = new DateConstraint(startTime, endTime);
+				GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
+				//updateText();
+			}
+
+			@Override
+			void dateNotSelected() {
+				dateButton.setChecked(false);
+				dateConstraint = null;
+			}
+		}, defaultStart, defaultEnd);
+		datePickerDialog.show(getActivity().getFragmentManager(), getTag());
+	}
+	private void showDayDialog(int defaultStart, int defaultEnd){
+		DoubleDayPickerDialog dayPickerDialog = new DoubleDayPickerDialog(new DoubleDayPickerDialog.OnConstraintSelectedListener() {
+			
+			@Override
+			void onDaySelected(int startDay, int endDay) {
+				dayConstraint = new DayConstraint(startDay, endDay);
+				GiveMeLogger.log("Got start: " + startDay + " end: " + endDay);
+				//updateText();
+			}
+
+			@Override
+			void dayNotSelected() {
+				dayButton.setChecked(false);
+				dayConstraint = null;
+			}
+		}, defaultStart, defaultEnd);
+		dayPickerDialog.show(getActivity().getFragmentManager(), getTag());
+	}
+	private void showTimeDialog(Time defaultStart, Time defaultEnd){
+
+		DoubleTimePickerDialog timePickerDialog = new DoubleTimePickerDialog(new DoubleTimePickerDialog.OnConstraintSelectedListener() {
+			
+			@Override
+			void onTimeSelected(Time startTime, Time endTime) {
+				timeConstraint = new TimeConstraint(startTime, endTime);
+				GiveMeLogger.log("Got start: " + startTime.toString() + " end: " + endTime.toString());
+				//updateText();
+			}
+
+			@Override
+			void timeNotSelected() {
+				timeButton.setChecked(false);
+				timeConstraint = null;
+			}
+		}, defaultStart, defaultEnd);
+		timePickerDialog.show(getActivity().getFragmentManager(), getTag());
+	}
+	
+	public void setConstraint(ComplexConstraint constraint){
+		if (constraint==null) complexConstraint = new ComplexConstraint();
+		this.complexConstraint = constraint;
+	}
+	
 	
 	
 	
