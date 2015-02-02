@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -58,8 +59,29 @@ public class FreeTimeFragment  extends Fragment{
 	 * Gets the question from parent activity and fills the ui with proper data
 	 */
 	private void loadQuestion(){
-		FreeTimeQuestion question = mListener.loadFreeTimeQuestion();
+		final FreeTimeQuestion question = mListener.loadFreeTimeQuestion();
 		eventSuggestion.setText(question.getClosestEvent().getEvent().getName());
+		
+		//Setting buttons onClick
+		cancelButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mListener.onCancelClicked(question);
+			}
+		});
+		updateButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mListener.onUpdateClicked(question);
+			}
+		});
+		createButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mListener.onCreateClicked(question);
+			}
+		});
+		
 	}
 	public interface OnFreeTimeQuestionResponse {
 		/**
