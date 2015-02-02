@@ -14,6 +14,7 @@ import android.text.format.Time;
 public class DateConstraint extends Constraint{
 	private Time startingDate;
 	private Time endingDate;
+	public static final String TYPE = "DateConstraint";
 	
 	/**
 	 * Create a new Date Interval starting from startingDate (included) and finishing at endingDate (excluded)
