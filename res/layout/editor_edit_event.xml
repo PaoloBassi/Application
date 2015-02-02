@@ -1,70 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    	<android.support.v7.widget.Toolbar
+   	<android.support.v7.widget.Toolbar
 		android:id="@+id/toolbar_edit_event"
- 		android:layout_width="match_parent"
-   		android:layout_height="wrap_content"
-   		android:background="?attr/colorPrimaryDark"/>
+		android:layout_width="match_parent"
+  		android:layout_height="wrap_content"
+  		android:background="?attr/colorPrimaryDark"/>
+   
    <ScrollView
         android:id="@+id/editor_edit_event_scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="50"
-        android:paddingLeft="10dp"
-        android:paddingTop="10dp"
-        android:paddingRight="10dp" >
+        android:layout_weight="50">
      
      <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
-
+			
+         	
             <TextView
                 style="@style/sectionHeader"
-                android:layout_margin="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="5dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Main Informations" />
-
-            <EditText
-                android:id="@+id/editor_edit_event_text_title"
+                android:text="@string/MainInfo" />
+			
+            <!-- Event name -->
+            <RelativeLayout 
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:hint="Insert the Title" >
-
-            </EditText>
-
+                android:orientation="horizontal"
+                android:paddingTop="10dp"
+                android:layout_margin="10dp">
+	            
+                <LinearLayout 
+                    android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:orientation="horizontal">
+		            <ImageView 
+		                android:src="@drawable/ic_action_edit"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:contentDescription="@string/EventDescription"/>
+	            </LinearLayout>
+	            <EditText
+	                android:id="@+id/editor_edit_event_text_title"
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_marginLeft="40dp"
+	                android:layout_marginStart="40dp"
+	                android:hint="@string/InsertTitle" >
+	
+	            </EditText>
+			</RelativeLayout>
+			
+			<!-- Location -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:orientation="horizontal" >
-
-                <Button
-                    android:id="@+id/editor_button_location"
-                    style="?android:attr/buttonStyleSmall"
+                
+                
+                <LinearLayout
+                    android:id="@+id/layout_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:text="Set" />
-
-                <TextView
-                    android:id="@+id/editor_text_location"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBaseline="@+id/button1"
-                    android:layout_alignBottom="@+id/button1"
+                    android:layout_centerInParent="true"
                     android:layout_alignParentLeft="true"
-                    android:layout_margin="10dp"
-                    android:layout_toLeftOf="@+id/button1"
-                    android:layout_weight="0.20"
-                    android:text="Location not set" />
+                    android:layout_alignParentStart="true"
+                    android:orientation="horizontal" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/EventDescription"
+                        android:src="@drawable/ic_action_place" />
+                </LinearLayout>
+                
+                <RelativeLayout 
+                    android:id="@+id/layout_location_context"
+                    android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:orientation="horizontal"
+                	android:layout_toRightOf="@+id/layout_image"
+                	android:layout_toEndOf="@+id/layout_image">	                
+	                
+	                <Button
+	                    android:id="@+id/editor_button_location"
+	                    style="?android:attr/buttonStyleSmall"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:layout_alignParentRight="true"
+	                    android:layout_alignParentEnd="true"
+	                    android:layout_alignParentTop="true"
+	                    android:text="@string/Show" />
+	
+	                <TextView
+	                    android:id="@+id/editor_text_location"
+	                    android:layout_width="fill_parent"
+	                    android:layout_height="wrap_content"
+	                    android:layout_centerHorizontal="true"
+	                    android:layout_centerInParent="true"
+	                    android:layout_marginLeft="20dp"
+	                    android:layout_marginStart="20dp"
+	                    android:text="Location not set"/>
+	                    
+				</RelativeLayout>
+
 
             </RelativeLayout>
 
@@ -80,7 +131,7 @@
                 android:layout_margin="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Time Settings" />
+                android:text="@string/categories" />
      
 
 
@@ -89,14 +140,50 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
             
-			 <Spinner 
-			     android:id="@+id/category_spinner"
-			     android:layout_width="match_parent"
-			     android:layout_height="wrap_content"
-			     android:layout_margin="10dp"
-			     />
+            <!-- Category -->
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_margin="10dp" >
+            
+                <LinearLayout
+                    android:id="@+id/layout_image_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:orientation="horizontal" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/EventDescription"
+                        android:src="@drawable/ic_action_labels" />
+                </LinearLayout>
+                
+                <RelativeLayout 
+                    android:id="@+id/layout_category"
+                    android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:orientation="horizontal"
+                	android:layout_toRightOf="@+id/layout_image_category"
+                	android:layout_toEndOf="@+id/layout_image_category">
+				 
+					 <Spinner
+					     android:id="@+id/category_spinner"
+					     android:layout_width="match_parent"
+					     android:layout_height="wrap_content"
+					     android:layout_centerInParent="true" />
+
+			 </RelativeLayout>
 			 
-			 
+                
+                
+                
+			 </RelativeLayout>
 			 <View
 			     android:layout_marginTop="10dp"
 			     android:layout_marginBottom="10dp"

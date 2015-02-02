@@ -320,8 +320,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			public void onClick(View v) {
 				if (fragmentLocations.isHidden()) {
 					showFragment(fragmentLocations);
+					buttonLocation.setText("Hide");
 				} else {
 					hideFragment(fragmentLocations);
+					buttonLocation.setText("Show");
 				}
 			}
 		});
@@ -557,14 +559,14 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	private void hideFragment(Fragment fragment){
 		FragmentManager fm = getSupportFragmentManager();
 		fm.beginTransaction()
-		          //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+		          .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
 		          .hide(fragment)
 		          .commit();
 	}
 	private void showFragment(Fragment fragment){
 		FragmentManager fm = getSupportFragmentManager();
 		fm.beginTransaction()
-		          //.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+		          .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
 		          .show(fragment)
 		          .commit();
 	}
