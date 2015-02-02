@@ -97,15 +97,10 @@ public class CalendarPickerFragment extends Fragment {
 			
 			@Override
 			public void onClick(View v) {
-
-				// TODO get all events from google and put them inside the db
 				dbManager = DatabaseManager.getInstance(getActivity());
-				System.out.println("Inside Welcome " + pager.getCurrentItem());
 				pager.setCurrentItem(pager.getCurrentItem() + 1);
 			}
 		});
-        
-        
         
         return rootView;
         

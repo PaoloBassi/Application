@@ -34,7 +34,8 @@
         
         <activity
             android:name="it.unozerouno.givemetime.view.intro.ScreenSlidePagerActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name" 
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -45,7 +46,8 @@
         android:uiOptions="splitActionBarWhenNarrow" -->
         <activity
             android:name="it.unozerouno.givemetime.view.main.MainActivity"
-            android:label="MainActivity" >
+            android:label="MainActivity"
+            android:configChanges="orientation|screenSize" >
             <meta-data android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow"/>
             <intent-filter>
@@ -55,7 +57,8 @@
         </activity>
         <activity
             android:name="it.unozerouno.givemetime.view.main.SettingsActivity"
-            android:label="Settings">
+            android:label="Settings"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -64,7 +67,8 @@
         <activity
             android:name="it.unozerouno.givemetime.controller.fetcher.PlayServicesController"
             android:label="Account Selection"
-            android:theme="@android:style/Theme.Dialog">
+            android:theme="@android:style/Theme.Dialog"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -72,7 +76,8 @@
          <activity
             android:name="it.unozerouno.givemetime.view.utilities.ApiLoginInterface"
             android:label="Login"
-            android:theme="@android:style/Theme.Dialog">
+            android:theme="@android:style/Theme.Dialog"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -81,23 +86,18 @@
             android:name="it.unozerouno.givemetime.view.editor.EventEditorActivity"
             android:label="Edit Event"
             android:windowSoftInputMode="stateHidden"
+            android:configChanges="orientation|screenSize"
             >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="it.unozerouno.givemetime.view.editor.LocationEditorActivity"
-            android:label="Edit Event"
-            >
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity 
+               <activity 
             android:name="it.unozerouno.givemetime.view.intro.HomeLocationDialogActivity"
             android:label="Set Home Location"
-            android:theme="@android:style/Theme.Holo.Dialog">
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:configChanges="orientation|screenSize"
+            >
             <intent-filter >
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
@@ -105,7 +105,9 @@
         <activity 
             android:name="it.unozerouno.givemetime.view.intro.HomeSleepDialogActivity"
             android:label="Set Sleep Time"
-            android:theme="@android:style/Theme.Holo.Dialog">
+            android:theme="@android:style/Theme.Holo.Dialog"
+            android:configChanges="orientation|screenSize"
+            >
             <intent-filter >
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
@@ -113,6 +115,7 @@
          <activity
             android:name="it.unozerouno.givemetime.view.questions.QuestionActivity"
             android:label="GiveMeTime Question"
+            android:configChanges="orientation|screenSize"
             >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
