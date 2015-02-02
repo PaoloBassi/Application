@@ -544,16 +544,16 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		// duration is an empty string
 		eventToEdit.computeDuration();
 		}
-		
+		// finally add the event to the db 
+
 		if(editOrNew.equals("New")){
 			DatabaseManager.addEvent(this, eventToEdit);
 		
 		} else {
 			DatabaseManager.updateEvent(this, eventToEdit);
 		}
-		// finally add the event to the db 
-		
-	//	EventListFragment.getWeekViewInstance().notifyDatasetChanged();
+		//If this activity has been opened from the calendarView, then update it
+		if(EventListFragment.getWeekViewInstance() != null) EventListFragment.getWeekViewInstance().notifyDatasetChanged();
 	}
 	
 	private void hideFragment(Fragment fragment){

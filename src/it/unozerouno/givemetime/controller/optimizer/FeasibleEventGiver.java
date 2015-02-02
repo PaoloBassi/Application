@@ -77,6 +77,7 @@ public class FeasibleEventGiver {
 						closestEvent = compareEventLocations(closestEvent, eventInstance, currentLocation, when);
 					}
 				}
+				closestFeasibleEvent.updateFinished(closestEvent);
 			}
 		});
 	}
