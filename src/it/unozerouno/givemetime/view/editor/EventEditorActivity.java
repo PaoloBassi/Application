@@ -185,6 +185,8 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	private synchronized void loadEvent(EventInstanceModel eventToLoad){
 		if(eventToLoad == null){
 			GiveMeLogger.log("FATAL ERROR: Editor launched with a non-existing id");
+			EventEditorActivity.this.finish();
+			return;
 		}
 		// when found, assign the corresponding event
 		eventToEdit = eventToLoad;
@@ -233,10 +235,10 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			} else {
 				setSpinnerVisibility(View.GONE);
 			}
-		setSpinnerData(eventToEdit.getEvent().getSeriesStartingDateTime(), eventToEdit.getEvent().getSeriesEndingDateTime());
+			setSpinnerData(eventToEdit.getStartingTime(), eventToEdit.getEndingTime());
 		
 		//Setting isMovable
-		switchIsMovable.setChecked(eventToEdit.getEvent().getIsMovable());
+		//switchIsMovable.setChecked(eventToEdit.getEvent().getIsMovable());
 		switchDoNotDisturb.setChecked(eventToEdit.getEvent().getDoNotDisturb());
 		//Setting constraints
 		if (eventToEdit.getEvent().getConstraints() != null && !eventToEdit.getEvent().getConstraints().isEmpty()) {

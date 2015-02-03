@@ -20,6 +20,7 @@ import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragmen
 import it.unozerouno.givemetime.view.questions.fragments.LocationMismatchFragment.OnLocationMismatchQuestionResponse;
 import it.unozerouno.givemetime.view.questions.fragments.MissingDataFragment.OnOptimizingQuestionResponse;
 import it.unozerouno.givemetime.view.utilities.OnDatabaseUpdatedListener;
+import it.unozerouno.givemetime.view.utilities.TimeConversion;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -45,9 +46,10 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 		//If it's coming from a notification, the intent will contain a long Id
 		//Long lQuestionId = getIntent().getLongExtra(QuestionModel.QUESTION_ID, -1);
 		//If it's coming from a stored notification, the intent will contain an int id.
-		int iQuestionId = getIntent().getIntExtra(QuestionModel.QUESTION_ID, -1);
+		int questionIdFromActivity = getIntent().getIntExtra(QuestionModel.QUESTION_ID, -1);
+		Long questionIdFromNotification = getIntent().getLongExtra(QuestionModel.QUESTION_ID, -1);
 		//Getting the question
-		//iQuestionId = (iQuestionId != -1) ? iQuestionId : lQuestionId.intValue();
+		int iQuestionId = (questionIdFromActivity != -1) ? questionIdFromActivity : questionIdFromNotification.intValue();
 		question = DatabaseManager.getQuestion(this, iQuestionId);
 		//Now we can fetch the event
 		if(question!=null){
@@ -168,6 +170,14 @@ public class QuestionActivity extends ActionBarActivity implements OnLocationMis
 	@Override
 	public void onUpdateClicked(FreeTimeQuestion question) {
 		DatabaseManager.getInstance(getApplicationContext());
+		//Moving the event to now
+		long duration = question.getClosestEvent().getEndingTime().toMillis(false) - question.getClosestEvent().getStartingTime().toMillis(false);
+		Time newStart = new Time();
+		Time newEnd = new Time();
+		newStart.setToNow();
+		newEnd.set(newStart.toMillis(false) + duration);
+		question.getClosestEvent().setStartingTime(newStart);
+		question.getClosestEvent().setEndingTime(newEnd);
 		DatabaseManager.updateEvent(getApplicationContext(), question.getClosestEvent());
 		DatabaseManager.removeQuestion(question.getId());
 		finish();

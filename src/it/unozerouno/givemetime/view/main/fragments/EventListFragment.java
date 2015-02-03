@@ -226,14 +226,9 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
         editIntent.putExtra("EventID", event.getEvent().getID());
         editIntent.putExtra("EventName", event.getEvent().getName());
         // add magic number to ensure that the event is correctly fetched
-        editIntent.putExtra("StartTime", event.getEvent().getSeriesStartingDateTime().toMillis(false) - (long)10000);
+        editIntent.putExtra("StartTime", event.getStartingTime().toMillis(false) - (long)10000);
         // if the event is recursive
-        if (event.getEvent().getSeriesEndingDateTime() != null) {
-        	editIntent.putExtra("EndTime", event.getEvent().getSeriesEndingDateTime().toMillis(false) + (long)10000);
-        } else {
-        	// TODO put here something to handle the NULL field of endTime in EventDescriptor when the event is recursive
-        	// maybe the farthest date possible?
-        }
+        editIntent.putExtra("EndTime", event.getEndingTime().toMillis(false) + (long)10000);
         editIntent.putExtra("Title", event.getEvent().getName());
         // TODO has deadline and other fields
         editIntent.putExtra("AllDayEvent", event.getEvent().isAllDayEvent());
