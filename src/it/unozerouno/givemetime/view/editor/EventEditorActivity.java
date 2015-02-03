@@ -140,7 +140,6 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 			// load all the events infos from provider
 			final String ID = getIntent().getStringExtra("EventID");
 			long startTimeinMillis = getIntent().getLongExtra("StartTime", 0);
-			System.out.println("provaaa" + startTimeinMillis);
 			long endTimeinMillis = getIntent().getLongExtra("EndTime", 0);
 			final Time startTime = new Time();
 			startTime.set(startTimeinMillis);
