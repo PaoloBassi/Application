@@ -11,6 +11,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.TextView;
 
 public class EventInfoDialog extends DialogFragment{
@@ -39,6 +40,15 @@ public class EventInfoDialog extends DialogFragment{
 		eventMovable = (TextView) view.findViewById(R.id.info_event_movable);
 		return view;
 	}
+	
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		Dialog dialog = super.onCreateDialog(savedInstanceState);
+		dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		return dialog;
+		
+	}
+	
 	@Override
 	public void onStart() {
 		super.onStart();
