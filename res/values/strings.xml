@@ -8,6 +8,7 @@
     <string name="secondPage">Calendar Selection</string>
     <string name="skipButton">Skip</string>
     <string name="continueButton">Continue</string>
+    <string name="login">Signin in..</string>
     <string name="welcome_disclaimer_text">Welcome to GiveMeTime! Before starting using the app we\'ll need some little informations to help you organize everything better! \n Keep in mind that the more information you\'ll give to GiveMeTime, the more you\'ll have precise and efficient results. Don\'t worry: we care about your privacy and all the personal datas you\'ll insert will be stored only on your device and you\'ll be the only one who can access them.
 \n The list of your tasks will be safely synchronized with your Google account to let you access your GiveMeTime calendar from every device, anyway, to protect your privacy, the informations related to GiveMeTime will be stored exclusively on your smartphone </string>
     <string name="drawer_open">Open navigation drawer</string>
@@ -49,6 +50,16 @@
     <string name="InsertTitle">Insert the Title</string>
     <string name="Show">Show</string>
     <string name="categories">Event Categories</string>
+    
+    <string name="text_event_name">Title:</string>
+    <string name="text_event_start">Start:</string>
+    <string name="text_event_end">End:</string>
+    <string name="text_event_location">Location:</string>
+    <string name="text_event_category">Category:</string>
+    <string name="text_event_movable">Movable:</string>
+    <string name="text_none">None</string>
+    <string name="text_yes">yes</string>
+    <string name="text_no">no</string>
     
     <string name="place_autocomplete_quota_exceeded">The maximum free user number has been exceeded. You can retry tomorrow. Please donate or purchase GiveMeTime for full functionality!</string>
     <string name="place_autocomplete_key_outdated">Your application is outdated. Please update it on Play Store or send us an email if the error persists.</string>

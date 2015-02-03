@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/text_event_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/text_event_name" />
+
+    <TextView
+        android:id="@+id/text_event_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/text_event_name"
+        android:text="@string/text_event_start" />
+
+    <TextView
+        android:id="@+id/text_event_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/text_event_start"
+        android:text="@string/text_event_end" />
+
+    <TextView
+        android:id="@+id/text_event_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/text_event_end"
+        android:text="@string/text_event_location" />
+
+    <TextView
+        android:id="@+id/text_event_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/text_event_location"
+        android:text="@string/text_event_category" />
+
+    <TextView
+        android:id="@+id/text_event_movable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/text_event_category"
+        android:text="@string/text_event_movable" />
+
+    <TextView
+        android:id="@+id/info_event_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/text_event_name"
+        android:layout_alignBottom="@+id/text_event_name"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/text_event_name"
+        android:text="@string/text_none"
+        android:textStyle="bold"
+         />
+
+    <TextView
+        android:id="@+id/info_event_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/text_event_start"
+        android:layout_alignBottom="@+id/text_event_start"
+        android:layout_toRightOf="@+id/text_event_start"
+        android:text="@string/text_none"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/info_event_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/text_event_end"
+        android:layout_alignBottom="@+id/text_event_end"
+        android:layout_toRightOf="@+id/text_event_end"
+        android:text="@string/text_none"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/info_event_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/text_event_location"
+        android:layout_alignBottom="@+id/text_event_location"
+        android:layout_toRightOf="@+id/text_event_location"
+        android:text="@string/text_none"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/info_event_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/text_event_category"
+        android:layout_alignBottom="@+id/text_event_category"
+        android:layout_toRightOf="@+id/text_event_category"
+        android:text="@string/text_none"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/info_event_movable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/text_event_movable"
+        android:layout_alignBottom="@+id/text_event_movable"
+        android:layout_toRightOf="@+id/text_event_movable"
+        android:text="@string/text_no"
+        android:textStyle="bold" />
+
+</RelativeLayout>

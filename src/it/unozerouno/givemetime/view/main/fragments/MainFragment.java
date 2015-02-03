@@ -22,9 +22,9 @@ import it.unozerouno.givemetime.view.utilities.SwipeDismissListViewTouchListener
 import it.unozerouno.givemetime.view.utilities.SwipeDismissListViewTouchListener.DismissCallbacks;
 import it.unozerouno.givemetime.view.utilities.TimeConversion;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +35,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainFragment extends Fragment implements OnQuestionGenerated{
 	ListView questionList;

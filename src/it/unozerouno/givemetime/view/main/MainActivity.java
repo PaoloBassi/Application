@@ -12,8 +12,8 @@ import it.unozerouno.givemetime.view.utilities.DrawerListAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -181,7 +181,7 @@ public class MainActivity extends ActionBarActivity {
 	
 	        // insert the fragment into the view, replacing the existing one
 	        // obtain the fragment manager
-	        FragmentManager fragmentManager = getFragmentManager();
+	        FragmentManager fragmentManager = getSupportFragmentManager();
 	        // start transaction, replace the fragment, commit
 	        fragmentManager.beginTransaction()
 	                        .replace(R.id.content_frame, fragment)

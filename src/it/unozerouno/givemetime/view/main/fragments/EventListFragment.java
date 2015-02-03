@@ -16,11 +16,11 @@ import it.unozerouno.givemetime.view.utilities.WeekView.MonthChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Outline;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Time;
@@ -126,7 +126,8 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 		};
         
 		//Getting events from Db
-        DatabaseManager.getInstance(getActivity()).getEventsInstances(start, end, getActivity(), eventListener);
+		DatabaseManager.getInstance(getActivity());
+        DatabaseManager.getEventsInstances(start, end, getActivity(), eventListener);
         
   		return view;
 	}
@@ -213,12 +214,12 @@ public class EventListFragment extends Fragment implements MonthChangeListener, 
 
     @Override
     public void onEventClick(EventInstanceModel event, RectF eventRect) {
-        Toast.makeText(this.getActivity(), "Clicked " + event.getEvent().getName(), Toast.LENGTH_SHORT).show();
+    	EventInfoDialog dialog = new EventInfoDialog(getActivity(), event);
+    	dialog.show(getFragmentManager(), getTag());
     }
 
     @Override
     public void onEventLongPress(EventInstanceModel event, RectF eventRect) {
-        Toast.makeText(this.getActivity(), "Long pressed event: " + event.getEvent().getName(), Toast.LENGTH_SHORT).show();
         Intent editIntent = new Intent(this.getActivity(), EventEditorActivity.class);
         // tell the activity that it is an edit call
         editIntent.putExtra("EditOrNew", "Edit"); 
