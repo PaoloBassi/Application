@@ -76,7 +76,7 @@
          <activity
             android:name="it.unozerouno.givemetime.view.utilities.ApiLoginInterface"
             android:label="Login"
-            android:theme="@android:style/Theme.Dialog"
+            android:theme="@android:style/Theme.Holo.Dialog"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -116,7 +116,8 @@
             android:name="it.unozerouno.givemetime.view.questions.QuestionActivity"
             android:label="GiveMeTime Question"
             android:configChanges="orientation|screenSize"
-            >
+			android:theme="@style/QuestionTheme"
+	            >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

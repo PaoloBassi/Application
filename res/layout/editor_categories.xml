@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+      <TextView
+                style="@style/sectionHeader"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/categories" />
+     
+
+
+            
+            <!-- Category -->
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_margin="10dp" >
+            
+                <LinearLayout
+                    android:id="@+id/layout_image_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:orientation="horizontal" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/EventDescription"
+                        android:src="@drawable/ic_action_labels" />
+                </LinearLayout>
+                
+                <RelativeLayout 
+                    android:id="@+id/layout_category"
+                    android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:orientation="horizontal"
+                	android:layout_toRightOf="@+id/layout_image_category"
+                	android:layout_toEndOf="@+id/layout_image_category">
+				 
+					 <Spinner
+					     android:id="@+id/category_fragment_spinner"
+					     android:layout_width="match_parent"
+					     android:layout_height="wrap_content"
+					     android:layout_centerInParent="true" />
+
+			 	</RelativeLayout>   
+                
+			 </RelativeLayout>
+
+</LinearLayout>

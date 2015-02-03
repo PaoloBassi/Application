@@ -23,8 +23,8 @@
             android:id="@+id/question_free_time_event_suggestion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Event Name" />
-
+            android:text="Event Name"
+            android:textStyle="bold" />
 
     </LinearLayout>
   <LinearLayout
@@ -49,14 +49,14 @@
          android:layout_width="132dp"
          android:layout_height="wrap_content"
          android:layout_weight="0.50"
-         android:text="Update event" />
+         android:text="@string/question_button_update" />
 
      <Button
          android:id="@+id/question_freetime_btn_cancel"
          android:layout_width="142dp"
          android:layout_height="wrap_content"
          android:layout_weight="0.50"
-         android:text="Cancel" />
+         android:text="@string/question_button_cancel" />
 
  </LinearLayout>
 

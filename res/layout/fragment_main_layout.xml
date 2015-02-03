@@ -4,10 +4,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <fragment
+        android:id="@+id/main_event_calendar_preview"
+        android:name="it.unozerouno.givemetime.view.main.fragments.EventListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.6"
+        android:layout_gravity="top" />
+	
     <ListView
         android:id="@+id/main_question_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="0dp"
+        android:layout_weight="0.4"
+        android:layout_gravity="bottom"
+         >
     </ListView>
 
 </LinearLayout>
