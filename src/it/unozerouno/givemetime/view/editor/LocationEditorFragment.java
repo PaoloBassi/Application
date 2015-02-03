@@ -13,8 +13,10 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,7 +34,7 @@ public class LocationEditorFragment extends Fragment {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.editor_edit_locations, container, false);
 		fragmentLocationList= (CommonLocationFragment) getChildFragmentManager().findFragmentById(R.id.editor_edit_loactions_common);
-		  AutoCompleteTextView autoCompView = (AutoCompleteTextView) view.findViewById(R.id.editor_edit_locations_autocomplete);
+		  final AutoCompleteTextView autoCompView = (AutoCompleteTextView) view.findViewById(R.id.editor_edit_locations_autocomplete);
 		  //Setting autocomplete  
 		  autoCompView.setAdapter(new PlacesAutoCompleteAdapter(getActivity(), R.layout.element_list_location));
 		    autoCompView.setOnItemClickListener(new OnItemClickListener() {
@@ -40,6 +42,16 @@ public class LocationEditorFragment extends Fragment {
 				public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 					PlaceResult placeSelected = (PlaceResult) adapterView.getItemAtPosition(position);		
 					LocationEditorFragment.this.addPlaceToFavourites(placeSelected);
+				}
+			});
+		    autoCompView.setOnKeyListener(new OnKeyListener() {
+				
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event) {
+					if(event.equals(KeyEvent.KEYCODE_ENTER)){
+						autoCompView.clearFocus();
+					}
+					return false;
 				}
 			});
 		    

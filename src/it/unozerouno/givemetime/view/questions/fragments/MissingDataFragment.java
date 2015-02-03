@@ -1,8 +1,10 @@
 package it.unozerouno.givemetime.view.questions.fragments;
 
 import it.unozerouno.givemetime.R;
+import it.unozerouno.givemetime.model.events.EventCategory;
 import it.unozerouno.givemetime.model.places.PlaceModel;
 import it.unozerouno.givemetime.model.questions.OptimizingQuestion;
+import it.unozerouno.givemetime.view.editor.CategoryFragment;
 import it.unozerouno.givemetime.view.editor.ConstraintsFragment;
 import it.unozerouno.givemetime.view.editor.LocationEditorFragment;
 import it.unozerouno.givemetime.view.editor.LocationEditorFragment.OnSelectedPlaceModelListener;
@@ -23,6 +25,7 @@ public class MissingDataFragment extends Fragment{
 	Button btnCancel;
 	ConstraintsFragment constraintFragment;
 	LocationEditorFragment locationFragment;
+	CategoryFragment categoryFragment;
 	PlaceModel selectedPlace;
 	
 	@Override
@@ -79,7 +82,7 @@ public class MissingDataFragment extends Fragment{
 			@Override
 			public void onClick(View v) {
 				if (question.isMissingCategory()){
-					//TODO: Set categories
+					question.getEventInstance().getEvent().setCategory(categoryFragment.getCategorySelected());
 				}
 				if (question.isMissingConstraints()){
 					question.getEventInstance().getEvent().setConstraints(constraintFragment.getConstraintList());
@@ -91,7 +94,6 @@ public class MissingDataFragment extends Fragment{
 			}
 		});
 		btnCancel.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				mListener.onCancelClicked(question);
@@ -100,15 +102,17 @@ public class MissingDataFragment extends Fragment{
 	}
 	
 	private void missingCategory(OptimizingQuestion question){
-	 	//TODO: add a category selector here
+		categoryFragment = new CategoryFragment();
+	 	addFragment(categoryFragment, "categoryFragment");
 	}
 	private void missingConstraints(OptimizingQuestion question){
 		constraintFragment = new ConstraintsFragment();
+		constraintFragment.setConstraintList(question.getEventInstance().getEvent().getConstraints());
 		addFragment(constraintFragment, "constraintFragment");
 	}
 	private void missingPlace(OptimizingQuestion question){
 		locationFragment = new LocationEditorFragment();
-		//TODO: A listener must be set, but it has to belong to activity
+		//A listener must be set, but it has to belong to activity
 		addFragment(locationFragment, "locationFragment");
 	};
 	

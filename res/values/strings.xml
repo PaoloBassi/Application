@@ -44,6 +44,7 @@
     <string name="calendar_name">Calendar Name</string>
     <string name="calendar_owner">Calendar Owner</string>
     <string name="MainInfo">Main Event Informations</string>
+    <string name="Locations">Event Location</string>
     <string name="EventDescription">Event Description</string>
     <string name="InsertTitle">Insert the Title</string>
     <string name="Show">Show</string>
@@ -69,5 +70,9 @@
 	<string name="question_list_description_freetime">Found compatible event: </string>
 	<string name="question_list_optimizing_question">I need information about: </string>
 	<string name="question_relative_to_deleted_event">This event does not exist anymore</string>
+	<string name="question_button_update">Update Event</string>
+	<string name="question_button_cancel">Cancel</string>
+	<string name="question_button_create">Create new Event</string>
+	<string name="question_button_create_locationmismatch">I was doing something else</string>
 	
 </resources>

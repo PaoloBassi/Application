@@ -53,7 +53,6 @@ import android.widget.TextView.OnEditorActionListener;
 public class EventEditorActivity extends ActionBarActivity implements OnSelectedPlaceModelListener{
 	
 	private String editOrNew;
-	private ScrollView scrollView;
 	private EditText editEventTitle;
 	private TextView textLocation;
 	private Button buttonLocation;
@@ -78,7 +77,6 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 	private Button buttonSave;
 	private String categoryName;
 	private List<String> items; 
-	private EventCategory selectedCategory;
 	private EventInstanceModel eventToEdit;
 	private Toolbar toolbar;
 	private EventListener<EventInstanceModel> eventListener;
@@ -260,7 +258,6 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
         	setSupportActionBar(toolbar);    	
         }
 		
-		 scrollView = (ScrollView) findViewById(R.id.editor_edit_event_scroll);
 		 editEventTitle = (EditText) findViewById(R.id.editor_edit_event_text_title);
 		 
 		 textLocation = (TextView) findViewById(R.id.editor_text_location);

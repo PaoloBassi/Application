@@ -18,6 +18,7 @@
             android:id="@+id/question_missing_data_event_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
             android:text="EventName" />
     </LinearLayout>
 
@@ -55,14 +56,14 @@
             android:layout_width="132dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.50"
-            android:text="Update event Location" />
+            android:text="@string/question_button_update" />
 
         <Button
             android:id="@+id/question_missingdata_btn_cancel"
             android:layout_width="142dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.50"
-            android:text="Cancel" />
+            android:text="@string/question_button_cancel" />
     </LinearLayout>
 
 </LinearLayout>
