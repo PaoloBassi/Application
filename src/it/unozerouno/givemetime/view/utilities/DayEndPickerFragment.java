@@ -3,6 +3,7 @@ package it.unozerouno.givemetime.view.utilities;
 import it.unozerouno.givemetime.view.editor.EventEditorActivity;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -14,13 +15,22 @@ public class DayEndPickerFragment extends DialogFragment implements OnDateSetLis
 	private int day;
 	private int month;
 	private int year;
+	private Time dayEnd;
 	private EventEditorActivity activity;
 	
-	public DayEndPickerFragment(EventEditorActivity eea) {
-		activity = eea;
-		day = eea.getEnd().monthDay;
-		month = eea.getEnd().month;
-		year = eea.getEnd().year;
+	public DayEndPickerFragment(Time dayEnd) {
+		this.dayEnd = dayEnd;
+		System.out.println("ora rilevata: " + dayEnd.hour  + " " + dayEnd.minute);
+		day = dayEnd.monthDay;
+		month = dayEnd.month;
+		year = dayEnd.year;
+		//activity = (EventEditorActivity) getActivity();
+	}
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		this.activity = (EventEditorActivity) activity;
 	}
 	
 	@Override
@@ -37,16 +47,19 @@ public class DayEndPickerFragment extends DialogFragment implements OnDateSetLis
 		// set the text of the data
 		activity.getSpinnerEndDay().setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
 		// set the variable referring to the starting data
-		Time newEndDay = activity.getEnd();
+		Time newEndDay = dayEnd;
 		newEndDay.monthDay = dayOfMonth;
 		newEndDay.month = monthOfYear;
 		newEndDay.year = year;
 		activity.setEnd(newEndDay);
-		
+		System.out.println("ora settata: " + newEndDay.hour  + " " + newEndDay.minute);
 		// if the new end happens after the start, then set the start accordingly. Otherwise, do nothing
 		if (newEndDay.before(activity.getStart())){
 			// set the time of the start the same day as the end
-			activity.setStart(newEndDay);
+			Time start = activity.getStart();
+			start.monthDay = newEndDay.monthDay;
+			start.month = newEndDay.month;
+			start.year = newEndDay.year;
 			activity.getSpinnerStartDay().setText(newEndDay.monthDay + "/" + (newEndDay.month + 1) + "/" + newEndDay.year);
 		}
 		

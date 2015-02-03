@@ -371,7 +371,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		spinnerStartDay.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				DialogFragment newFragment = new DayStartPickerFragment(EventEditorActivity.this);
+				DialogFragment newFragment = new DayStartPickerFragment(eventToEdit.getStartingTime());
 				newFragment.show(getFragmentManager(), "Day Starting Picker");
 				
 			}
@@ -380,7 +380,7 @@ public class EventEditorActivity extends ActionBarActivity implements OnSelected
 		spinnerEndDay.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				DialogFragment newFragment = new DayEndPickerFragment(EventEditorActivity.this);
+				DialogFragment newFragment = new DayEndPickerFragment(eventToEdit.getEndingTime());
 				newFragment.show(getFragmentManager(), "Day Ending Picker");
 				
 			}
