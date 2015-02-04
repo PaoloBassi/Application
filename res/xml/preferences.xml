@@ -8,8 +8,9 @@
         <Preference android:key="debug_user_email" android:title="User Email"/>
         <Preference android:key="debug_user_name" android:title="User Name"/>
         <Preference android:key="debug_user_surname" android:title="User Surname"/>
-        <Preference android:key="debug_user_token" android:title="Token"/>
+    <!--     <Preference android:key="debug_user_token" android:title="Token"/>
         <SwitchPreference android:key="debug_first_time" android:summaryOn="it's the first time the app runs" android:summaryOff="it's not the first time the app runs"/>
+     -->
         <Preference android:key="debug_user_selected_cal_id" android:title="Selected Calendar id"/>
         <Preference android:key="debug_user_selected_cal_name" android:title="Selected Calendar name"/>
     </PreferenceCategory>

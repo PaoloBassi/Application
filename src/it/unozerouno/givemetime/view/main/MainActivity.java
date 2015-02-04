@@ -85,12 +85,11 @@ public class MainActivity extends ActionBarActivity {
         
         dataList.add(new DrawerItem("Menu Options")); // add a header
         dataList.add(new DrawerItem("Calendar", R.drawable.ic_action_event));
-        dataList.add(new DrawerItem("Debug Page", R.drawable.action_search));
         dataList.add(new DrawerItem("Questions", R.drawable.ic_question_generic));
         
         dataList.add(new DrawerItem("Settings")); // add a header
         dataList.add(new DrawerItem("Settings", R.drawable.ic_action_settings));
-        dataList.add(new DrawerItem("About", R.drawable.ic_action_about));
+        //dataList.add(new DrawerItem("About", R.drawable.ic_action_about));
         
         // set the adapters for the list
         adapter = new DrawerListAdapter(this, R.layout.drawer_list_item, dataList);
@@ -123,7 +122,7 @@ public class MainActivity extends ActionBarActivity {
             
         	// both spinner and header are present
         	if(dataList.get(0).isSpinner() && dataList.get(1).getTitle() != null){
-        		selectItem(4);
+        		selectItem(3);
         	// spinner is missing
         	} else if (dataList.get(0).getTitle() != null) {
         		selectItem(1);
@@ -162,17 +161,14 @@ public class MainActivity extends ActionBarActivity {
         	case 2:	fragment = new EventListFragment();
         			args.putString(EventListFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
-        	case 3: fragment = new DebugFragment();
-        			args.putString(DebugFragment.ITEM_NAME, dataList.get(position).getItemName());
-        			break;
-        	case 4: fragment = new MainFragment();
+        	case 3: fragment = new MainFragment();
         			args.putString(MainFragment.ITEM_NAME, dataList.get(position).getItemName());
         			break;
-        	case 6: Intent settings = new Intent(this, SettingsActivity.class);
+        	case 5: Intent settings = new Intent(this, SettingsActivity.class);
     				startActivity(settings);
     				break;
-        	case 7: Toast.makeText(getBaseContext(), "Lauch about popup", Toast.LENGTH_SHORT).show();
-        			break;
+        	//case 6: Toast.makeText(getBaseContext(), "Lauch about popup", Toast.LENGTH_SHORT).show();
+        	//		break;
         }
         
         if (fragment != null){
