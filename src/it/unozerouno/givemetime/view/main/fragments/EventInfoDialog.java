@@ -6,6 +6,8 @@ import it.unozerouno.givemetime.view.utilities.TimeConversion;
 import android.app.Dialog;
 import android.content.Context;
 import android.gesture.GestureOverlayView;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -32,6 +34,10 @@ public class EventInfoDialog extends DialogFragment{
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.event_detail_dialog, container, false);
+		// remove grey outside dialog 
+		getDialog().getWindow().setDimAmount(0);
+		// let the dialog dismiss on touch outside
+		getDialog().setCanceledOnTouchOutside(true);
 		eventName = (TextView) view.findViewById(R.id.info_event_name);
 		eventStart = (TextView) view.findViewById(R.id.info_event_start);
 		eventEnd = (TextView) view.findViewById(R.id.info_event_end);
@@ -44,7 +50,7 @@ public class EventInfoDialog extends DialogFragment{
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Dialog dialog = super.onCreateDialog(savedInstanceState);
-		dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+		dialog.setTitle("Event Recap");
 		return dialog;
 		
 	}

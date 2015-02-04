@@ -54,6 +54,7 @@
     <string name="eventName">Event Name</string>
     <string name="hasSetLocation">Has set location: </string>
     <string name="missing_data">Your event has the following missing data:</string>
+    <string name="last_page_textView">Please, fill the available option with data for better recomendations!</string>
     
     <string name="text_event_name">Title:</string>
     <string name="text_event_start">Start:</string>
