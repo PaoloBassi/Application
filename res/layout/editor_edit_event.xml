@@ -219,7 +219,7 @@
 					android:layout_marginTop="5dp"
                 	android:orientation="horizontal">
 		            <ImageView 
-		                android:src="@drawable/ic_action_edit"
+		                android:src="@drawable/ic_action_go_to_today"
 		                android:layout_width="wrap_content"
 		                android:layout_height="wrap_content"
 		                android:contentDescription="@string/EventDescription"/>
@@ -283,7 +283,7 @@
 	                    android:layout_alignParentStart="true"
 	                	android:orientation="horizontal">
 			            <ImageView 
-			                android:src="@drawable/ic_action_edit"
+			                android:src="@drawable/ic_action_refresh"
 			                android:layout_width="wrap_content"
 			                android:layout_height="wrap_content"
 			                android:contentDescription="@string/EventDescription"/>
@@ -294,7 +294,7 @@
 				     android:layout_width="match_parent"
 				     android:layout_height="wrap_content"
 				     android:layout_toRightOf="@+id/linear_repetition_layout"
-				     android:layout_toEndOf="@+id/linear_repetition_layout"
+				     android:layout_toEndOf="@+id/linea"
 				     android:layout_margin="10dp"
 			     />
 			</RelativeLayout>	 
