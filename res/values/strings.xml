@@ -55,6 +55,11 @@
     <string name="hasSetLocation">Has set location: </string>
     <string name="missing_data">Your event has the following missing data:</string>
     <string name="last_page_textView">Please, fill the available option with data for better recomendations!</string>
+    <string name="location_not_set">Location not set</string>
+    <string name="deadline">Deadline</string>
+    <string name="has_deadline">Has deadline</string>
+    <string name="event_deadline">This event has no deadline</string>
+    <string name="event_repetition">Event Repetition</string>
     
     <string name="text_event_name">Title:</string>
     <string name="text_event_start">Start:</string>
@@ -73,7 +78,7 @@
     <string name="editor_constraints_daypicker_title">Week Day Constraints</string>
     <string name="editor_hasdeadline_text">This event has a deadline</string>
     <string name="editor_hasnodeadline_text">This event is a task without deadline</string>
-    <string name="location_not_set">None</string>
+    <string name="none">None</string>
 	<string-array name="Repetitions">
 	    <item>Do not repeat</item>
 	    <item>Every Day</item>
