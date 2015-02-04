@@ -1,42 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <LinearLayout
+        android:id="@+id/event_name_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:padding="10dp" >
 
         <TextView
             android:id="@+id/question_missing_data_event_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Event:" />
+            android:text="@string/event" />
 
         <TextView
             android:id="@+id/question_missing_data_event_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="EventName" />
+            android:text="@string/eventName" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_below="@+id/event_name_layout" >
 
         <TextView
             android:id="@+id/question_missing_data_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your event has the following missing data:" />
+            android:text="@string/missing_data" />
     </LinearLayout>
 
     <ScrollView
         android:id="@+id/question_missingdata_scrollview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/event_name_layout"
+        android:paddingTop="40dp"
+         >
 
         <LinearLayout
             android:id="@+id/question_missingdata_container"
@@ -46,24 +53,38 @@
         </LinearLayout>
     </ScrollView>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom" >
+        android:layout_alignParentBottom="true" >
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/question_missingdata_btn_update"
-            android:layout_width="132dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.50"
+            android:layout_toLeftOf="@+id/center_point"
+            android:layout_toStartOf="@+id/center_point"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:text="@string/question_button_update" />
 
+        <View
+	         android:id="@+id/center_point"
+	         android:layout_centerInParent="true"
+	         android:layout_width="0dp"
+	         android:layout_height="0dp"/>
+        
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/question_missingdata_btn_cancel"
-            android:layout_width="142dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.50"
+           	android:layout_toRightOf="@+id/center_point"
+           	android:layout_toEndOf="@+id/center_point"
+           	android:layout_alignParentRight="true"
+           	android:layout_alignParentEnd="true"
             android:text="@string/question_button_cancel" />
-    </LinearLayout>
+    </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

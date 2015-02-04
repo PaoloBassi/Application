@@ -1,48 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <LinearLayout
+        android:id="@+id/linear_event_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:padding="10dp" >
 
         <TextView
             android:id="@+id/question_location_mismatch_event_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Event " />
+            android:text="@string/event" />
 
         <TextView
             android:id="@+id/question_location_mismatch_event_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="EventName" />
+            android:text="@string/eventName" />
 
     </LinearLayout>
      <LinearLayout
+         android:id="@+id/linear_location"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linear_event_name"
+        android:padding="10dp" >
 
         <TextView
             android:id="@+id/question_location_mismatch_event_place_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="has set location: " />
+            android:text="@string/hasSetLocation" />
 
         <TextView
             android:id="@+id/question_location_mismatch_event_set_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="EventPlace" />
+            android:text="@string/Locations" />
 
     </LinearLayout>
   <LinearLayout
+      android:id="@+id/linear_location_nearby"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linear_location"
+        android:padding="10dp" >
 
         <TextView
             android:id="@+id/question_location_mismatch_location_text"
@@ -59,8 +67,11 @@
 
     </LinearLayout>
     <LinearLayout
+        android:id="@+id/linear_question"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linear_location_nearby"
+        android:padding="10dp" >
 
         <TextView
             android:id="@+id/question_location_question_text"
@@ -70,30 +81,46 @@
 
     </LinearLayout>
 
- <LinearLayout
-     android:layout_width="match_parent"
-     android:layout_height="wrap_content" >
-
-     <Button
-         android:id="@+id/question_location_btn_update"
-         android:layout_width="132dp"
-         android:layout_height="wrap_content"
-         android:layout_weight="0.50"
-         android:text="@string/question_button_update"
-         />
-     <Button
-         android:id="@+id/question_location_btn_cancel"
-         android:layout_width="142dp"
-         android:layout_height="wrap_content"
-         android:layout_weight="0.50"
-         android:text="@string/question_button_cancel" />
-
- </LinearLayout>
-
- <Button
-     android:id="@+id/question_location_btn_create"
+ <RelativeLayout
      android:layout_width="match_parent"
      android:layout_height="wrap_content"
-     android:text="@string/question_button_create_locationmismatch" />
+     android:layout_alignParentBottom="true" >
 
-</LinearLayout>
+     <Button
+         style="?android:attr/buttonBarButtonStyle"
+         android:id="@+id/question_location_btn_update"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentLeft="true"
+         android:layout_toLeftOf="@+id/center_point"
+         android:text="@string/question_button_update"
+         />
+     <View
+         android:id="@+id/center_point"
+         android:layout_centerInParent="true"
+         android:layout_width="0dp"
+         android:layout_height="0dp"
+         
+         />
+     
+     <Button
+         style="?android:attr/buttonBarButtonStyle"
+         android:id="@+id/question_location_btn_cancel"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_toRightOf="@+id/center_point"
+         android:layout_alignParentRight="true"
+         android:text="@string/question_button_cancel" />
+      <Button
+         style="?android:attr/buttonBarButtonStyle" 
+	     android:id="@+id/question_location_btn_create"
+	     android:layout_width="match_parent"
+	     android:layout_height="wrap_content"
+	     android:layout_below="@+id/question_location_btn_update"
+	     android:text="@string/question_button_create_locationmismatch" />
+
+ </RelativeLayout>
+
+
+
+</RelativeLayout>
