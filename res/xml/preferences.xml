@@ -4,7 +4,7 @@
         android:key="toolbar"
         />
     <PreferenceCategory android:title="Debug" android:key="debug_category">
-        <Preference android:title="Wipe Shared Preferences" android:key="debug_wipe"/>
+        <Preference android:title="Logout" android:key="debug_wipe"/>
         <Preference android:key="debug_user_email" android:title="User Email"/>
         <Preference android:key="debug_user_name" android:title="User Name"/>
         <Preference android:key="debug_user_surname" android:title="User Surname"/>

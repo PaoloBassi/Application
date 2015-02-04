@@ -23,8 +23,8 @@ public class SettingsFragment extends PreferenceFragment{
 	Preference debugUserEmail;
 	Preference debugUserName;
 	Preference debugUserSurname;
-	Preference debugToken;
-	SwitchPreference debugFirstTime;
+	//Preference debugToken;
+	//SwitchPreference debugFirstTime;
 	Preference debugCalendarId;
 	Preference debugCalendarName;
 	
@@ -42,8 +42,8 @@ public class SettingsFragment extends PreferenceFragment{
       debugUserName = (Preference) findPreference("debug_user_name");
       debugUserSurname = (Preference) findPreference("debug_user_surname");
       debugWipeSettings = (Preference) findPreference("debug_wipe");
-      debugToken = (Preference) findPreference("debug_user_token"); 
-      debugFirstTime = (SwitchPreference) findPreference("debug_first_time");
+      //debugToken = (Preference) findPreference("debug_user_token"); 
+      //debugFirstTime = (SwitchPreference) findPreference("debug_first_time");
       debugCalendarId = (Preference) findPreference("debug_user_selected_cal_id");  
       debugCalendarName = (Preference) findPreference("debug_user_selected_cal_name"); 
        
@@ -51,8 +51,8 @@ public class SettingsFragment extends PreferenceFragment{
        debugUserEmail.setSummary(UserKeyRing.getUserEmail(this.getActivity()));
        debugUserName.setSummary(UserKeyRing.getUserName(getActivity()));
        debugUserSurname.setSummary(UserKeyRing.getUserSurname(getActivity()));
-       debugToken.setSummary(UserKeyRing.getToken(this.getActivity()));
-       debugFirstTime.setChecked(UserKeyRing.isFirstTimeLogin(getActivity()));
+       //debugToken.setSummary(UserKeyRing.getToken(this.getActivity()));
+       //debugFirstTime.setChecked(UserKeyRing.isFirstTimeLogin(getActivity()));
        debugCalendarId.setSummary(UserKeyRing.getCalendarId(getActivity()));
        debugCalendarName.setSummary(UserKeyRing.getCalendarName(getActivity()));
        
@@ -67,8 +67,9 @@ public class SettingsFragment extends PreferenceFragment{
 				return false;
 			}
 		});
+       
        //Setting Action for DebugFirstTime
-       debugFirstTime.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+       /*debugFirstTime.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			boolean switched = ((SwitchPreference) preference).isChecked();
@@ -76,7 +77,7 @@ public class SettingsFragment extends PreferenceFragment{
 			Toast.makeText(getActivity(), "Setting Saved", Toast.LENGTH_SHORT).show();
 			return true;
 		}
-	});
+	});*/
        
     }
     
