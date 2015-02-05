@@ -226,8 +226,8 @@ public class GiveMeTimeService extends IntentService{
 							
 							@Override
 							protected void onUpdateFinished(EventInstanceModel closestEvent) {
-								TimeConstraint sleepTime = DatabaseManager.getUserSleepTime(UserKeyRing.getUserEmail(getApplicationContext()) );
-								if (closestEvent != null && sleepTime != null && !sleepTime.isActive()){
+								//TimeConstraint sleepTime = DatabaseManager.getUserSleepTime(UserKeyRing.getUserEmail(getApplicationContext()) );
+								if (closestEvent != null/* && sleepTime != null && !sleepTime.isActive()*/){
 									showNotification("Maybe you could do:" + closestEvent.getEvent().getName());
 									Time now = new Time();
 									now.setToNow();
